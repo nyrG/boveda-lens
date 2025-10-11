@@ -489,15 +489,15 @@ This component will provide the user interface for logging in.
 
     ```bash
     # Run from the frontend/ directory
-    # We will place route-level components in a `pages` directory for better organization.
-    ng generate component pages/login --standalone
+    # We will place route-level components in a `pages` directory.
+    ng generate component pages/login
     ```
 
     > **Note on Naming**: Your Angular CLI setup generates files without the `.component` suffix (e.g., `login.ts`). We will follow this convention for consistency. The class name will be `Login`.
 
 2.  **Action**: Create a simple login form in `login.component.html`.
 
-    > Note: The file will be `login.html` based on the generator output.
+    > Note: The file will be `login.html` based on your generator settings.
 
     ```html
     <!-- frontend/src/app/components/login/login.component.html -->
@@ -569,7 +569,7 @@ This component will provide the user interface for logging in.
         this.authService.login(this.credentials).subscribe({
           next: () => {
             // On successful login, navigate to a protected route (e.g., '/profile')
-            // We will create this route in the next step.
+            // We will create this route and a proper dashboard later.
             this.router.navigate(["/profile"]);
           },
           error: (err) => {
@@ -594,8 +594,8 @@ Set up the application's routes to navigate between the login page and a future 
 
     export const routes: Routes = [
       { path: "login", component: Login },
-      // We will add a protected '/profile' route and an auth guard later
-      // { path: 'profile', component: ProfileComponent, canActivate: [authGuard] },
+      // We will add a protected '/profile' route and an auth guard in a later step.
+      // { path: "profile", component: ProfileComponent, canActivate: [authGuard] },
       { path: "", redirectTo: "/login", pathMatch: "full" },
     ];
     ```
@@ -634,7 +634,7 @@ Now, let's create a simple profile page that will only be accessible to logged-i
 1.  **Action**: Generate the `Profile` component.
 
     ```bash
-    # Run from the frontend/ directory
+    # Run from the frontend/ directory. This is a temporary component.
     ng generate component pages/profile --standalone
     ```
 
@@ -739,9 +739,7 @@ Finally, update the application's routes to use the new component and protect it
 
      export const routes: Routes = [
        { path: "login", component: Login },
-       // We will add a protected '/profile' route and an auth guard later
-    -  // { path: 'profile', component: ProfileComponent, canActivate: [authGuard] },
-    +  { path: 'profile', component: Profile, canActivate: [authGuard] },
+       { path: "profile", component: Profile, canActivate: [authGuard] }, // This will be replaced by the main app layout
        { path: "", redirectTo: "/login", pathMatch: "full" },
      ];
     ```
@@ -758,16 +756,39 @@ Finally, update the application's routes to use the new component and protect it
 
 ## Phase 3: Hybrid Integration & Gradual Migration
 
-Once the new User Management feature is ready, you will integrate it with the old application.
+Once the core authentication is in place, we will build out the main application shell and begin migrating features from the legacy application into the new Angular structure, as defined in `ANGULAR_MIGRATION_COMPONENTS.md`.
 
-1.  **Build the Angular App**: Run `npm run build:frontend` from the root. This creates a `dist/frontend/browser` directory with your production-ready static files.
-2.  **Configure NestJS for Hybrid Serving**: In `backend/src/main.ts`, configure the `serve-static` module to serve both the new Angular app (at the root `/`) and the old frontend files (e.g., from `/legacy`). After a user logs in via the Angular app, they will be redirected to the legacy patient management pages.
+### Step 3.1: Build the Main Application Layout
 
-3.  **Incremental Migration**: After the initial integration is stable, you can begin migrating existing features from the old Vanilla JS app into new Angular components, one by one. Good candidates to migrate next are:
-    - The Patient List table.
-    - The Patient Detail view.
-    - The PDF upload/extraction form.
+1.  **Action**: Create the main layout components.
+    ```bash
+    # Run from the frontend/ directory
+    ng g component layout/header
+    ng g component layout/sidebar
+    ```
+2.  **Action**: Update `app.component.html` to include the new layout and a `<router-outlet>`.
+3.  **Action**: Update `app.routes.ts` to use a main application route (e.g., `/dashboard`) protected by the `authGuard`, and make it the default route after login. The temporary `/profile` route can be removed.
 
-4.  **Decommission**: Once **all** features are migrated into Angular and the hybrid setup is no longer needed, you can safely delete the old frontend files from the `backend/public` directory.
+### Step 3.2: Incremental Feature Migration
+
+After the main layout is stable, begin migrating existing features from the old Vanilla JS app into new, self-contained Angular components. The goal is to replace the legacy UI piece by piece.
+
+A good migration order would be:
+
+1.  **Record List**:
+    - Create `pages/records` to host the list.
+    - Create `features/record-list-controls` for search and filtering.
+    - Create `features/record-list` for the main data table and pagination.
+    - Create `services/record-api` and `services/record-state` to manage fetching and holding record data.
+2.  **PDF Upload & Extraction**:
+    - Create `features/pdf-upload-modal` as a modal component.
+    - Create `services/extraction-api` to handle the file upload and processing logic.
+3.  **Record Detail View**:
+    - Create `pages/record-detail` which will be activated on a route like `/records/:id`.
+    - Migrate each tab from the old UI into its own feature component: `features/record-summary`, `features/record-consultations`, `features/record-labs`, etc.
+
+### Step 3.3: Decommissioning
+
+Once **all** features are migrated into Angular, you can safely delete the old frontend files from the `backend/public` directory and remove any hybrid serving logic from `backend/src/main.ts`.
 
 This plan provides a structured path from your current setup to a modern, maintainable monorepo. Good luck!

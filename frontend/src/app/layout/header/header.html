@@ -1,0 +1,71 @@
+<header class="bg-white h-16 flex items-center border-b border-slate-200">
+  <!-- Logo container with fixed width matching the sidebar -->
+  <div class="w-64 flex-shrink-0 flex items-center px-6 h-full">
+    <!-- App Logo -->
+    <a routerLink="/" class="flex items-center gap-3" title="Bóveda Lens Home">
+      <img src="assets/logo.png" alt="Boveda Logo" class="h-6 w-6" />
+      <span class="text-xl font-semibold text-slate-800">Bóveda Lens</span>
+    </a>
+  </div>
+
+  <!-- Main header content area -->
+  <div class="flex-1 flex items-center justify-between px-6">
+    <!-- Search Bar -->
+    <div
+      class="flex items-center gap-2 border border-slate-200 rounded-md px-3 py-1.5 w-96 focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500 transition-colors"
+    >
+      <i class="fa-solid fa-search text-slate-400"></i>
+      <input
+        type="text"
+        placeholder="Search records..."
+        class="text-sm focus:outline-none bg-transparent w-full"
+      />
+    </div>
+
+    <!-- Right Section: Actions & User Profile -->
+    <div class="flex items-center gap-4">
+      <button
+        class="h-10 w-10 flex items-center justify-center rounded-full hover:bg-slate-100 transition-colors"
+      >
+        <i class="fa-regular fa-bell text-slate-600"></i>
+      </button>
+
+      <div class="relative">
+        <!-- User Profile Button -->
+        <button
+          (click)="toggleProfileMenu()"
+          class="flex items-center justify-center h-9 w-9 bg-blue-600 text-white rounded-full font-semibold text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+        >
+          T
+        </button>
+
+        <!-- Profile Dropdown Menu -->
+        @if (isProfileMenuOpen()) {
+          <div
+            class="absolute right-0 mt-2 w-56 origin-top-right bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-20"
+          >
+            <div class="py-1" role="menu" aria-orientation="vertical">
+              <a routerLink="/profile" class="dropdown-menu-item" role="menuitem">
+                <i class="fa-regular fa-user w-5"></i>
+                <span>My Profile</span>
+              </a>
+              <a routerLink="/settings" class="dropdown-menu-item" role="menuitem">
+                <i class="fa-solid fa-gear w-5"></i>
+                <span>Settings</span>
+              </a>
+              <a routerLink="/docs" class="dropdown-menu-item" role="menuitem">
+                <i class="fa-solid fa-book w-5"></i>
+                <span>Documentation</span>
+              </a>
+              <div class="border-t border-slate-100 my-1"></div>
+              <a (click)="logout()" class="dropdown-menu-item cursor-pointer" role="menuitem">
+                <i class="fa-solid fa-right-from-bracket w-5"></i>
+                <span>Logout</span>
+              </a>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+</header>

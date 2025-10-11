@@ -20,9 +20,8 @@ export class Login {
     this.errorMessage = ""; // Reset error message
     this.authService.login(this.credentials).subscribe({
       next: () => {
-        // On successful login, navigate to a protected route (e.g., '/profile')
-        // We will create this route in the next step.
-        this.router.navigate(["/profile"]);
+        // On successful login, navigate to the main dashboard.
+        this.router.navigate(["/dashboard"]);
       },
       error: (err) => {
         console.error("Login failed", err);
