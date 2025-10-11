@@ -3,15 +3,15 @@ import { Login } from "./pages/login/login";
 import { Profile } from "./pages/profile/profile";
 import { authGuard } from "./guards/auth-guard";
 import { Dashboard } from "./pages/dashboard/dashboard";
-//import { Settings } from "./pages/settings/settings";
-//import { Docs } from "./pages/docs/docs";
+import { Settings } from "./pages/settings/settings";
+import { Docs } from "./pages/docs/docs";
 
 export const routes: Routes = [
     { path: "login", component: Login },
     { path: "dashboard", component: Dashboard, canActivate: [authGuard] },
     { path: "profile", component: Profile, canActivate: [authGuard] },
-    //{ path: "settings", component: Settings, canActivate: [authGuard] },
-    //{ path: "docs", component: Docs, canActivate: [authGuard] },
-    // Redirect to dashboard if logged in, otherwise to login
+    { path: "settings", component: Settings, canActivate: [authGuard] },
+    { path: "docs", component: Docs, canActivate: [authGuard] },
+    //Redirect to dashboard if logged in, otherwise to login
     { path: "", redirectTo: "/dashboard", pathMatch: "full" },
 ];

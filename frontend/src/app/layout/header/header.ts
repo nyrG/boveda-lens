@@ -7,6 +7,7 @@ import {
 } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { LayoutService } from '../../services/layout.service';
 
 @Component({
   selector: 'app-header',
@@ -19,6 +20,7 @@ export class Header {
   private authService = inject(AuthService);
   private router = inject(Router);
   private eRef = inject(ElementRef);
+  layoutService = inject(LayoutService);
 
   isProfileMenuOpen = signal(false);
 
