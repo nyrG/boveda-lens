@@ -1,1 +1,82 @@
-<p>record-list works!</p>
+<main class="main-content bg-white rounded-lg shadow-sm">
+  <div class="overflow-x-auto">
+    @if (records().length > 0) {
+      <table class="min-w-full">
+        <thead>
+          <tr>
+            <th class="w-12 align-middle">
+              <input
+                type="checkbox"
+                class="block h-4 w-4 rounded border-gray-300"
+                [checked]="selectAll()"
+                (change)="onSelectAll($event)"
+              />
+            </th>
+            <th>Patient Name</th>
+            <th>Record #</th>
+            <th>Final Diagnosis</th>
+            <th>Category</th>
+          </tr>
+        </thead>
+        <tbody class="bg-white">
+          @for (record of records(); track record.id) {
+            <tr>
+              <td>
+                <input
+                  type="checkbox"
+                  class="patient-checkbox h-4 w-4 rounded border-gray-300"
+                  [checked]="selectedRecordIds().has(record.id)"
+                  (change)="onSelectRow(record.id, $event)"
+                />
+              </td>
+              <td>{{ record.name || 'N/A' }}</td>
+              <td>{{ record.patient_info.patient_record_number || 'N/A' }}</td>
+              <td class="truncate-cell">{{ getFinalDiagnosis(record) }}</td>
+              <td>{{ record.patient_info.category || 'N/A' }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    } @else {
+      <p class="text-gray-500 py-8 text-center">No patients found.</p>
+    }
+  </div>
+  <footer class="p-4 border-t border-slate-200 flex items-center justify-between">
+    <div class="pagination-controls">
+      <span class="text-sm text-slate-600">Rows per page:</span>
+      <select class="rows-per-page-select" (change)="onRowsPerPageChange($event)">
+        <option value="10" [selected]="rowsPerPage() === 10">10</option>
+        <option value="25" [selected]="rowsPerPage() === 25">25</option>
+        <option value="50" [selected]="rowsPerPage() === 50">50</option>
+      </select>
+      <span class="text-sm text-slate-600">{{ getPaginationSummary() }}</span>
+    </div>
+    <nav class="flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <button
+          class="pagination-btn"
+          [disabled]="currentPage() === 1"
+          (click)="onPageChange(currentPage() - 1)"
+        >
+          Prev
+        </button>
+        @for (page of [].constructor(totalPages()); track $index) {
+          <button
+            class="pagination-page-btn"
+            [class.active]="$index + 1 === currentPage()"
+            (click)="onPageChange($index + 1)"
+          >
+            {{ $index + 1 }}
+          </button>
+        }
+        <button
+          class="pagination-btn"
+          [disabled]="currentPage() === totalPages()"
+          (click)="onPageChange(currentPage() + 1)"
+        >
+          Next
+        </button>
+      </div>
+    </nav>
+  </footer>
+</main>
