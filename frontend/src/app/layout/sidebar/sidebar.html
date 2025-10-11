@@ -1,0 +1,43 @@
+<aside
+  class="bg-white text-slate-600 border-r border-slate-200 h-full grid transition-all duration-300"
+  [style.grid-template-columns]="layoutService.isSidebarCollapsed() ? '5rem 0' : '5rem 8rem'"
+>
+  <!-- Icon Column -->
+  <nav class="p-2 overflow-hidden">
+    <ul class="space-y-1 list-none">
+      @for (item of navItems; track item.link) {
+        <li>
+          <a
+            [routerLink]="item.link"
+            [title]="layoutService.isSidebarCollapsed() ? item.text : null"
+            class="flex items-center justify-center h-10 rounded-lg text-sm transition-colors hover:bg-slate-100"
+            routerLinkActive="text-blue-600"
+            [routerLinkActiveOptions]="{ exact: !!item.exact }"
+          >
+            <i class="fa-solid {{ item.icon }} w-5 text-center text-lg"></i>
+          </a>
+        </li>
+      }
+    </ul>
+  </nav>
+
+  <!-- Text Column -->
+  <nav
+    class="p-2 overflow-hidden transition-opacity duration-200"
+    [class.opacity-0]="layoutService.isSidebarCollapsed()"
+  >
+    <ul class="space-y-1 list-none">
+      @for (item of navItems; track item.link) {
+        <li>
+          <a
+            [routerLink]="item.link"
+            class="flex items-center h-10 rounded-lg text-sm transition-colors pr-4 whitespace-nowrap hover:bg-slate-100"
+            routerLinkActive="font-semibold text-blue-600"
+            [routerLinkActiveOptions]="{ exact: !!item.exact }"
+            >{{ item.text }}</a
+          >
+        </li>
+      }
+    </ul>
+  </nav>
+</aside>
