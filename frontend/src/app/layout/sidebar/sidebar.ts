@@ -1,17 +1,39 @@
-import { Component, inject } from '@angular/core';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { Component, ElementRef, HostListener, inject, signal } from '@angular/core';
+import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { LayoutService } from '../../services/layout.service';
-import { Footer } from '../footer/footer';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-sidebar',
   standalone: true,
-  imports: [RouterLink, RouterLinkActive, Footer],
+  imports: [RouterLink, RouterLinkActive],
   templateUrl: './sidebar.html',
   styleUrl: './sidebar.css',
 })
 export class Sidebar {
   layoutService = inject(LayoutService);
+  private authService = inject(AuthService);
+  private router = inject(Router);
+  private eRef = inject(ElementRef);
+
+  isProfileMenuOpen = signal(false);
+
+  // Close dropdown if clicked outside
+  @HostListener('document:click', ['$event'])
+  clickout(event: MouseEvent) {
+    if (!this.eRef.nativeElement.contains(event.target)) {
+      this.isProfileMenuOpen.set(false);
+    }
+  }
+
+  toggleProfileMenu() {
+    this.isProfileMenuOpen.set(!this.isProfileMenuOpen());
+  }
+
+  logout() {
+    this.authService.logout();
+    this.router.navigate(['/login']);
+  }
 
   navItems = [
     {
