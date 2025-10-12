@@ -1,0 +1,43 @@
+<!-- Filter/Sort Controls -->
+<div class="flex flex-col gap-4">
+  <div class="flex flex-col gap-2">
+    <!-- Category Filter -->
+    <label class="text-sm font-medium text-slate-600">Category</label>
+    <select
+      class="w-full block px-3 py-2 border border-slate-300 rounded-md bg-white focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+      (change)="onFilterCategoryChange($event)"
+    >
+      <option value="">All Categories</option>
+      @for (category of recordState.categories(); track category) {
+        <option [value]="category">{{ category }}</option>
+      }
+    </select>
+  </div>
+
+  <div class="flex flex-col gap-2">
+    <!-- Sort Controls -->
+    <label class="text-sm font-medium text-slate-600">Sort By</label>
+    <div class="flex items-center gap-1">
+      <select
+        class="w-full block px-3 py-2 border border-slate-300 rounded-md bg-white focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+        (change)="onSortByChange($event)"
+      >
+        @for (option of sortOptions.entries(); track option[0]) {
+          <option [value]="option[0]" [selected]="recordState.sortBy() === option[0]">
+            {{ option[1] }}
+          </option>
+        }
+      </select>
+      <button
+        class="px-3 py-2 border border-slate-300 rounded-md bg-white hover:bg-slate-50 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+        (click)="recordState.toggleSortOrder()"
+      >
+        @if (recordState.sortOrder() === 'ASC') {
+          <i class="fa-solid fa-arrow-up-long h-4 w-4 text-slate-600"></i>
+        } @else {
+          <i class="fa-solid fa-arrow-down-long h-4 w-4 text-slate-600"></i>
+        }
+      </button>
+    </div>
+  </div>
+</div>

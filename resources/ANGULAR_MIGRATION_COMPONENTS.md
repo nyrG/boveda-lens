@@ -1,6 +1,6 @@
 # Boveda-Lens: Proposed Angular Application Structure
 
-This document outlines the proposed file structure for migrating the Boveda-Lens frontend to Angular. The structure is designed to be modular, scalable, and maintainable, following modern Angular (v17+) best practices, including standalone components and domain-driven naming conventions.
+This document outlines the proposed file structure for migrating the Boveda-Lens frontend to Angular. The structure is designed to be modular, scalable, and maintainable, following modern Angular (v20+) best practices, including standalone components and domain-driven naming conventions.
 
 This plan breaks down the monolithic `script.js` and `index.html` files into a logical hierarchy of components, services, and data models, incorporating a more generalized "Record" terminology.
 
@@ -12,7 +12,7 @@ These files establish the main application shell, routing, and overall page layo
 
 - `app/app.config.ts`: The main application configuration file. It will register providers for routing, HTTP client functionality, and other core services.
 - `app/app.routes.ts`: Defines the application's top-level routes, such as `/dashboard`, `/records`, and `/records/:id`.
-- `app/app.component.ts`: The root component of the application. It will contain the main layout, including the header, a persistent sidebar, and a `<router-outlet>` to render page components.
+- `app/app.ts`: The root component of the application. It will contain the main layout, including the header, a persistent sidebar, and a `<router-outlet>` to render page components.
 - `app/layout/header.ts`: A clean header component containing the logo, breadcrumbs, and a user profile dropdown.
 - `app/layout/sidebar.ts`: A persistent, minimizable sidebar for primary navigation (e.g., links to Dashboard and Records).
 - `app/layout/footer.ts`: A simple, reusable component for the site footer.

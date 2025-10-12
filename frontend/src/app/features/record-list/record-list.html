@@ -1,0 +1,101 @@
+<main class="main-content bg-white rounded-lg border border-slate-200">
+  <div class="overflow-x-auto">
+    @if (recordState.records().length > 0) {
+      <table class="min-w-full">
+        <thead>
+          <tr class="border-b border-slate-200">
+            <th class="p-4 w-12 text-left text-sm font-bold text-slate-800">
+              <input
+                type="checkbox"
+                class="h-4 w-4 rounded border-gray-300"
+                [checked]="isSelectAllChecked()"
+                (change)="onSelectAll($event)"
+              />
+            </th>
+            <th class="p-4 text-left text-sm font-bold text-slate-800">Patient Name</th>
+            <th class="p-4 text-left text-sm font-bold text-slate-800">Record #</th>
+            <th class="p-4 text-left text-sm font-bold text-slate-800">Final Diagnosis</th>
+            <th class="p-4 text-left text-sm font-bold text-slate-800">Category</th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-slate-200">
+          @for (record of recordState.records(); track record.id) {
+            <tr
+              class="hover:bg-slate-50 cursor-pointer"
+              style="box-shadow: inset 0 0 0 0 var(--color-primary)"
+              onmouseover="this.style.boxShadow='inset 3px 0 0 0 var(--color-primary)';"
+              onmouseout="this.style.boxShadow='inset 0 0 0 0 var(--color-primary)';"
+            >
+              <td class="py-3 px-4">
+                <input
+                  type="checkbox"
+                  class="patient-checkbox h-4 w-4 rounded border-gray-300"
+                  [checked]="recordState.selectedRecordIds().has(record.id)"
+                  (change)="onSelectRow(record.id, $event)"
+                />
+              </td>
+              <td class="py-3 px-4 text-sm text-slate-600">
+                {{ record.name || 'N/A' }}
+              </td>
+              <td class="py-3 px-4 text-sm text-slate-600">
+                {{ record.patient_info.patient_record_number || 'N/A' }}
+              </td>
+              <td class="py-3 px-4 text-sm text-slate-600 max-w-xs truncate">
+                {{ getFinalDiagnosis(record) }}
+              </td>
+              <td class="py-3 px-4 text-sm text-slate-600">
+                {{ record.patient_info.category || 'N/A' }}
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    } @else {
+      <p class="text-gray-500 py-8 text-center">No patients found.</p>
+    }
+  </div>
+  <footer class="p-4 border-t border-slate-200 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <span class="text-sm text-slate-600">Rows per page:</span>
+      <select
+        class="px-2 py-1 text-sm border border-slate-200 rounded-md bg-white"
+        (change)="onRowsPerPageChange($event)"
+      >
+        <option class="p-2" value="10" [selected]="recordState.rowsPerPage() === 10">10</option>
+        <option class="p-2" value="25" [selected]="recordState.rowsPerPage() === 25">25</option>
+        <option class="p-2" value="50" [selected]="recordState.rowsPerPage() === 50">50</option>
+      </select>
+      <span class="text-sm text-slate-600">{{ getPaginationSummary() }}</span>
+    </div>
+    <nav>
+      <div class="flex items-center gap-2">
+        <button
+          class="px-3 py-1.5 text-sm font-medium border border-slate-200 rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50 transition-colors"
+          [disabled]="recordState.currentPage() === 1"
+          (click)="onPageChange(recordState.currentPage() - 1)"
+        >
+          Prev
+        </button>
+        @for (page of [].constructor(recordState.totalPages()); track $index) {
+          <button
+            class="px-3 py-1.5 text-sm font-medium border border-slate-200 rounded-md w-9 transition-colors"
+            [class.bg-blue-600]="$index + 1 === recordState.currentPage()"
+            [class.text-white]="$index + 1 === recordState.currentPage()"
+            [class.border-blue-600]="$index + 1 === recordState.currentPage()"
+            [class.hover:bg-slate-50]="$index + 1 !== recordState.currentPage()"
+            (click)="onPageChange($index + 1)"
+          >
+            {{ $index + 1 }}
+          </button>
+        }
+        <button
+          class="px-3 py-1.5 text-sm font-medium border border-slate-200 rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50 transition-colors"
+          [disabled]="recordState.currentPage() === recordState.totalPages()"
+          (click)="onPageChange(recordState.currentPage() + 1)"
+        >
+          Next
+        </button>
+      </div>
+    </nav>
+  </footer>
+</main>
