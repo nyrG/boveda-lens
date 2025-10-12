@@ -4,9 +4,7 @@
       <table class="min-w-full">
         <thead>
           <tr class="border-b border-slate-200">
-            <th
-              class="py-3 px-6 w-12 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider"
-            >
+            <th class="p-4 w-12 text-left text-sm font-bold text-slate-800">
               <input
                 type="checkbox"
                 class="h-4 w-4 rounded border-gray-300"
@@ -14,26 +12,10 @@
                 (change)="onSelectAll($event)"
               />
             </th>
-            <th
-              class="py-3 px-6 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider"
-            >
-              Patient Name
-            </th>
-            <th
-              class="py-3 px-6 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider"
-            >
-              Record #
-            </th>
-            <th
-              class="py-3 px-6 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider"
-            >
-              Final Diagnosis
-            </th>
-            <th
-              class="py-3 px-6 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider"
-            >
-              Category
-            </th>
+            <th class="p-4 text-left text-sm font-bold text-slate-800">Patient Name</th>
+            <th class="p-4 text-left text-sm font-bold text-slate-800">Record #</th>
+            <th class="p-4 text-left text-sm font-bold text-slate-800">Final Diagnosis</th>
+            <th class="p-4 text-left text-sm font-bold text-slate-800">Category</th>
           </tr>
         </thead>
         <tbody class="bg-white divide-y divide-slate-200">
@@ -44,7 +26,7 @@
               onmouseover="this.style.boxShadow='inset 3px 0 0 0 var(--color-primary)';"
               onmouseout="this.style.boxShadow='inset 0 0 0 0 var(--color-primary)';"
             >
-              <td class="py-3 px-6">
+              <td class="py-3 px-4">
                 <input
                   type="checkbox"
                   class="patient-checkbox h-4 w-4 rounded border-gray-300"
@@ -52,16 +34,16 @@
                   (change)="onSelectRow(record.id, $event)"
                 />
               </td>
-              <td class="py-3 px-6 text-sm text-slate-600 font-medium">
+              <td class="py-3 px-4 text-sm text-slate-600">
                 {{ record.name || 'N/A' }}
               </td>
-              <td class="py-3 px-6 text-sm text-slate-600">
+              <td class="py-3 px-4 text-sm text-slate-600">
                 {{ record.patient_info.patient_record_number || 'N/A' }}
               </td>
-              <td class="py-3 px-6 text-sm text-slate-600 max-w-xs truncate">
+              <td class="py-3 px-4 text-sm text-slate-600 max-w-xs truncate">
                 {{ getFinalDiagnosis(record) }}
               </td>
-              <td class="py-3 px-6 text-sm text-slate-600">
+              <td class="py-3 px-4 text-sm text-slate-600">
                 {{ record.patient_info.category || 'N/A' }}
               </td>
             </tr>

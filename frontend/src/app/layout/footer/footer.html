@@ -1,0 +1,138 @@
+<div class="flex flex-col">
+  @if (!layoutService.isSidebarCollapsed()) {
+    <!-- Expanded Mode Layout -->
+    <div class="p-4 border-b border-slate-200">
+      <a
+        routerLink="/notifications"
+        class="flex items-center h-10 rounded-lg text-sm transition-colors hover:bg-slate-100 px-2"
+        title="Notifications"
+      >
+        <i class="fa-regular fa-bell w-5 text-center text-lg"></i>
+        <span class="ml-3 whitespace-nowrap">Notifications</span>
+      </a>
+    </div>
+    <div class="p-4">
+      <div class="flex items-center">
+        <div class="relative flex-1">
+          <button
+            (click)="toggleProfileMenu()"
+            class="flex w-full items-center gap-3 focus:outline-none"
+          >
+            <div
+              class="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-blue-600 text-sm font-semibold text-white"
+            >
+              T
+            </div>
+            <div class="text-left">
+              <p class="text-sm font-semibold text-slate-700">Tony Stark</p>
+              <p class="text-xs text-slate-500">Admin</p>
+            </div>
+          </button>
+          @if (isProfileMenuOpen()) {
+            <div
+              class="absolute bottom-full left-0 z-20 mb-2 w-56 origin-bottom-left rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
+            >
+              <div class="p-2" role="menu" aria-orientation="vertical">
+                <a
+                  routerLink="/profile"
+                  class="flex items-center h-10 px-3 rounded-lg text-sm text-slate-600 hover:bg-slate-100 hover:text-slate-800"
+                  role="menuitem"
+                >
+                  <i class="fa-regular fa-user w-5"></i>
+                  <span class="ml-3">My Profile</span>
+                </a>
+                <a
+                  routerLink="/settings"
+                  class="flex items-center h-10 px-3 rounded-lg text-sm text-slate-600 hover:bg-slate-100 hover:text-slate-800"
+                  role="menuitem"
+                >
+                  <i class="fa-solid fa-gear w-5"></i>
+                  <span class="ml-3">Settings</span>
+                </a>
+                <div class="my-1 border-t border-slate-100"></div>
+                <a
+                  (click)="logout()"
+                  class="flex items-center h-10 px-3 rounded-lg text-sm text-slate-600 hover:bg-slate-100 hover:text-slate-800 cursor-pointer"
+                  role="menuitem"
+                >
+                  <i class="fa-solid fa-right-from-bracket w-5"></i>
+                  <span class="ml-3">Logout</span>
+                </a>
+              </div>
+            </div>
+          }
+        </div>
+        <button
+          (click)="layoutService.toggleSidebar()"
+          class="flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-800"
+        >
+          <i class="fa-solid fa-chevron-left"></i>
+        </button>
+      </div>
+    </div>
+  } @else {
+    <!-- Collapsed Mode Layout -->
+    <div class="p-4 flex flex-col items-center gap-2">
+      <!-- Notifications Button -->
+      <a
+        routerLink="/notifications"
+        class="flex items-center justify-center h-10 w-full rounded-lg text-sm transition-colors hover:bg-slate-100"
+        title="Notifications"
+      >
+        <i class="fa-regular fa-bell w-5 text-center text-lg"></i>
+      </a>
+      <!-- User Profile Button -->
+      <div class="relative">
+        <button
+          (click)="toggleProfileMenu()"
+          class="flex h-9 w-9 items-center justify-center rounded-full bg-blue-600 text-sm font-semibold text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+        >
+          T
+        </button>
+        @if (isProfileMenuOpen()) {
+          <div
+            class="absolute bottom-full left-0 z-20 mb-2 w-56 origin-bottom-left rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
+          >
+            <div class="p-2" role="menu" aria-orientation="vertical">
+              <a
+                routerLink="/profile"
+                class="flex items-center h-10 px-3 rounded-lg text-sm text-slate-600 hover:bg-slate-100 hover:text-slate-800"
+                role="menuitem"
+              >
+                <i class="fa-regular fa-user w-5"></i>
+                <span class="ml-3">My Profile</span>
+              </a>
+              <a
+                routerLink="/settings"
+                class="flex items-center h-10 px-3 rounded-lg text-sm text-slate-600 hover:bg-slate-100 hover:text-slate-800"
+                role="menuitem"
+              >
+                <i class="fa-solid fa-gear w-5"></i>
+                <span class="ml-3">Settings</span>
+              </a>
+              <div class="my-1 border-t border-slate-100"></div>
+              <a
+                (click)="logout()"
+                class="flex items-center h-10 px-3 rounded-lg text-sm text-slate-600 hover:bg-slate-100 hover:text-slate-800 cursor-pointer"
+                role="menuitem"
+              >
+                <i class="fa-solid fa-right-from-bracket w-5"></i>
+                <span class="ml-3">Logout</span>
+              </a>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+    <!-- Divider and Expand Button -->
+    <div class="px-4 pb-4">
+      <div class="w-full border-t border-slate-200"></div>
+      <button
+        (click)="layoutService.toggleSidebar()"
+        class="mt-4 flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-800 mx-auto"
+      >
+        <i class="fa-solid fa-chevron-right"></i>
+      </button>
+    </div>
+  }
+</div>
