@@ -15,8 +15,24 @@ export class RecordApi {
       .set('page', page.toString())
       .set('limit', limit.toString());
 
-    // In a future step, we will add search, sort, and filter parameters here.
+    if (search) {
+      params = params.set('search', search);
+    }
+    if (sortBy) {
+      params = params.set('sortBy', sortBy);
+    }
+    if (sortOrder) {
+      params = params.set('sortOrder', sortOrder);
+    }
+    if (category) {
+      params = params.set('category', category);
+    }
 
     return this.http.get<PaginatedResponse<Record>>('/api/patients', { params });
+  }
+
+  getStats(): Observable<{ categories: { category: string, count: number }[] }> {
+    // A more specific interface could be created for the stats response later
+    return this.http.get<{ categories: { category: string, count: number }[] }>('/api/patients/stats');
   }
 }
