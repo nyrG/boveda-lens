@@ -15,4 +15,8 @@ export class LayoutService {
   toggleActionSidebar() {
     this.isActionSidebarVisible.update((visible) => !visible);
   }
+
+  closeActionSidebar() {
+    this.isActionSidebarVisible.set(false);
+  }
 }
