@@ -1,10 +1,10 @@
 import { Component } from '@angular/core';
 import { RecordList } from '../../features/record-list/record-list';
-import { RecordListControls } from "../../features/record-list-controls/record-list-controls";
+import { RecordListActions } from '../../features/record-list-actions/record-list-actions';
 
 @Component({
   selector: 'app-records',
-  imports: [RecordList, RecordListControls],
+  imports: [RecordList, RecordListActions],
   templateUrl: './records.html',
   styleUrl: './records.css'
 })

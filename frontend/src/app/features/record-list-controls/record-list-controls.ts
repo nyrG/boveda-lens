@@ -25,11 +25,6 @@ export class RecordListControls implements OnInit {
     this.recordState.fetchCategories();
   }
 
-  onSearchChange(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    this.recordState.setSearchTerm(input.value);
-  }
-
   onSortByChange(event: Event): void {
     const select = event.target as HTMLSelectElement;
     this.recordState.setSort(select.value);

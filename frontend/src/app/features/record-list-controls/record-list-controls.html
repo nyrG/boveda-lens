@@ -1,87 +1,43 @@
+<!-- Filter/Sort Controls -->
 <div class="flex flex-col gap-4">
-  <!-- Action Buttons -->
-  <div class="flex items-center justify-end gap-2">
-    <button
-      class="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+  <div class="flex flex-col gap-2">
+    <!-- Category Filter -->
+    <label class="text-sm font-medium text-slate-600">Category</label>
+    <select
+      class="w-full block px-3 py-2 border border-slate-300 rounded-md bg-white focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+      (change)="onFilterCategoryChange($event)"
     >
-      <i class="fa-solid fa-plus mr-2"></i>
-      <span>Create from PDF</span>
-    </button>
-    <button
-      class="px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-md hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
-      [disabled]="!recordState.isAnythingSelected()"
-      (click)="recordState.deleteSelectedRecords()"
-    >
-      <i class="fa-solid fa-trash-can mr-2"></i>
-      <span>Delete Selected ({{ recordState.selectedRecordIds().size }})</span>
-    </button>
+      <option value="">All Categories</option>
+      @for (category of recordState.categories(); track category) {
+        <option [value]="category">{{ category }}</option>
+      }
+    </select>
   </div>
 
-  <!-- Filter/Sort Controls -->
-  <div class="flex items-center justify-between gap-2">
-    <div class="flex items-center gap-4">
-      <!-- Search Input -->
-      <div class="relative">
-        <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-          <svg
-            class="w-4 h-4 text-slate-400"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-            ></path>
-          </svg>
-        </div>
-        <input
-          type="search"
-          class="block w-80 pl-10 pr-3 py-2 border border-slate-300 rounded-md leading-5 bg-white placeholder-slate-500 focus:outline-none focus:placeholder-slate-400 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-          placeholder="Search records..."
-          (input)="onSearchChange($event)"
-        />
-      </div>
-    </div>
-
-    <div class="flex items-center gap-2">
-      <!-- Category Filter -->
+  <div class="flex flex-col gap-2">
+    <!-- Sort Controls -->
+    <label class="text-sm font-medium text-slate-600">Sort By</label>
+    <div class="flex items-center gap-1">
       <select
-        class="w-48 block px-3 py-2 border border-slate-300 rounded-md bg-white focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-        (change)="onFilterCategoryChange($event)"
+        class="w-full block px-3 py-2 border border-slate-300 rounded-md bg-white focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+        (change)="onSortByChange($event)"
       >
-        <option value="">All Categories</option>
-        @for (category of recordState.categories(); track category) {
-          <option [value]="category">{{ category }}</option>
+        @for (option of sortOptions.entries(); track option[0]) {
+          <option [value]="option[0]" [selected]="recordState.sortBy() === option[0]">
+            {{ option[1] }}
+          </option>
         }
       </select>
-
-      <!-- Sort Controls -->
-      <div class="flex items-center gap-1">
-        <select
-          class="w-48 block px-3 py-2 border border-slate-300 rounded-md bg-white focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-          (change)="onSortByChange($event)"
-        >
-          @for (option of sortOptions.entries(); track option[0]) {
-            <option [value]="option[0]" [selected]="recordState.sortBy() === option[0]">
-              {{ option[1] }}
-            </option>
-          }
-        </select>
-        <button
-          class="px-3 py-2 border border-slate-300 rounded-md bg-white hover:bg-slate-50 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
-          (click)="recordState.toggleSortOrder()"
-        >
-          @if (recordState.sortOrder() === 'ASC') {
-            <i class="fa-solid fa-arrow-up-long h-4 w-4 text-slate-600"></i>
-          } @else {
-            <i class="fa-solid fa-arrow-down-long h-4 w-4 text-slate-600"></i>
-          }
-        </button>
-      </div>
+      <button
+        class="px-3 py-2 border border-slate-300 rounded-md bg-white hover:bg-slate-50 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+        (click)="recordState.toggleSortOrder()"
+      >
+        @if (recordState.sortOrder() === 'ASC') {
+          <i class="fa-solid fa-arrow-up-long h-4 w-4 text-slate-600"></i>
+        } @else {
+          <i class="fa-solid fa-arrow-down-long h-4 w-4 text-slate-600"></i>
+        }
+      </button>
     </div>
   </div>
 </div>

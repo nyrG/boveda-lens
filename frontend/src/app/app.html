@@ -1,17 +1,16 @@
 @if (isLoggedIn()) {
   <div class="flex h-screen bg-slate-50">
-    <!-- Full-height Sidebar -->
     <app-sidebar></app-sidebar>
-
-    <!-- Main Content Area -->
-    <div class="flex flex-col flex-1 overflow-hidden">
+    <div class="flex-1 flex flex-col overflow-hidden">
       <app-header></app-header>
-      <main class="flex-1 overflow-y-auto p-6 bg-white">
-        <router-outlet></router-outlet>
+      <main class="flex-1 overflow-x-hidden overflow-y-auto bg-slate-50">
+        <div class="container mx-auto px-6 py-8">
+          <router-outlet></router-outlet>
+        </div>
       </main>
     </div>
+    <app-action-sidebar></app-action-sidebar>
   </div>
 } @else {
-  <!-- For pages like Login, show only the router outlet without the main layout -->
   <router-outlet></router-outlet>
 }

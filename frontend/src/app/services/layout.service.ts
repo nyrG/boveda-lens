@@ -9,4 +9,10 @@ export class LayoutService {
   toggleSidebar() {
     this.isSidebarCollapsed.set(!this.isSidebarCollapsed());
   }
+
+  isActionSidebarVisible = signal(false);
+
+  toggleActionSidebar() {
+    this.isActionSidebarVisible.update((visible) => !visible);
+  }
 }
