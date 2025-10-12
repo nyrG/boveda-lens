@@ -2,12 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Record } from '../models/record';
-
-// This interface can be moved to a more generic `api.ts` model file later.
-export interface PaginatedResponse<T> {
-  data: T[];
-  total: number;
-}
+import { PaginatedResponse } from '../models/api';
 
 @Injectable({
   providedIn: 'root'
