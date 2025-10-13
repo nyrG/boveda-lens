@@ -18,13 +18,14 @@
             <th class="p-4 text-left text-sm font-bold text-slate-800">Category</th>
           </tr>
         </thead>
-        <tbody class="bg-white divide-y divide-slate-200">
+        <tbody class="bg-white">
           @for (record of recordState.records(); track record.id) {
             <tr
-              class="hover:bg-slate-50 cursor-pointer"
-              style="box-shadow: inset 0 0 0 0 var(--color-primary)"
-              onmouseover="this.style.boxShadow='inset 3px 0 0 0 var(--color-primary)';"
-              onmouseout="this.style.boxShadow='inset 0 0 0 0 var(--color-primary)';"
+              class="cursor-pointer transition-all duration-150 border-l-4 border-transparent border-b border-slate-200"
+              [class.bg-blue-50]="recordState.selectedRecordIds().has(record.id)"
+              [class.border-l-blue-600]="recordState.selectedRecordIds().has(record.id)"
+              [class.hover:bg-slate-100]="!recordState.selectedRecordIds().has(record.id)"
+              [class.hover:border-l-blue-600]="!recordState.selectedRecordIds().has(record.id)"
             >
               <td class="py-3 px-4">
                 <input

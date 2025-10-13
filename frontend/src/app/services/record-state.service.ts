@@ -23,10 +23,10 @@ export class RecordStateService {
   readonly lastSelectedRecordId = signal<number | null>(null);
   readonly searchTerm = signal(''); // Keep for basic search
 
-  // readonly sortBy = signal(''); 
-  // readonly sortOrder = signal<'ASC' | 'DESC'>('DESC'); 
-  // readonly filterCategory = signal(''); 
-  // readonly categories = signal<string[]>([]);
+  readonly sortBy = signal('created_at');
+  readonly sortOrder = signal<'ASC' | 'DESC'>('DESC');
+  readonly filterCategory = signal('');
+  readonly categories = signal<string[]>([]);
 
   // --- Computed Signals ---
   readonly totalPages = computed(() => Math.ceil(this.totalRecords() / this.rowsPerPage()));
@@ -47,7 +47,9 @@ export class RecordStateService {
     this.recordApi.getRecords(
       this.currentPage(),
       this.rowsPerPage(),
-      this.searchTerm()
+      this.searchTerm(),
+      this.sortBy(),
+      this.sortOrder()
     )
       .subscribe(response => {
         this.records.set(response.data);
@@ -58,7 +60,9 @@ export class RecordStateService {
   }
 
   fetchCategories(): void {
-    // This functionality is temporarily removed.
+    this.recordApi.getCategories().subscribe(categories => {
+      this.categories.set(categories);
+    });
   }
 
   // --- State Updaters ---
@@ -78,15 +82,23 @@ export class RecordStateService {
   }
 
   setSort(sortBy: string): void {
-    // This functionality is temporarily removed.
+    this.sortBy.set(sortBy);
+    this.fetchRecords();
   }
 
   toggleSortOrder(): void {
-    // This functionality is temporarily removed.
+    this.sortOrder.update(current => (current === 'ASC' ? 'DESC' : 'ASC'));
+    this.fetchRecords();
   }
 
   setFilterCategory(category: string): void {
-    // This functionality is temporarily removed.
+    this.filterCategory.set(category);
+    // In a real implementation, you would likely pass this to fetchRecords
+    // For now, we'll just log it or you can add it to the API call
+    console.log('Filtering by category:', category);
+    // Example of what it would look like:
+    // this.currentPage.set(1);
+    // this.fetchRecords();
   }
 
   deleteSelectedRecords(): void {
