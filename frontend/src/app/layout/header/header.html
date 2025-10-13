@@ -1,7 +1,26 @@
 <header class="bg-white h-16 flex items-center justify-between border-b border-slate-200 px-6">
   <div>
     <!-- Page Title -->
-    <h1 class="text-xl font-semibold text-slate-800">{{ headerState.title() }}</h1>
+    <h1 class="text-xl font-semibold flex items-center">
+      @for (crumb of headerState.breadcrumbs(); track crumb.text; let isLast = $last) {
+        <div class="flex items-center transition-opacity duration-300 animate-fade-in">
+          @if (crumb.link) {
+            <a
+              [routerLink]="crumb.link"
+              class="px-2 py-1 rounded-md transition-colors duration-200 text-slate-500 hover:bg-slate-100 hover:text-slate-700"
+            >
+              {{ crumb.text }}
+            </a>
+          } @else {
+            <span class="px-2 py-1 text-slate-800 font-semibold">{{ crumb.text }}</span>
+          }
+
+          @if (!isLast) {
+            <span class="mx-1 text-slate-400 font-light select-none">&gt;</span>
+          }
+        </div>
+      }
+    </h1>
   </div>
 
   <!-- Right Section: Actions -->

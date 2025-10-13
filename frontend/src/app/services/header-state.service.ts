@@ -1,17 +1,26 @@
 import { Injectable, signal } from '@angular/core';
 
+export interface Breadcrumb {
+  text: string;
+  link?: string | string[];
+}
+
 @Injectable({
   providedIn: 'root'
 })
 export class HeaderStateService {
-  readonly title = signal<string>('Dashboard');
+  readonly breadcrumbs = signal<Breadcrumb[]>([{ text: 'Dashboard' }]);
   readonly showFilterButton = signal(false);
 
   setTitle(newTitle: string): void {
-    this.title.set(newTitle);
+    this.breadcrumbs.set([{ text: newTitle }]);
   }
 
   setShowFilterButton(visible: boolean): void {
     this.showFilterButton.set(visible);
+  }
+
+  setBreadcrumbs(breadcrumbs: Breadcrumb[]): void {
+    this.breadcrumbs.set(breadcrumbs);
   }
 }

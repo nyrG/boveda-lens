@@ -1,1 +1,11 @@
-<p>record-detail works!</p>
+<div class="p-6">
+  <div class="mb-4">
+    <a routerLink="/records" class="text-blue-600 hover:underline">&larr; Back to Records</a>
+  </div>
+
+  @if (record()) {
+    <h1 class="text-2xl font-bold text-slate-800">Patient: {{ record()?.name }}</h1>
+  } @else {
+    <p class="text-slate-500">Loading record...</p>
+  }
+</div>

@@ -59,6 +59,12 @@ export class RecordStateService {
       });
   }
 
+  fetchRecordById(id: number) {
+    return this.recordApi.getRecord(id).pipe(
+      // In a real app, you might want to set a `selectedRecord` signal here
+    );
+  }
+
   fetchCategories(): void {
     this.recordApi.getCategories().subscribe(categories => {
       this.categories.set(categories);

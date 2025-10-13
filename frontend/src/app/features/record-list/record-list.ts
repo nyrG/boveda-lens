@@ -1,12 +1,13 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { Record } from '../../models/record';
 import { RecordStateService } from '../../services/record-state.service';
 
 @Component({
   selector: 'app-record-list',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink],
   templateUrl: './record-list.html',
   styleUrls: ['./record-list.css']
 })

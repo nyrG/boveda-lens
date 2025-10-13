@@ -40,4 +40,8 @@ export class RecordApi {
   deleteRecords(ids: number[]): Observable<void> {
     return this.http.delete<void>(this.apiUrl, { body: { ids } });
   }
+
+  getRecord(id: number): Observable<Record> {
+    return this.http.get<Record>(`${this.apiUrl}/${id}`);
+  }
 }

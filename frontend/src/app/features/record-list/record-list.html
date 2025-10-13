@@ -1,5 +1,6 @@
 <main class="main-content bg-white rounded-lg border border-slate-200">
   <div class="overflow-x-auto">
+    <!-- The routerLink directive will be imported in the parent component -->
     @if (recordState.records().length > 0) {
       <table class="min-w-full">
         <thead>
@@ -22,6 +23,7 @@
           @for (record of recordState.records(); track record.id) {
             <tr
               class="cursor-pointer transition-all duration-150 border-l-4 border-transparent border-b border-slate-200"
+              [routerLink]="['/records', record.id]"
               [class.bg-blue-50]="recordState.selectedRecordIds().has(record.id)"
               [class.border-l-blue-600]="recordState.selectedRecordIds().has(record.id)"
               [class.hover:bg-slate-100]="!recordState.selectedRecordIds().has(record.id)"
