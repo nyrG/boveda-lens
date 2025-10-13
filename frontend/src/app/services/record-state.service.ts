@@ -2,12 +2,14 @@ import { Injectable, computed, inject, signal } from '@angular/core';
 import { Record } from '../models/record';
 import { RecordApi } from './record-api';
 import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
+import { ToastService } from './toast.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class RecordStateService {
   private recordApi = inject(RecordApi);
+  private toastService = inject(ToastService);
 
   // --- Search ---
   private searchSubject = new Subject<string>();
@@ -40,7 +42,14 @@ export class RecordStateService {
 
   // --- Data Fetching ---
   fetchRecords(): void {
-    this.recordApi.getRecords(this.currentPage(), this.rowsPerPage(), this.searchTerm())
+    this.recordApi.getRecords(
+      this.currentPage(),
+      this.rowsPerPage(),
+      this.searchTerm(),
+      this.sortBy(),
+      this.sortOrder(),
+      this.filterCategory()
+    )
       .subscribe(response => {
         this.records.set(response.data);
         this.totalRecords.set(response.total);
@@ -88,8 +97,34 @@ export class RecordStateService {
   }
 
   deleteSelectedRecords(): void {
-    // In a future step, this will call the API to delete records
-    console.log('Deleting records:', this.selectedRecordIds());
+    const idsToDelete = Array.from(this.selectedRecordIds());
+    if (idsToDelete.length === 0) {
+      return;
+    }
+
+    const confirmationMessage = idsToDelete.length === 1
+      ? 'Are you sure you want to delete this record?'
+      : `Are you sure you want to delete these ${idsToDelete.length} records?`;
+
+    if (!confirm(confirmationMessage)) {
+      return;
+    }
+
+    this.recordApi.deleteRecords(idsToDelete).subscribe(() => {
+      this.toastService.show({ message: `${idsToDelete.length} record(s) deleted successfully.`, type: 'success' });
+
+      // Clear the selection state immediately after successful deletion.
+      this.selectedRecordIds.set(new Set());
+
+      // Check if the current page would be empty after deletion
+      const newTotal = this.totalRecords() - idsToDelete.length;
+      const newTotalPages = Math.ceil(newTotal / this.rowsPerPage());
+      if (this.currentPage() > newTotalPages && newTotalPages > 0) {
+        this.currentPage.set(newTotalPages);
+      }
+
+      this.fetchRecords();
+    });
   }
 
   toggleSelectAll(isChecked: boolean): void {

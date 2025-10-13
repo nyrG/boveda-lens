@@ -1,0 +1,18 @@
+<div class="fixed top-5 right-5 z-50 space-y-2">
+  @for (toast of toastService.toasts(); track toast) {
+    <div
+      class="flex items-center w-full max-w-xs p-4 space-x-4 rtl:space-x-reverse divide-x rtl:divide-x-reverse rounded-lg shadow"
+      [ngClass]="{
+        'text-gray-500 bg-white divide-gray-200': toast.type === 'info',
+        'text-green-500 bg-green-100 divide-green-200': toast.type === 'success',
+        'text-red-500 bg-red-100 divide-red-200': toast.type === 'error',
+      }"
+      role="alert"
+    >
+      <div class="pl-4 text-sm font-normal">{{ toast.message }}</div>
+      <button (click)="toastService.remove(toast)" class="p-1.5 -m-1.5">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+  }
+</div>

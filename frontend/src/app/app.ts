@@ -5,10 +5,11 @@ import { Sidebar } from './layout/sidebar/sidebar';
 import { ActionSidebar } from './layout/action-sidebar/action-sidebar';
 import { AuthService } from './services/auth.service';
 import { LayoutService } from './services/layout.service';
+import { Toast } from './features/toast/toast';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, Header, Sidebar, ActionSidebar],
+  imports: [RouterOutlet, Header, Sidebar, ActionSidebar, Toast],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })

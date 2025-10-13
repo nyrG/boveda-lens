@@ -9,6 +9,7 @@ import { PaginatedResponse } from '../models/api';
 })
 export class RecordApi {
   private http = inject(HttpClient);
+  private apiUrl = '/api/patients';
 
   getRecords(page: number, limit: number, search?: string, sortBy?: string, sortOrder?: string, category?: string): Observable<PaginatedResponse<Record>> {
     let params = new HttpParams()
@@ -28,11 +29,15 @@ export class RecordApi {
       params = params.set('category', category);
     }
 
-    return this.http.get<PaginatedResponse<Record>>('/api/patients', { params });
+    return this.http.get<PaginatedResponse<Record>>(this.apiUrl, { params });
   }
 
   getStats(): Observable<{ categories: { category: string, count: number }[] }> {
     // A more specific interface could be created for the stats response later
-    return this.http.get<{ categories: { category: string, count: number }[] }>('/api/patients/stats');
+    return this.http.get<{ categories: { category: string, count: number }[] }>(`${this.apiUrl}/stats`);
+  }
+
+  deleteRecords(ids: number[]): Observable<void> {
+    return this.http.delete<void>(this.apiUrl, { body: { ids } });
   }
 }
