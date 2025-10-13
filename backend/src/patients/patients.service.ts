@@ -225,4 +225,14 @@ export class PatientsService {
       throw new NotFoundException(`Patient with ID ${id} not found`);
     }
   }
+
+  async removeMany(ids: number[]): Promise<void> {
+    if (!ids || ids.length === 0) {
+      throw new BadRequestException('No record IDs provided for deletion.');
+    }
+    const result = await this.patientsRepository.softDelete(ids);
+    if (result.affected === 0) {
+      // This is not necessarily an error, could mean records were already deleted.
+    }
+  }
 }

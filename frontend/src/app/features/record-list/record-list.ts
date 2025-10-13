@@ -38,17 +38,18 @@ export class RecordList implements OnInit {
     this.recordState.toggleSelectAll(isChecked);
   }
 
-  onSelectRow(id: number, event: Event): void {
+  onSelectRow(id: number, event: MouseEvent): void {
     const checkbox = event.target as HTMLInputElement;
     const isChecked = checkbox.checked;
-    this.recordState.toggleSelectRow(id, isChecked);
+    const isShiftPressed = event.shiftKey;
+    this.recordState.toggleSelectRow(id, isChecked, isShiftPressed);
   }
 
   // --- Helpers ---
-  // Check if all records on the current page are selected
   isSelectAllChecked(): boolean {
-    const currentRecordIds = this.recordState.records().map(r => r.id);
-    return currentRecordIds.length > 0 && currentRecordIds.every(id => this.recordState.selectedRecordIds().has(id));
+    const records = this.recordState.records();
+    if (records.length === 0) return false;
+    return records.every(r => this.recordState.selectedRecordIds().has(r.id));
   }
 
   getFinalDiagnosis(record: Record): string {

@@ -21,7 +21,8 @@
       type="search"
       class="block w-80 pl-10 pr-3 py-2 border border-slate-300 rounded-md leading-5 bg-white placeholder-slate-500 focus:outline-none focus:placeholder-slate-400 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
       placeholder="Search records..."
-      (input)="onSearchChange($event)"
+      [ngModel]="recordState.searchTerm()"
+      (ngModelChange)="recordState.setSearchTerm($event)"
     />
   </div>
 

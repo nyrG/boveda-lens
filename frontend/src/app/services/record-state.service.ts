@@ -20,11 +20,13 @@ export class RecordStateService {
   readonly currentPage = signal(1);
   readonly rowsPerPage = signal(10);
   readonly selectedRecordIds = signal<Set<number>>(new Set());
-  readonly searchTerm = signal('');
-  readonly sortBy = signal('updated_at');
-  readonly sortOrder = signal<'ASC' | 'DESC'>('DESC');
-  readonly filterCategory = signal('');
-  readonly categories = signal<string[]>([]);
+  readonly lastSelectedRecordId = signal<number | null>(null);
+  readonly searchTerm = signal(''); // Keep for basic search
+
+  // readonly sortBy = signal(''); 
+  // readonly sortOrder = signal<'ASC' | 'DESC'>('DESC'); 
+  // readonly filterCategory = signal(''); 
+  // readonly categories = signal<string[]>([]);
 
   // --- Computed Signals ---
   readonly totalPages = computed(() => Math.ceil(this.totalRecords() / this.rowsPerPage()));
@@ -45,10 +47,7 @@ export class RecordStateService {
     this.recordApi.getRecords(
       this.currentPage(),
       this.rowsPerPage(),
-      this.searchTerm(),
-      this.sortBy(),
-      this.sortOrder(),
-      this.filterCategory()
+      this.searchTerm()
     )
       .subscribe(response => {
         this.records.set(response.data);
@@ -59,9 +58,7 @@ export class RecordStateService {
   }
 
   fetchCategories(): void {
-    this.recordApi.getStats().subscribe(stats => {
-      this.categories.set(stats.categories.map(c => c.category).filter(Boolean) as string[]);
-    });
+    // This functionality is temporarily removed.
   }
 
   // --- State Updaters ---
@@ -81,19 +78,15 @@ export class RecordStateService {
   }
 
   setSort(sortBy: string): void {
-    this.sortBy.set(sortBy);
-    this.fetchRecords();
+    // This functionality is temporarily removed.
   }
 
   toggleSortOrder(): void {
-    this.sortOrder.update(current => (current === 'ASC' ? 'DESC' : 'ASC'));
-    this.fetchRecords();
+    // This functionality is temporarily removed.
   }
 
   setFilterCategory(category: string): void {
-    this.filterCategory.set(category);
-    this.currentPage.set(1);
-    this.fetchRecords();
+    // This functionality is temporarily removed.
   }
 
   deleteSelectedRecords(): void {
@@ -112,18 +105,13 @@ export class RecordStateService {
 
     this.recordApi.deleteRecords(idsToDelete).subscribe(() => {
       this.toastService.show({ message: `${idsToDelete.length} record(s) deleted successfully.`, type: 'success' });
-
-      // Clear the selection state immediately after successful deletion.
-      this.selectedRecordIds.set(new Set());
-
       // Check if the current page would be empty after deletion
       const newTotal = this.totalRecords() - idsToDelete.length;
       const newTotalPages = Math.ceil(newTotal / this.rowsPerPage());
       if (this.currentPage() > newTotalPages && newTotalPages > 0) {
         this.currentPage.set(newTotalPages);
       }
-
-      this.fetchRecords();
+      this.fetchRecords(); // Refresh the list after deletion
     });
   }
 
@@ -141,15 +129,46 @@ export class RecordStateService {
     });
   }
 
-  toggleSelectRow(id: number, isChecked: boolean): void {
-    this.selectedRecordIds.update(currentSet => {
-      const newSet = new Set(currentSet);
-      if (isChecked) {
-        newSet.add(id);
-      } else {
-        newSet.delete(id);
-      }
-      return newSet;
-    });
+  toggleSelectRow(id: number, isChecked: boolean, isShiftPressed: boolean): void {
+    const lastId = this.lastSelectedRecordId();
+    const records = this.records();
+
+    if (isShiftPressed && lastId !== null && records.length > 0) {
+      this.selectedRecordIds.update(currentSet => {
+        const newSet = new Set(currentSet);
+        const lastIndex = records.findIndex(r => r.id === lastId);
+        const currentIndex = records.findIndex(r => r.id === id);
+
+        if (lastIndex !== -1 && currentIndex !== -1) {
+          const start = Math.min(lastIndex, currentIndex);
+          const end = Math.max(lastIndex, currentIndex);
+
+          for (let i = start; i <= end; i++) {
+            if (isChecked) {
+              newSet.add(records[i].id);
+            } else {
+              // When unchecking with shift, unselect the entire range.
+              newSet.delete(records[i].id);
+            }
+          }
+        }
+        return newSet;
+      });
+    } else {
+      this.selectedRecordIds.update(currentSet => {
+        const newSet = new Set(currentSet);
+        if (isChecked) {
+          newSet.add(id);
+        } else {
+          newSet.delete(id);
+        }
+        return newSet;
+      });
+    }
+
+    // Update last selected ID only on a normal click
+    if (!isShiftPressed) {
+      this.lastSelectedRecordId.set(isChecked ? id : null);
+    }
   }
 }

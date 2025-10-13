@@ -31,7 +31,7 @@
                   type="checkbox"
                   class="patient-checkbox h-4 w-4 rounded border-gray-300"
                   [checked]="recordState.selectedRecordIds().has(record.id)"
-                  (change)="onSelectRow(record.id, $event)"
+                  (click)="onSelectRow(record.id, $event)"
                 />
               </td>
               <td class="py-3 px-4 text-sm text-slate-600">

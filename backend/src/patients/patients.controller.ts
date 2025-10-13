@@ -56,4 +56,9 @@ export class PatientsController {
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.patientsService.remove(id);
   }
+
+  @Delete()
+  removeMany(@Body('ids') ids: number[]) {
+    return this.patientsService.removeMany(ids);
+  }
 }
