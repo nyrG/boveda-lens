@@ -15,7 +15,7 @@ export class Records implements OnInit, OnDestroy {
   private layoutService = inject(LayoutService);
 
   ngOnInit(): void {
-    this.headerState.setTitle('Patient Records');
+    this.headerState.setTitle('Records');
     this.headerState.setShowFilterButton(true);
   }
 

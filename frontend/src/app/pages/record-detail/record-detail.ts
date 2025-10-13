@@ -29,20 +29,20 @@ export class RecordDetail implements OnDestroy {
 
   constructor() {
     // Set the initial title and hide the filter button
-    this.headerState.setBreadcrumbs([{ text: 'Patient Records', link: '/records' }]);
+    this.headerState.setBreadcrumbs([{ text: 'Records', link: '/records' }]);
     this.headerState.setShowFilterButton(false);
 
     // Update the header title when the record data is loaded
     effect(() => {
       const patientName = this.record()?.name;
       if (patientName) {
-        this.headerState.setBreadcrumbs([{ text: 'Patient Records', link: '/records' }, { text: patientName }]);
+        this.headerState.setBreadcrumbs([{ text: 'Records', link: '/records' }, { text: patientName }]);
       }
     });
   }
 
   ngOnDestroy(): void {
     // Reset the title when leaving the component. The Records page will set its own title.
-    this.headerState.setTitle('Patient Records');
+    this.headerState.setTitle('Records');
   }
 }

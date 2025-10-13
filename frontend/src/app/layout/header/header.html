@@ -12,7 +12,12 @@
               {{ crumb.text }}
             </a>
           } @else {
-            <span class="px-2 py-1 text-slate-800 font-semibold">{{ crumb.text }}</span>
+            <span
+              class="inline-block truncate max-w-48 sm:max-w-64 md:max-w-md px-2 py-1 text-slate-800 font-semibold"
+              title="{{ crumb.text }}"
+            >
+              {{ crumb.text }}
+            </span>
           }
 
           @if (!isLast) {
