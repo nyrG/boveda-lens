@@ -1,0 +1,33 @@
+@if (state().isOpen) {
+  <div
+    class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm"
+    (click)="onCancel()"
+  >
+    <div
+      class="relative w-full max-w-md rounded-lg bg-white p-6 shadow-xl"
+      (click)="$event.stopPropagation()"
+    >
+      @if (state().config; as config) {
+        <div class="flex items-start gap-4">
+          <div
+            class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-red-100"
+          >
+            <i class="fa-solid fa-triangle-exclamation text-red-600"></i>
+          </div>
+          <div class="flex-1">
+            <h3 class="text-lg font-semibold text-slate-900">{{ config.title }}</h3>
+            <p class="mt-2 text-sm text-slate-600">{{ config.message }}</p>
+          </div>
+        </div>
+        <div class="mt-6 flex justify-end gap-3">
+          <button (click)="onCancel()" class="btn btn-secondary">
+            {{ config.cancelText || 'Cancel' }}
+          </button>
+          <button (click)="onConfirm()" [ngClass]="config.confirmClass || 'btn-danger'" class="btn">
+            {{ config.confirmText || 'Confirm' }}
+          </button>
+        </div>
+      }
+    </div>
+  </div>
+}

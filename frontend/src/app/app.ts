@@ -6,10 +6,11 @@ import { ActionSidebar } from './layout/components/action-sidebar/action-sidebar
 import { AuthService } from './core/services/auth.service';
 import { LayoutService } from './layout/services/layout.service';
 import { Toast } from './shared/components/toast/toast';
+import { ActionDialog } from "./shared/components/action-dialog/action-dialog";
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, Header, Sidebar, ActionSidebar, Toast],
+  imports: [RouterOutlet, Header, Sidebar, ActionSidebar, Toast, ActionDialog],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })

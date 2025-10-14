@@ -44,4 +44,8 @@ export class PatientApi {
   getPatient(id: number): Observable<Patient> {
     return this.http.get<Patient>(`${this.apiUrl}/${id}`);
   }
+
+  deletePatient(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  }
 }

@@ -8,23 +8,46 @@
         <div class="flex gap-2">
           <a
             routerLink="/records"
-            class="inline-flex items-center gap-2 rounded-md border border-slate-200 bg-slate-100 px-3 py-1.5 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-200"
+            class="inline-flex h-9 w-9 items-center justify-center rounded-md border border-slate-200 bg-slate-100 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-200"
           >
             <i class="fa-solid fa-arrow-left text-slate-500"></i>
-            <span>Back</span>
           </a>
-          <button
-            class="inline-flex items-center gap-2 rounded-md border border-slate-200 bg-slate-100 px-3 py-1.5 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-200"
-          >
-            <i class="fa-solid fa-print text-slate-500"></i>
-            <span>Print</span>
-          </button>
           <button
             class="inline-flex items-center gap-2 rounded-md border border-transparent bg-blue-600 px-3 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-blue-700"
           >
             <i class="fa-solid fa-pencil"></i>
             <span>Edit</span>
           </button>
+          <!-- More Actions Dropdown -->
+          <div class="relative actions-dropdown-container">
+            <button
+              (click)="toggleActionsMenu(); $event.stopPropagation()"
+              class="inline-flex h-9 w-9 items-center justify-center rounded-md border border-slate-200 bg-slate-100 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-200"
+            >
+              <i class="fa-solid fa-ellipsis-vertical text-slate-500"></i>
+            </button>
+            @if (isActionsMenuOpen()) {
+              <div
+                class="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none dropdown-menu-enter"
+              >
+                <div class="py-1">
+                  <button
+                    class="flex w-full items-center gap-2 px-4 py-2 text-sm text-slate-700 hover:bg-slate-100"
+                  >
+                    <i class="fa-solid fa-print w-4 text-center"></i>
+                    <span>Print</span>
+                  </button>
+                  <button
+                    (click)="deleteRecord()"
+                    class="flex w-full items-center gap-2 px-4 py-2 text-sm text-slate-700 hover:bg-slate-100"
+                  >
+                    <i class="fa-solid fa-trash-can w-4 text-center"></i>
+                    <span>Delete Record</span>
+                  </button>
+                </div>
+              </div>
+            }
+          </div>
         </div>
       </div>
 
@@ -87,9 +110,9 @@
       <div class="flex items-center justify-between">
         <div class="h-7 w-48 rounded-md bg-slate-200"></div>
         <div class="flex gap-2">
-          <div class="h-9 w-24 rounded-md bg-slate-200"></div>
-          <div class="h-9 w-24 rounded-md bg-slate-200"></div>
+          <div class="h-9 w-9 rounded-md bg-slate-200"></div>
           <div class="h-9 w-20 rounded-md bg-slate-200"></div>
+          <div class="h-9 w-9 rounded-md bg-slate-200"></div>
         </div>
       </div>
 
@@ -106,17 +129,32 @@
       <!-- Tab Content Skeleton (mimicking patient-info card) -->
       <div class="mt-6">
         <div class="rounded-lg border border-slate-200 bg-white shadow-sm">
+          <!-- Top Stats Skeleton -->
+          <div class="grid grid-cols-2 border-b border-slate-200 sm:grid-cols-4">
+            @for (_ of [1, 2, 3, 4]; track _) {
+              <div class="flex items-center justify-between p-4 sm:p-6">
+                <div class="space-y-2">
+                  <div class="h-4 w-16 rounded-md bg-slate-200"></div>
+                  <div class="h-6 w-20 rounded-md bg-slate-200"></div>
+                </div>
+                <div class="h-8 w-8 rounded-full bg-slate-200"></div>
+              </div>
+            }
+          </div>
+          <!-- Detailed Info Skeleton -->
           <div class="p-4 md:p-6">
-            <div class="grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-2">
-              @for (_ of [1, 2, 3, 4, 5]; track _) {
-                <div>
+            <div class="grid grid-cols-1 gap-x-8 gap-y-6 sm:grid-cols-2">
+              @for (_ of [1, 2]; track _) {
+                <div class="space-y-2">
                   <div class="h-4 w-24 rounded-md bg-slate-200"></div>
-                  <div class="mt-2 h-5 w-40 rounded-md bg-slate-200"></div>
+                  <div class="h-5 w-40 rounded-md bg-slate-200"></div>
                 </div>
               }
               <div class="sm:col-span-2">
-                <div class="h-4 w-24 rounded-md bg-slate-200"></div>
-                <div class="mt-2 h-5 w-full max-w-lg rounded-md bg-slate-200"></div>
+                <div class="space-y-2">
+                  <div class="h-4 w-24 rounded-md bg-slate-200"></div>
+                  <div class="h-5 w-full max-w-lg rounded-md bg-slate-200"></div>
+                </div>
               </div>
             </div>
           </div>

@@ -1,14 +1,16 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { Patient } from '../../modules/patients/models/patient';
 import { PatientApi } from '../../modules/patients/services/patient-api';
-import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
+import { Observable, Subject, debounceTime, distinctUntilChanged, tap } from 'rxjs';
 import { ToastService } from './toast.service';
+import { DialogService } from './dialog.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class RecordStateService {
   private recordApi = inject(PatientApi);
+  private dialogService = inject(DialogService);
   private toastService = inject(ToastService);
 
   // --- Search ---
@@ -20,6 +22,7 @@ export class RecordStateService {
   readonly currentPage = signal(1);
   readonly rowsPerPage = signal(10);
   readonly selectedRecordIds = signal<Set<number>>(new Set());
+  readonly isLoading = signal(false);
   readonly lastSelectedRecordId = signal<number | null>(null);
   readonly searchTerm = signal(''); // Keep for basic search
 
@@ -31,6 +34,12 @@ export class RecordStateService {
   // --- Computed Signals ---
   readonly totalPages = computed(() => Math.ceil(this.totalRecords() / this.rowsPerPage()));
   readonly isAnythingSelected = computed(() => this.selectedRecordIds().size > 0);
+  readonly isAllSelectedOnPage = computed(() => {
+    const recordsOnPage = this.records();
+    if (recordsOnPage.length === 0) return false;
+    const selectedIds = this.selectedRecordIds();
+    return recordsOnPage.every(r => selectedIds.has(r.id));
+  });
 
   constructor() {
     this.searchSubject.pipe(
@@ -43,7 +52,8 @@ export class RecordStateService {
   }
 
   // --- Data Fetching ---
-  fetchRecords(): void {
+  fetchRecords(options: { preserveSelection?: boolean; showNotification?: boolean } = {}): void {
+    this.isLoading.set(true);
     this.recordApi.getPatients(
       this.currentPage(),
       this.rowsPerPage(),
@@ -52,10 +62,16 @@ export class RecordStateService {
       this.sortOrder()
     )
       .subscribe(response => {
+        this.isLoading.set(false);
         this.records.set(response.data);
         this.totalRecords.set(response.total);
-        // As per the old implementation, clear selection on data refresh
-        this.selectedRecordIds.set(new Set());
+        if (!options.preserveSelection) {
+          // As per the old implementation, clear selection on data refresh
+          this.selectedRecordIds.set(new Set());
+        }
+        if (options.showNotification) {
+          this.toastService.show({ message: 'Record list refreshed.', type: 'info' });
+        }
       });
   }
 
@@ -74,13 +90,13 @@ export class RecordStateService {
   // --- State Updaters ---
   changePage(page: number): void {
     this.currentPage.set(page);
-    this.fetchRecords();
+    this.fetchRecords({ preserveSelection: true });
   }
 
   changeRowsPerPage(rows: number): void {
     this.rowsPerPage.set(rows);
     this.currentPage.set(1); // Reset to first page
-    this.fetchRecords();
+    this.fetchRecords({ preserveSelection: true });
   }
 
   setSearchTerm(term: string): void {
@@ -113,38 +129,53 @@ export class RecordStateService {
       return;
     }
 
-    const confirmationMessage = idsToDelete.length === 1
-      ? 'Are you sure you want to delete this record?'
-      : `Are you sure you want to delete these ${idsToDelete.length} records?`;
+    const dialogConfig = {
+      title: `Delete ${idsToDelete.length} Record(s)`,
+      message: `Are you sure you want to delete ${idsToDelete.length} selected record(s)? This action cannot be undone.`,
+      confirmText: 'Delete',
+    };
 
-    if (!confirm(confirmationMessage)) {
-      return;
-    }
-
-    this.recordApi.deletePatients(idsToDelete).subscribe(() => {
-      this.toastService.show({ message: `${idsToDelete.length} record(s) deleted successfully.`, type: 'success' });
-      // Check if the current page would be empty after deletion
-      const newTotal = this.totalRecords() - idsToDelete.length;
-      const newTotalPages = Math.ceil(newTotal / this.rowsPerPage());
-      if (this.currentPage() > newTotalPages && newTotalPages > 0) {
-        this.currentPage.set(newTotalPages);
+    this.dialogService.open(dialogConfig).subscribe(confirmed => {
+      if (confirmed) {
+        this.recordApi.deletePatients(idsToDelete).subscribe(() => {
+          this.toastService.show({
+            message: `${idsToDelete.length} record(s) deleted successfully.`,
+            type: 'success',
+          });
+          // Check if the current page would be empty after deletion
+          const newTotal = this.totalRecords() - idsToDelete.length;
+          const newTotalPages = Math.ceil(newTotal / this.rowsPerPage());
+          if (this.currentPage() > newTotalPages && newTotalPages > 0) {
+            this.currentPage.set(newTotalPages);
+          }
+          this.fetchRecords(); // Refresh the list after deletion
+        });
       }
-      this.fetchRecords(); // Refresh the list after deletion
     });
   }
 
-  toggleSelectAll(isChecked: boolean): void {
-    this.selectedRecordIds.update(currentSet => {
-      const newSet = new Set(currentSet);
-      for (const record of this.records()) {
-        if (isChecked) {
-          newSet.add(record.id);
-        } else {
-          newSet.delete(record.id);
-        }
-      }
-      return newSet;
-    });
+  deleteRecordById(id: number): Observable<void> {
+    return this.recordApi.deletePatient(id).pipe(
+      tap(() => {
+        this.toastService.show({ message: 'Record deleted successfully.', type: 'success' });
+      })
+    );
+  }
+
+  /**
+   * Toggles the selection of all records on the current page.
+   * If any records are selected, it deselects all.
+   * If no records are selected, it selects all.
+   */
+  toggleSelectAll(): void {
+    const shouldSelectAll = this.selectedRecordIds().size === 0;
+    const recordsOnPage = this.records();
+
+    if (shouldSelectAll) {
+      this.selectedRecordIds.set(new Set(recordsOnPage.map(r => r.id)));
+    } else {
+      this.selectedRecordIds.set(new Set());
+    }
   }
 
   toggleSelectRow(id: number, isChecked: boolean, isShiftPressed: boolean): void {

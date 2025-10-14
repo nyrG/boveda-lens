@@ -1,17 +1,43 @@
-<div class="fixed top-5 left-1/2 -translate-x-1/2 z-50 space-y-2">
+<div class="fixed bottom-5 right-5 z-50 w-full max-w-xs space-y-3">
   @for (toast of toastService.toasts(); track toast) {
     <div
-      class="flex items-center w-full max-w-xs p-4 space-x-4 rtl:space-x-reverse divide-x rtl:divide-x-reverse rounded-lg shadow"
+      class="toast-item flex items-center w-full p-4 rounded-lg shadow-lg"
       [ngClass]="{
-        'text-gray-500 bg-white divide-gray-200': toast.type === 'info',
-        'text-green-500 bg-green-100 divide-green-200': toast.type === 'success',
-        'text-red-500 bg-red-100 divide-red-200': toast.type === 'error',
+        'bg-white text-slate-700': toast.type === 'info',
+        'bg-green-50 text-green-800': toast.type === 'success',
+        'bg-red-50 text-red-800': toast.type === 'error',
       }"
       role="alert"
     >
-      <div class="pl-4 text-sm font-normal">{{ toast.message }}</div>
-      <button (click)="toastService.remove(toast)" class="p-1.5 -m-1.5">
-        <i class="fa-solid fa-xmark"></i>
+      <!-- Icon -->
+      <div
+        class="inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg"
+        [ngClass]="{
+          'bg-blue-100 text-blue-500': toast.type === 'info',
+          'bg-green-100 text-green-500': toast.type === 'success',
+          'bg-red-100 text-red-500': toast.type === 'error',
+        }"
+      >
+        @switch (toast.type) {
+          @case ('success') {
+            <i class="fa-solid fa-check"></i>
+          }
+          @case ('error') {
+            <i class="fa-solid fa-triangle-exclamation"></i>
+          }
+          @default {
+            <i class="fa-solid fa-info"></i>
+          }
+        }
+      </div>
+      <!-- Message -->
+      <div class="ms-3 text-sm font-normal">{{ toast.message }}</div>
+      <!-- Close Button -->
+      <button
+        (click)="toastService.remove(toast)"
+        class="-mx-1.5 -my-1.5 ms-auto inline-flex h-8 w-8 items-center justify-center rounded-lg p-1.5 hover:bg-slate-200/50"
+      >
+        <i class="fa-solid fa-xmark text-slate-500"></i>
       </button>
     </div>
   }

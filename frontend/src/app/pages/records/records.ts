@@ -17,11 +17,13 @@ export class Records implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.headerState.setTitle('Records');
     this.headerState.setShowFilterButton(true);
+    this.headerState.setShowRefreshButton(true);
   }
 
   ngOnDestroy(): void {
     // When leaving the page, hide the filter button and close the sidebar
     this.headerState.setShowFilterButton(false);
     this.layoutService.closeActionSidebar();
+    this.headerState.setShowRefreshButton(false);
   }
 }

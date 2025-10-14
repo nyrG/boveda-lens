@@ -11,6 +11,7 @@ export interface Breadcrumb {
 export class HeaderStateService {
   readonly breadcrumbs = signal<Breadcrumb[]>([{ text: 'Dashboard' }]);
   readonly showFilterButton = signal(false);
+  readonly showRefreshButton = signal(false);
 
   setTitle(newTitle: string): void {
     this.breadcrumbs.set([{ text: newTitle }]);
@@ -18,6 +19,10 @@ export class HeaderStateService {
 
   setShowFilterButton(visible: boolean): void {
     this.showFilterButton.set(visible);
+  }
+
+  setShowRefreshButton(visible: boolean): void {
+    this.showRefreshButton.set(visible);
   }
 
   setBreadcrumbs(breadcrumbs: Breadcrumb[]): void {

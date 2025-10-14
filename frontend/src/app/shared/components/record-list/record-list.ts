@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnDestroy, OnInit, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { Patient } from '../../../modules/patients/models/patient';
@@ -11,14 +11,39 @@ import { RecordStateService } from '../../services/record-state.service';
   templateUrl: './record-list.html',
   styleUrls: ['./record-list.css']
 })
-export class RecordList implements OnInit {
+export class RecordList implements OnInit, OnDestroy {
   // The component now injects the state service as its single source of truth.
   // All state properties are read-only signals from the service.
   recordState = inject(RecordStateService);
 
+  // --- Computed Signals for UI State ---
+  isSelectAllChecked = computed(() => {
+    // This must be a computed signal to react to changes in the state service
+    return this.recordState.isAllSelectedOnPage();
+  });
+
+  isAnyButNotAllSelected = computed(() => {
+    const selectedCount = this.recordState.selectedRecordIds().size;
+    const recordsCount = this.recordState.records().length;
+    return selectedCount > 0 && selectedCount < recordsCount;
+  });
+
+  private pollingInterval: ReturnType<typeof setInterval> | undefined;
+
   // --- Lifecycle Hooks ---
   ngOnInit(): void {
     this.recordState.fetchRecords();
+
+    // Poll for new data every 30 seconds.
+    // The `preserveSelection` option ensures that the user's current checkbox
+    // selections are not cleared on each background refresh.
+    this.pollingInterval = setInterval(() => {
+      this.recordState.fetchRecords({ preserveSelection: true });
+    }, 30000);
+  }
+
+  ngOnDestroy(): void {
+    clearInterval(this.pollingInterval);
   }
 
   // --- Event Handlers ---
@@ -33,10 +58,8 @@ export class RecordList implements OnInit {
     this.recordState.changeRowsPerPage(parseInt(selectElement.value, 10));
   }
 
-  onSelectAll(event: Event): void {
-    const checkbox = event.target as HTMLInputElement;
-    const isChecked = checkbox.checked;
-    this.recordState.toggleSelectAll(isChecked);
+  onSelectAll(): void {
+    this.recordState.toggleSelectAll();
   }
 
   onSelectRow(id: number, event: MouseEvent): void {
@@ -44,13 +67,6 @@ export class RecordList implements OnInit {
     const isChecked = checkbox.checked;
     const isShiftPressed = event.shiftKey;
     this.recordState.toggleSelectRow(id, isChecked, isShiftPressed);
-  }
-
-  // --- Helpers ---
-  isSelectAllChecked(): boolean {
-    const records = this.recordState.records();
-    if (records.length === 0) return false;
-    return records.every(r => this.recordState.selectedRecordIds().has(r.id));
   }
 
   getFinalDiagnosis(record: Patient): string {

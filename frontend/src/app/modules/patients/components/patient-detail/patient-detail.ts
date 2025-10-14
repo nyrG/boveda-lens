@@ -1,6 +1,6 @@
-import { Component, OnDestroy, effect, inject, signal } from '@angular/core';
+import { Component, ElementRef, HostListener, OnDestroy, effect, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { switchMap } from 'rxjs';
 import { RecordStateService } from '../../../../shared/services/record-state.service';
 import { HeaderStateService } from '../../../../layout/services/header-state.service';
@@ -11,6 +11,7 @@ import { PatientConsultations } from '../patient-consultations/patient-consultat
 import { PatientLabs } from '../patient-labs/patient-labs';
 import { PatientRadiology } from '../patient-radiology/patient-radiology';
 import { PatientSponsor } from '../patient-sponsor/patient-sponsor';
+import { DialogService } from '../../../../shared/services/dialog.service';
 
 type PatientTab = 'info' | 'summary' | 'consultations' | 'labs' | 'radiology' | 'sponsor';
 
@@ -34,9 +35,15 @@ export class PatientDetail implements OnDestroy {
   private route = inject(ActivatedRoute);
   private recordState = inject(RecordStateService);
   private headerState = inject(HeaderStateService);
+  private router = inject(Router);
+  private dialogService = inject(DialogService);
+  private elementRef = inject(ElementRef);
 
   // Signal to manage which tab is currently active
   activeTab = signal<PatientTab>('info');
+
+  // Signal to manage the actions dropdown menu
+  isActionsMenuOpen = signal(false);
 
   // Data-driven tabs for cleaner template logic
   tabs: { id: PatientTab; label: string }[] = [
@@ -72,9 +79,49 @@ export class PatientDetail implements OnDestroy {
     });
   }
 
+  // Close the dropdown menu if a click occurs outside of it
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    const dropdownElement = this.elementRef.nativeElement.querySelector('.actions-dropdown-container');
+    if (this.isActionsMenuOpen() && dropdownElement && !dropdownElement.contains(event.target as Node)) {
+      this.isActionsMenuOpen.set(false);
+    }
+  }
+
   // Method to change the active tab
   setActiveTab(tab: PatientTab) {
     this.activeTab.set(tab);
+  }
+
+  // Method to toggle the actions dropdown
+  toggleActionsMenu() {
+    // This needs to be set explicitly to handle the case where a click on the button
+    // would be caught by onDocumentClick. We stop propagation in the template.
+    // For simplicity here, we just toggle. The template change will handle the rest.
+    this.isActionsMenuOpen.update((isOpen) => !isOpen);
+  }
+
+  // Method to delete the current patient record
+  deleteRecord() {
+    const patient = this.record();
+    if (!patient) return;
+
+    this.dialogService
+      .open({
+        title: 'Delete Record',
+        message: `Are you sure you want to delete the record for ${patient.name}? This action cannot be undone.`,
+        confirmText: 'Delete',
+      })
+      .subscribe(confirmed => {
+        if (confirmed) {
+          this.recordState.deleteRecordById(patient.id).subscribe({
+            next: () => {
+              this.router.navigate(['/records']);
+            },
+            error: (err: unknown) => console.error('Failed to delete record', err),
+          });
+        }
+      });
   }
 
   ngOnDestroy(): void {
