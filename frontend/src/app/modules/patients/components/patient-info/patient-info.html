@@ -1,38 +1,61 @@
-<dl class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-6">
-  <div>
-    <dt class="text-sm text-slate-500">Record Number</dt>
-    <dd class="font-medium text-slate-800">
-      {{ info.patient_record_number || 'N/A' }}
-    </dd>
+<div class="rounded-lg border border-slate-200 bg-white shadow-sm">
+  <!-- Top Stats Section -->
+  <div class="grid grid-cols-2 border-b border-slate-200 sm:grid-cols-4">
+    <div class="flex items-center justify-between p-4 sm:border-r sm:border-slate-200 sm:p-6">
+      <div>
+        <p class="text-sm text-slate-500">Record #</p>
+        <p class="text-lg font-bold text-slate-800">{{ info.patient_record_number || 'N/A' }}</p>
+      </div>
+      <i class="fa-solid fa-hashtag text-3xl text-slate-300"></i>
+    </div>
+    <div class="flex items-center justify-between p-4 sm:border-r sm:border-slate-200 sm:p-6">
+      <div>
+        <p class="text-sm text-slate-500">Age</p>
+        <p class="text-lg font-bold text-slate-800">{{ info.age ? info.age + ' yrs' : 'N/A' }}</p>
+      </div>
+      <i class="fa-solid fa-user-clock text-3xl text-slate-300"></i>
+    </div>
+    <div
+      class="flex items-center justify-between border-t border-slate-200 p-4 sm:border-r sm:border-t-0 sm:border-slate-200 sm:p-6"
+    >
+      <div>
+        <p class="text-sm text-slate-500">Sex</p>
+        <p class="text-lg font-bold text-slate-800">
+          {{ info.sex === 'M' ? 'Male' : info.sex === 'F' ? 'Female' : 'N/A' }}
+        </p>
+      </div>
+      <i class="fa-solid fa-venus-mars text-3xl text-slate-300"></i>
+    </div>
+    <div
+      class="flex items-center justify-between border-t border-slate-200 p-4 sm:border-t-0 sm:p-6"
+    >
+      <div>
+        <p class="text-sm text-slate-500">Category</p>
+        <p class="text-lg font-bold text-slate-800">{{ info.category || 'N/A' }}</p>
+      </div>
+      <i class="fa-solid fa-tags text-3xl text-slate-300"></i>
+    </div>
   </div>
-  <div>
-    <dt class="text-sm text-slate-500">Date of Birth</dt>
-    <dd class="font-medium text-slate-800">
-      {{ info.date_of_birth ? (info.date_of_birth | date: 'longDate') : 'N/A' }}
-    </dd>
+
+  <!-- Detailed Info Section -->
+  <div class="p-4 md:p-6">
+    <div class="grid grid-cols-1 gap-x-8 gap-y-6 sm:grid-cols-2">
+      <div>
+        <p class="text-sm font-medium text-slate-500">Date of Birth</p>
+        <p class="text-slate-800">
+          {{ info.date_of_birth ? (info.date_of_birth | date: 'longDate') : 'N/A' }}
+        </p>
+      </div>
+      <div>
+        <p class="text-sm font-medium text-slate-500">Documented Age</p>
+        <p class="text-slate-800">
+          {{ info.documented_age ? info.documented_age + ' yrs' : 'N/A' }}
+        </p>
+      </div>
+      <div class="sm:col-span-2">
+        <p class="text-sm font-medium text-slate-500">Address</p>
+        <p class="text-slate-800">{{ info.address?.house_no_street || 'N/A' }}</p>
+      </div>
+    </div>
   </div>
-  <div>
-    <dt class="text-sm text-slate-500">Current Age</dt>
-    <dd class="font-medium text-slate-800">
-      {{ info.age ? info.age + ' yrs' : 'N/A' }}
-    </dd>
-  </div>
-  <div>
-    <dt class="text-sm text-slate-500">Sex</dt>
-    <dd class="font-medium text-slate-800">
-      {{ info.sex === 'M' ? 'Male' : info.sex === 'F' ? 'Female' : 'N/A' }}
-    </dd>
-  </div>
-  <div>
-    <dt class="text-sm text-slate-500">Category</dt>
-    <dd class="font-medium text-slate-800">
-      {{ info.category || 'N/A' }}
-    </dd>
-  </div>
-  <div class="sm:col-span-2">
-    <dt class="text-sm text-slate-500">Address</dt>
-    <dd class="font-medium text-slate-800">
-      {{ info.address?.house_no_street || 'N/A' }}
-    </dd>
-  </div>
-</dl>
+</div>

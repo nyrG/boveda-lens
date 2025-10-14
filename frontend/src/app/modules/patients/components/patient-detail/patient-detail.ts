@@ -7,7 +7,7 @@ import { HeaderStateService } from '../../../../layout/services/header-state.ser
 import { CommonModule } from '@angular/common';
 import { PatientInfo } from '../patient-info/patient-info';
 
-type PatientTab = 'demographics' | 'summary' | 'consultations' | 'labs' | 'radiology' | 'sponsor';
+type PatientTab = 'info' | 'summary' | 'consultations' | 'labs' | 'radiology' | 'sponsor';
 
 @Component({
   selector: 'app-patient-detail',
@@ -26,7 +26,17 @@ export class PatientDetail implements OnDestroy {
   private headerState = inject(HeaderStateService);
 
   // Signal to manage which tab is currently active
-  activeTab = signal<PatientTab>('demographics');
+  activeTab = signal<PatientTab>('info');
+
+  // Data-driven tabs for cleaner template logic
+  tabs: { id: PatientTab; label: string }[] = [
+    { id: 'info', label: 'Patient Info' },
+    { id: 'summary', label: 'Findings' },
+    { id: 'consultations', label: 'Consultations' },
+    { id: 'labs', label: 'Lab Results' },
+    { id: 'radiology', label: 'Radiology' },
+    { id: 'sponsor', label: 'Sponsor' },
+  ];
 
   // Fetch the record based on the 'id' route parameter
   record = toSignal(

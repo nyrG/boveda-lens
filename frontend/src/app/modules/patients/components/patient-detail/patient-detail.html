@@ -1,6 +1,6 @@
-<div class="p-4 md:p-6 lg:p-8">
+<div>
   @if (record(); as patient) {
-    <div class="max-w-4xl mx-auto space-y-6">
+    <div class="space-y-6">
       <!-- Page Header -->
       <div class="flex items-center justify-between">
         <h2 class="text-xl font-bold text-slate-800">{{ patient.name }}</h2>
@@ -31,106 +31,92 @@
       <!-- Tab Navigation -->
       <div class="border-b border-slate-200">
         <nav class="flex gap-4 -mb-px">
-          <button
-            (click)="setActiveTab('demographics')"
-            [ngClass]="{
-              'border-blue-600 text-blue-600': activeTab() === 'demographics',
-              'border-transparent text-slate-600 hover:border-slate-300 hover:text-slate-900':
-                activeTab() !== 'demographics',
-            }"
-            class="border-b-2 py-3 px-2 font-medium transition-colors"
-          >
-            Demographics
-          </button>
-          <button
-            (click)="setActiveTab('summary')"
-            [ngClass]="{
-              'border-blue-600 text-blue-600': activeTab() === 'summary',
-              'border-transparent text-slate-600 hover:border-slate-300 hover:text-slate-900':
-                activeTab() !== 'summary',
-            }"
-            class="border-b-2 py-3 px-2 font-medium transition-colors"
-          >
-            Summary
-          </button>
-          <button
-            (click)="setActiveTab('consultations')"
-            [ngClass]="{
-              'border-blue-600 text-blue-600': activeTab() === 'consultations',
-              'border-transparent text-slate-600 hover:border-slate-300 hover:text-slate-900':
-                activeTab() !== 'consultations',
-            }"
-            class="border-b-2 py-3 px-2 font-medium transition-colors"
-          >
-            Consultations
-          </button>
-          <button
-            (click)="setActiveTab('labs')"
-            [ngClass]="{
-              'border-blue-600 text-blue-600': activeTab() === 'labs',
-              'border-transparent text-slate-600 hover:border-slate-300 hover:text-slate-900':
-                activeTab() !== 'labs',
-            }"
-            class="border-b-2 py-3 px-2 font-medium transition-colors"
-          >
-            Lab Results
-          </button>
-          <button
-            (click)="setActiveTab('radiology')"
-            [ngClass]="{
-              'border-blue-600 text-blue-600': activeTab() === 'radiology',
-              'border-transparent text-slate-600 hover:border-slate-300 hover:text-slate-900':
-                activeTab() !== 'radiology',
-            }"
-            class="border-b-2 py-3 px-2 font-medium transition-colors"
-          >
-            Radiology
-          </button>
-          <button
-            (click)="setActiveTab('sponsor')"
-            [ngClass]="{
-              'border-blue-600 text-blue-600': activeTab() === 'sponsor',
-              'border-transparent text-slate-600 hover:border-slate-300 hover:text-slate-900':
-                activeTab() !== 'sponsor',
-            }"
-            class="border-b-2 py-3 px-2 font-medium transition-colors"
-          >
-            Sponsor
-          </button>
+          @for (tab of tabs; track tab.id) {
+            <button
+              (click)="setActiveTab(tab.id)"
+              [ngClass]="{
+                'border-blue-600 text-blue-600': activeTab() === tab.id,
+                'border-transparent text-slate-600 hover:border-slate-300 hover:text-slate-900':
+                  activeTab() !== tab.id,
+              }"
+              class="border-b-2 py-3 px-2 font-medium transition-colors"
+            >
+              {{ tab.label }}
+            </button>
+          }
         </nav>
       </div>
 
-      <!-- Tab Content Panel -->
-      <div class="rounded-lg border border-slate-200 bg-white shadow-sm">
-        <div class="p-4 md:p-6">
-          <!-- Demographics Panel -->
-          @if (activeTab() === 'demographics') {
-            <app-patient-info [info]="patient.patient_info" />
-          }
-          <!-- Summary Panel -->
-          @if (activeTab() === 'summary') {
-            <p class="text-slate-500">Summary content will go here.</p>
-          }
-          <!-- Consultations Panel -->
-          @if (activeTab() === 'consultations') {
-            <p class="text-slate-500">Consultations content will go here.</p>
-          }
-          <!-- Lab Results Panel -->
-          @if (activeTab() === 'labs') {
-            <p class="text-slate-500">Lab results content will go here.</p>
-          }
-          <!-- Radiology Panel -->
-          @if (activeTab() === 'radiology') {
-            <p class="text-slate-500">Radiology content will go here.</p>
-          }
-          <!-- Sponsor Panel -->
-          @if (activeTab() === 'sponsor') {
-            <p class="text-slate-500">Sponsor content will go here.</p>
-          }
-        </div>
+      <div class="mt-6">
+        <!-- Tab Content Panel -->
+        <!-- Demographics Panel -->
+        @if (activeTab() === 'info') {
+          <app-patient-info [info]="patient.patient_info" />
+        }
+        <!-- Summary Panel -->
+        @if (activeTab() === 'summary') {
+          <p class="text-slate-500">Summary content will go here.</p>
+        }
+        <!-- Consultations Panel -->
+        @if (activeTab() === 'consultations') {
+          <p class="text-slate-500">Consultations content will go here.</p>
+        }
+        <!-- Lab Results Panel -->
+        @if (activeTab() === 'labs') {
+          <p class="text-slate-500">Lab results content will go here.</p>
+        }
+        <!-- Radiology Panel -->
+        @if (activeTab() === 'radiology') {
+          <p class="text-slate-500">Radiology content will go here.</p>
+        }
+        <!-- Sponsor Panel -->
+        @if (activeTab() === 'sponsor') {
+          <p class="text-slate-500">Sponsor content will go here.</p>
+        }
       </div>
     </div>
   } @else {
-    <p class="text-slate-500">Loading record...</p>
+    <!-- Skeleton Loader -->
+    <div class="animate-pulse space-y-6">
+      <!-- Page Header Skeleton -->
+      <div class="flex items-center justify-between">
+        <div class="h-7 w-48 rounded-md bg-slate-200"></div>
+        <div class="flex gap-2">
+          <div class="h-9 w-24 rounded-md bg-slate-200"></div>
+          <div class="h-9 w-24 rounded-md bg-slate-200"></div>
+          <div class="h-9 w-20 rounded-md bg-slate-200"></div>
+        </div>
+      </div>
+
+      <!-- Tab Navigation Skeleton -->
+      <div class="border-b border-slate-200">
+        <div class="flex gap-4 -mb-px">
+          <div class="h-12 w-28 rounded-t-md bg-slate-200"></div>
+          <div class="h-12 w-24 rounded-t-md bg-slate-200"></div>
+          <div class="h-12 w-32 rounded-t-md bg-slate-200"></div>
+          <div class="h-12 w-28 rounded-t-md bg-slate-200"></div>
+        </div>
+      </div>
+
+      <!-- Tab Content Skeleton (mimicking patient-info card) -->
+      <div class="mt-6">
+        <div class="rounded-lg border border-slate-200 bg-white shadow-sm">
+          <div class="p-4 md:p-6">
+            <div class="grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-2">
+              @for (_ of [1, 2, 3, 4, 5]; track _) {
+                <div>
+                  <div class="h-4 w-24 rounded-md bg-slate-200"></div>
+                  <div class="mt-2 h-5 w-40 rounded-md bg-slate-200"></div>
+                </div>
+              }
+              <div class="sm:col-span-2">
+                <div class="h-4 w-24 rounded-md bg-slate-200"></div>
+                <div class="mt-2 h-5 w-full max-w-lg rounded-md bg-slate-200"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   }
 </div>
