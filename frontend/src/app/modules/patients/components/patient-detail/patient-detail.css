@@ -1,1 +1,18 @@
+/*
+ * Keyframes for the tab content transition.
+ * The content will fade in and slide up slightly.
+ */
+@keyframes tab-enter {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 
+.tab-content-enter {
+  animation: tab-enter 250ms ease-out forwards;
+}

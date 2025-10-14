@@ -6,6 +6,11 @@ import { RecordStateService } from '../../../../shared/services/record-state.ser
 import { HeaderStateService } from '../../../../layout/services/header-state.service';
 import { CommonModule } from '@angular/common';
 import { PatientInfo } from '../patient-info/patient-info';
+import { PatientSummary } from '../patient-summary/patient-summary';
+import { PatientConsultations } from '../patient-consultations/patient-consultations';
+import { PatientLabs } from '../patient-labs/patient-labs';
+import { PatientRadiology } from '../patient-radiology/patient-radiology';
+import { PatientSponsor } from '../patient-sponsor/patient-sponsor';
 
 type PatientTab = 'info' | 'summary' | 'consultations' | 'labs' | 'radiology' | 'sponsor';
 
@@ -16,6 +21,11 @@ type PatientTab = 'info' | 'summary' | 'consultations' | 'labs' | 'radiology' | 
     CommonModule, // Provides pipes like 'date'
     RouterLink,
     PatientInfo,
+    PatientSummary,
+    PatientConsultations,
+    PatientLabs,
+    PatientRadiology,
+    PatientSponsor,
   ],
   templateUrl: './patient-detail.html',
   styleUrl: './patient-detail.css',

@@ -1,11 +1,17 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { LabResult } from '../../models/patient';
 
 @Component({
   selector: 'app-patient-labs',
-  imports: [],
+  standalone: true,
+  imports: [CommonModule],
   templateUrl: './patient-labs.html',
-  styleUrl: './patient-labs.css'
+  styleUrl: './patient-labs.css',
+  host: {
+    '[class]': `'block'`,
+  },
 })
 export class PatientLabs {
-
+  @Input({ required: true }) labResults: LabResult[] | undefined = [];
 }

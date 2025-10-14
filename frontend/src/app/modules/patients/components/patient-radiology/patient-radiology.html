@@ -1,1 +1,40 @@
-<p>patient-radiology works!</p>
+<div class="space-y-4">
+  @for (report of radiologyReports; track $index) {
+    <div class="rounded-lg border border-slate-200 bg-white shadow-sm">
+      <!-- Card Header -->
+      <div class="flex items-center justify-between border-b border-slate-200 p-4 md:px-6 md:py-4">
+        <span class="font-medium text-slate-700">
+          <i class="fa-solid fa-calendar-alt mr-2 w-5 text-center text-slate-400"></i>
+          <strong>Date Performed:</strong>
+          {{ report.date_performed ? (report.date_performed | date: 'longDate') : 'N/A' }}
+        </span>
+      </div>
+
+      <!-- Card Body -->
+      <div class="p-4 md:p-6">
+        @if (report.examination) {
+          <h3 class="mb-4 flex items-center gap-3 text-lg font-semibold text-slate-800">
+            <i class="fa-solid fa-x-ray w-5 text-center text-slate-400"></i>
+            <span>{{ report.examination }}</span>
+          </h3>
+        }
+
+        <!-- Report Details -->
+        <div class="ml-2 space-y-4">
+          <app-detail-item icon="fa-file-medical" label="Findings" [value]="report.findings" />
+          <app-detail-item
+            icon="fa-comment-medical"
+            label="Impression"
+            [value]="report.impression"
+          />
+        </div>
+      </div>
+    </div>
+  } @empty {
+    <div class="rounded-lg border border-slate-200 bg-white p-12 text-center shadow-sm">
+      <i class="fa-solid fa-radiation fa-3x mb-3 text-slate-400"></i>
+      <p class="font-medium text-slate-500">No Radiology Reports</p>
+      <p class="text-sm text-slate-400">There are no radiology reports on file for this patient.</p>
+    </div>
+  }
+</div>

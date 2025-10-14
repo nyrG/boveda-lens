@@ -1,0 +1,16 @@
+<div>
+  <!-- Label with Icon -->
+  <div class="flex items-center gap-2 text-sm font-semibold text-slate-600">
+    <i class="fa-solid {{ icon }} w-4 text-center text-slate-500"></i>
+    <span>{{ label }}</span>
+  </div>
+
+  <!-- Value -->
+  <p class="mt-1 ml-6 whitespace-pre-wrap text-slate-800">
+    @if (value !== null && value !== undefined && value !== '') {
+      {{ value }}{{ unit ? ' ' + unit : '' }}
+    } @else {
+      <span class="text-slate-500">N/A</span>
+    }
+  </p>
+</div>

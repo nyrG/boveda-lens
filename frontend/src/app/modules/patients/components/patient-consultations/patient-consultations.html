@@ -1,1 +1,108 @@
-<p>patient-consultations works!</p>
+<div class="space-y-4">
+  @for (item of consultations; track $index) {
+    <div class="rounded-lg border border-slate-200 bg-white shadow-sm">
+      <!-- Card Header -->
+      <div class="flex items-center justify-between border-b border-slate-200 p-4 md:px-6 md:py-4">
+        <span class="font-medium text-slate-700">
+          <i class="fa-solid fa-calendar-alt mr-2 w-5 text-center text-slate-400"></i>
+          <strong>Date:</strong>
+          {{ item.consultation_date ? (item.consultation_date | date: 'longDate') : 'N/A' }}
+        </span>
+        @if (item.age_at_visit) {
+          <span class="rounded-full bg-blue-100 px-2 py-0.5 text-sm font-medium text-blue-800">
+            Age at Visit: {{ item.age_at_visit }}
+          </span>
+        }
+      </div>
+
+      <!-- Card Body -->
+      <div>
+        <!-- Vitals Section (redesigned) -->
+        <div class="grid grid-cols-3 border-b border-slate-200">
+          <!-- Height -->
+          <div class="flex items-center justify-between border-r border-slate-200 px-6 py-4">
+            <div>
+              <p class="text-sm text-slate-500">Height</p>
+              <p class="text-lg font-bold text-slate-800">
+                @if (item.vitals?.height_cm) {
+                  {{ item.vitals?.height_cm }}
+                  <span class="text-base font-medium text-slate-500">cm</span>
+                } @else {
+                  N/A
+                }
+              </p>
+            </div>
+            <i class="fa-solid fa-ruler-vertical text-3xl text-slate-300"></i>
+          </div>
+          <!-- Weight -->
+          <div class="flex items-center justify-between border-r border-slate-200 px-6 py-4">
+            <div>
+              <p class="text-sm text-slate-500">Weight</p>
+              <p class="text-lg font-bold text-slate-800">
+                @if (item.vitals?.weight_kg) {
+                  {{ item.vitals?.weight_kg }}
+                  <span class="text-base font-medium text-slate-500">kg</span>
+                } @else {
+                  N/A
+                }
+              </p>
+            </div>
+            <i class="fa-solid fa-weight-scale text-3xl text-slate-300"></i>
+          </div>
+          <!-- Temperature -->
+          <div class="flex items-center justify-between px-6 py-4">
+            <div>
+              <p class="text-sm text-slate-500">Temp</p>
+              <p class="text-lg font-bold text-slate-800">
+                @if (item.vitals?.temperature_c) {
+                  {{ item.vitals?.temperature_c }}
+                  <span class="text-base font-medium text-slate-500">°C</span>
+                } @else {
+                  N/A
+                }
+              </p>
+            </div>
+            <i class="fa-solid fa-temperature-half text-3xl text-slate-300"></i>
+          </div>
+        </div>
+
+        <!-- Encounter Details Section -->
+        <div class="p-4 md:p-6">
+          <h3 class="flex items-center gap-3 text-lg font-semibold text-slate-800">
+            <i class="fa-solid fa-notes-medical w-5 text-center text-slate-400"></i>
+            <span>Encounter Details</span>
+          </h3>
+          <div class="mt-6 ml-2 space-y-4">
+            <app-detail-item
+              icon="fa-comment-dots"
+              label="Chief Complaint"
+              [value]="item.chief_complaint"
+            />
+            <app-detail-item icon="fa-file-lines" label="Notes / HPI" [value]="item.notes" />
+            <app-detail-item
+              icon="fa-stethoscope"
+              label="Diagnosis / Assessment"
+              [value]="item.diagnosis"
+            />
+            <app-detail-item
+              icon="fa-prescription-bottle-medical"
+              label="Treatment Plan"
+              [value]="item.treatment_plan"
+            />
+            <app-detail-item
+              icon="fa-user-doctor"
+              label="Attending Physician"
+              [value]="item.attending_physician"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  } @empty {
+    <div class="rounded-lg border border-slate-200 bg-white p-12 text-center shadow-sm">
+      <i class="fa-solid fa-file-circle-xmark fa-3x mb-3 text-slate-400"></i>
+      <p class="font-medium text-slate-500">No Consultation Records</p>
+      <p class="text-sm text-slate-400">There is no consultation history for this patient.</p>
+    </div>
+  }
+</div>

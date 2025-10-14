@@ -47,31 +47,36 @@
         </nav>
       </div>
 
+      <!-- Tab Content Panel with CSS Animation -->
       <div class="mt-6">
-        <!-- Tab Content Panel -->
-        <!-- Demographics Panel -->
-        @if (activeTab() === 'info') {
-          <app-patient-info [info]="patient.patient_info" />
-        }
-        <!-- Summary Panel -->
-        @if (activeTab() === 'summary') {
-          <p class="text-slate-500">Summary content will go here.</p>
-        }
-        <!-- Consultations Panel -->
-        @if (activeTab() === 'consultations') {
-          <p class="text-slate-500">Consultations content will go here.</p>
-        }
-        <!-- Lab Results Panel -->
-        @if (activeTab() === 'labs') {
-          <p class="text-slate-500">Lab results content will go here.</p>
-        }
-        <!-- Radiology Panel -->
-        @if (activeTab() === 'radiology') {
-          <p class="text-slate-500">Radiology content will go here.</p>
-        }
-        <!-- Sponsor Panel -->
-        @if (activeTab() === 'sponsor') {
-          <p class="text-slate-500">Sponsor content will go here.</p>
+        @switch (activeTab()) {
+          @case ('info') {
+            <app-patient-info [info]="patient.patient_info" class="tab-content-enter" />
+          }
+          @case ('summary') {
+            <app-patient-summary [summary]="patient.summary" class="tab-content-enter" />
+          }
+          @case ('consultations') {
+            <app-patient-consultations
+              [consultations]="patient.medical_encounters?.consultations"
+              class="tab-content-enter"
+            />
+          }
+          @case ('labs') {
+            <app-patient-labs
+              [labResults]="patient.medical_encounters?.lab_results"
+              class="tab-content-enter"
+            />
+          }
+          @case ('radiology') {
+            <app-patient-radiology
+              [radiologyReports]="patient.medical_encounters?.radiology_reports"
+              class="tab-content-enter"
+            />
+          }
+          @case ('sponsor') {
+            <app-patient-sponsor [sponsorInfo]="patient.sponsor_info" class="tab-content-enter" />
+          }
         }
       </div>
     </div>

@@ -8,6 +8,9 @@ import { CommonModule } from '@angular/common';
   imports: [CommonModule],
   templateUrl: './patient-info.html',
   styleUrl: './patient-info.css',
+  host: {
+    '[class]': `'block'`,
+  },
 })
 export class PatientInfo {
   @Input({ required: true }) info!: PatientInfoData;
