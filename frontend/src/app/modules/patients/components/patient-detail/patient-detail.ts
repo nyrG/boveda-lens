@@ -6,13 +6,13 @@ import { RecordStateService } from '../../../../shared/services/record-state.ser
 import { HeaderStateService } from '../../../../layout/services/header-state.service';
 
 @Component({
-  selector: 'app-record-detail',
+  selector: 'app-patient-detail',
   standalone: true,
   imports: [RouterLink],
-  templateUrl: './record-detail.html',
-  styleUrl: './record-detail.css',
+  templateUrl: './patient-detail.html',
+  styleUrl: './patient-detail.css',
 })
-export class RecordDetail implements OnDestroy {
+export class PatientDetail implements OnDestroy {
   private route = inject(ActivatedRoute);
   private recordState = inject(RecordStateService);
   private headerState = inject(HeaderStateService);
