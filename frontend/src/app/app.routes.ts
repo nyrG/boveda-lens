@@ -1,12 +1,12 @@
 import { Routes } from "@angular/router";
 import { Login } from "./pages/login/login";
 import { Profile } from "./pages/profile/profile";
-import { authGuard } from "./guards/auth-guard";
+import { authGuard } from "./core/guards/auth-guard";
 import { Dashboard } from "./pages/dashboard/dashboard";
 import { Settings } from "./pages/settings/settings";
 import { Docs } from "./pages/docs/docs";
 import { Records } from "./pages/records/records";
-import { RecordDetail } from "./pages/record-detail/record-detail";
+import { RecordDetail } from "./modules/patients/components/record-detail/record-detail";
 
 export const routes: Routes = [
     { path: "login", component: Login },

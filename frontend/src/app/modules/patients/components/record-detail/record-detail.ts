@@ -2,8 +2,8 @@ import { Component, OnDestroy, effect, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { switchMap } from 'rxjs';
-import { RecordStateService } from '../../services/record-state.service';
-import { HeaderStateService } from '../../services/header-state.service';
+import { RecordStateService } from '../../../../shared/services/record-state.service';
+import { HeaderStateService } from '../../../../layout/services/header-state.service';
 
 @Component({
   selector: 'app-record-detail',

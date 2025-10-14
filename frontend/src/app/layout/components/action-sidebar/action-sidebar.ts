@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
-import { LayoutService } from '../../services/layout.service';
-import { RecordListControls } from '../../features/record-list-controls/record-list-controls';
+import { LayoutService } from '../../../layout/services/layout.service';
+import { RecordListControls } from '../../../shared/components/record-list-controls/record-list-controls';
 
 @Component({
   selector: 'app-action-sidebar',

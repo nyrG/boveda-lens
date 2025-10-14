@@ -1,7 +1,7 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { Record } from '../../models/record';
+import { Record } from '../../../modules/patients/models/record';
 import { RecordStateService } from '../../services/record-state.service';
 
 @Component({

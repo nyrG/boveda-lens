@@ -1,5 +1,5 @@
 import { Component, OnInit, inject } from '@angular/core';
-import { HeaderStateService } from '../../services/header-state.service';
+import { HeaderStateService } from '../../layout/services/header-state.service';
 
 @Component({
   selector: 'app-dashboard',

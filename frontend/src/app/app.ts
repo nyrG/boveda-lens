@@ -1,11 +1,11 @@
 import { Component, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { Header } from './layout/header/header';
-import { Sidebar } from './layout/sidebar/sidebar';
-import { ActionSidebar } from './layout/action-sidebar/action-sidebar';
-import { AuthService } from './services/auth.service';
-import { LayoutService } from './services/layout.service';
-import { Toast } from './features/toast/toast';
+import { Header } from './layout/components/header/header';
+import { Sidebar } from './layout/components/sidebar/sidebar';
+import { ActionSidebar } from './layout/components/action-sidebar/action-sidebar';
+import { AuthService } from './core/services/auth.service';
+import { LayoutService } from './layout/services/layout.service';
+import { Toast } from './shared/components/toast/toast';
 
 @Component({
   selector: 'app-root',

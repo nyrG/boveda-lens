@@ -10,7 +10,7 @@ describe('RecordList', () => {
     await TestBed.configureTestingModule({
       imports: [RecordList]
     })
-    .compileComponents();
+      .compileComponents();
 
     fixture = TestBed.createComponent(RecordList);
     component = fixture.componentInstance;

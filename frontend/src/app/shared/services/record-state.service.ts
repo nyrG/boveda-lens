@@ -1,6 +1,6 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
-import { Record } from '../models/record';
-import { RecordApi } from './record-api';
+import { Record } from '../../modules/patients/models/record';
+import { RecordApi } from '../../modules/patients/services/record-api';
 import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
 import { ToastService } from './toast.service';
 
