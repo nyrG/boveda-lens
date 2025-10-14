@@ -11,13 +11,18 @@
             >
               {{ crumb.text }}
             </a>
-          } @else {
+          } @else if (isLast && headerState.breadcrumbs().length > 1) {
+            <!-- Special styling for the last breadcrumb when it's not a link (e.g., Patient ID) -->
             <span
-              class="inline-block truncate max-w-48 sm:max-w-64 md:max-w-md px-2 py-1 text-slate-800 font-semibold"
+              class="text-sm inline-flex items-center gap-2 rounded-md border border-slate-200 bg-slate-100 mx-2 px-2 py-1 font-semibold text-slate-700"
               title="{{ crumb.text }}"
             >
-              {{ crumb.text }}
+              <i class="fa-solid fa-file text-slate-500"></i>
+              <span class="truncate max-w-48">{{ crumb.text }}</span>
             </span>
+          } @else {
+            <!-- Default styling for a non-linked breadcrumb (e.g., a page title) -->
+            <span class="px-2 py-1 text-slate-800 font-semibold">{{ crumb.text }}</span>
           }
 
           @if (!isLast) {

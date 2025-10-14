@@ -1,0 +1,38 @@
+<dl class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-6">
+  <div>
+    <dt class="text-sm text-slate-500">Record Number</dt>
+    <dd class="font-medium text-slate-800">
+      {{ info.patient_record_number || 'N/A' }}
+    </dd>
+  </div>
+  <div>
+    <dt class="text-sm text-slate-500">Date of Birth</dt>
+    <dd class="font-medium text-slate-800">
+      {{ info.date_of_birth ? (info.date_of_birth | date: 'longDate') : 'N/A' }}
+    </dd>
+  </div>
+  <div>
+    <dt class="text-sm text-slate-500">Current Age</dt>
+    <dd class="font-medium text-slate-800">
+      {{ info.age ? info.age + ' yrs' : 'N/A' }}
+    </dd>
+  </div>
+  <div>
+    <dt class="text-sm text-slate-500">Sex</dt>
+    <dd class="font-medium text-slate-800">
+      {{ info.sex === 'M' ? 'Male' : info.sex === 'F' ? 'Female' : 'N/A' }}
+    </dd>
+  </div>
+  <div>
+    <dt class="text-sm text-slate-500">Category</dt>
+    <dd class="font-medium text-slate-800">
+      {{ info.category || 'N/A' }}
+    </dd>
+  </div>
+  <div class="sm:col-span-2">
+    <dt class="text-sm text-slate-500">Address</dt>
+    <dd class="font-medium text-slate-800">
+      {{ info.address?.house_no_street || 'N/A' }}
+    </dd>
+  </div>
+</dl>

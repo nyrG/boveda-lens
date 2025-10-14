@@ -1,10 +1,135 @@
-<div class="p-6">
-  <div class="mb-4">
-    <a routerLink="/records" class="text-blue-600 hover:underline">&larr; Back to Records</a>
-  </div>
+<div class="p-4 md:p-6 lg:p-8">
+  @if (record(); as patient) {
+    <div class="max-w-4xl mx-auto space-y-6">
+      <!-- Page Header -->
+      <div class="flex items-center justify-between">
+        <h2 class="text-xl font-bold text-slate-800">{{ patient.name }}</h2>
+        <!-- Action Buttons -->
+        <div class="flex gap-2">
+          <a
+            routerLink="/records"
+            class="inline-flex items-center gap-2 rounded-md border border-slate-200 bg-slate-100 px-3 py-1.5 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-200"
+          >
+            <i class="fa-solid fa-arrow-left text-slate-500"></i>
+            <span>Back</span>
+          </a>
+          <button
+            class="inline-flex items-center gap-2 rounded-md border border-slate-200 bg-slate-100 px-3 py-1.5 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-200"
+          >
+            <i class="fa-solid fa-print text-slate-500"></i>
+            <span>Print</span>
+          </button>
+          <button
+            class="inline-flex items-center gap-2 rounded-md border border-transparent bg-blue-600 px-3 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-blue-700"
+          >
+            <i class="fa-solid fa-pencil"></i>
+            <span>Edit</span>
+          </button>
+        </div>
+      </div>
 
-  @if (record()) {
-    <h1 class="text-2xl font-bold text-slate-800">Patient: {{ record()?.name }}</h1>
+      <!-- Tab Navigation -->
+      <div class="border-b border-slate-200">
+        <nav class="flex gap-4 -mb-px">
+          <button
+            (click)="setActiveTab('demographics')"
+            [ngClass]="{
+              'border-blue-600 text-blue-600': activeTab() === 'demographics',
+              'border-transparent text-slate-600 hover:border-slate-300 hover:text-slate-900':
+                activeTab() !== 'demographics',
+            }"
+            class="border-b-2 py-3 px-2 font-medium transition-colors"
+          >
+            Demographics
+          </button>
+          <button
+            (click)="setActiveTab('summary')"
+            [ngClass]="{
+              'border-blue-600 text-blue-600': activeTab() === 'summary',
+              'border-transparent text-slate-600 hover:border-slate-300 hover:text-slate-900':
+                activeTab() !== 'summary',
+            }"
+            class="border-b-2 py-3 px-2 font-medium transition-colors"
+          >
+            Summary
+          </button>
+          <button
+            (click)="setActiveTab('consultations')"
+            [ngClass]="{
+              'border-blue-600 text-blue-600': activeTab() === 'consultations',
+              'border-transparent text-slate-600 hover:border-slate-300 hover:text-slate-900':
+                activeTab() !== 'consultations',
+            }"
+            class="border-b-2 py-3 px-2 font-medium transition-colors"
+          >
+            Consultations
+          </button>
+          <button
+            (click)="setActiveTab('labs')"
+            [ngClass]="{
+              'border-blue-600 text-blue-600': activeTab() === 'labs',
+              'border-transparent text-slate-600 hover:border-slate-300 hover:text-slate-900':
+                activeTab() !== 'labs',
+            }"
+            class="border-b-2 py-3 px-2 font-medium transition-colors"
+          >
+            Lab Results
+          </button>
+          <button
+            (click)="setActiveTab('radiology')"
+            [ngClass]="{
+              'border-blue-600 text-blue-600': activeTab() === 'radiology',
+              'border-transparent text-slate-600 hover:border-slate-300 hover:text-slate-900':
+                activeTab() !== 'radiology',
+            }"
+            class="border-b-2 py-3 px-2 font-medium transition-colors"
+          >
+            Radiology
+          </button>
+          <button
+            (click)="setActiveTab('sponsor')"
+            [ngClass]="{
+              'border-blue-600 text-blue-600': activeTab() === 'sponsor',
+              'border-transparent text-slate-600 hover:border-slate-300 hover:text-slate-900':
+                activeTab() !== 'sponsor',
+            }"
+            class="border-b-2 py-3 px-2 font-medium transition-colors"
+          >
+            Sponsor
+          </button>
+        </nav>
+      </div>
+
+      <!-- Tab Content Panel -->
+      <div class="rounded-lg border border-slate-200 bg-white shadow-sm">
+        <div class="p-4 md:p-6">
+          <!-- Demographics Panel -->
+          @if (activeTab() === 'demographics') {
+            <app-patient-info [info]="patient.patient_info" />
+          }
+          <!-- Summary Panel -->
+          @if (activeTab() === 'summary') {
+            <p class="text-slate-500">Summary content will go here.</p>
+          }
+          <!-- Consultations Panel -->
+          @if (activeTab() === 'consultations') {
+            <p class="text-slate-500">Consultations content will go here.</p>
+          }
+          <!-- Lab Results Panel -->
+          @if (activeTab() === 'labs') {
+            <p class="text-slate-500">Lab results content will go here.</p>
+          }
+          <!-- Radiology Panel -->
+          @if (activeTab() === 'radiology') {
+            <p class="text-slate-500">Radiology content will go here.</p>
+          }
+          <!-- Sponsor Panel -->
+          @if (activeTab() === 'sponsor') {
+            <p class="text-slate-500">Sponsor content will go here.</p>
+          }
+        </div>
+      </div>
+    </div>
   } @else {
     <p class="text-slate-500">Loading record...</p>
   }
