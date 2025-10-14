@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit, inject } from '@angular/core';
-import { RecordList } from '../../shared/components/data-table/record-list';
+import { RecordList } from '../../shared/components/record-list/record-list';
 import { RecordListActions } from '../../shared/components/record-list-actions/record-list-actions';
 import { HeaderStateService } from '../../layout/services/header-state.service';
 import { LayoutService } from '../../layout/services/layout.service';

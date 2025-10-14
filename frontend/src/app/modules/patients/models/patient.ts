@@ -1,4 +1,4 @@
-export interface Record {
+export interface Patient {
     id: number;
     name: string;
     created_at: string;

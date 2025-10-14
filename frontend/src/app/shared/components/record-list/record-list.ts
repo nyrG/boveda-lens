@@ -1,7 +1,7 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { Record } from '../../../modules/patients/models/record';
+import { Patient } from '../../../modules/patients/models/patient';
 import { RecordStateService } from '../../services/record-state.service';
 
 @Component({
@@ -53,7 +53,7 @@ export class RecordList implements OnInit {
     return records.every(r => this.recordState.selectedRecordIds().has(r.id));
   }
 
-  getFinalDiagnosis(record: Record): string {
+  getFinalDiagnosis(record: Patient): string {
     if (Array.isArray(record.summary?.final_diagnosis)) {
       return record.summary.final_diagnosis.join(', ');
     }

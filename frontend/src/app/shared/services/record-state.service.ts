@@ -1,6 +1,6 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
-import { Record } from '../../modules/patients/models/record';
-import { RecordApi } from '../../modules/patients/services/record-api';
+import { Patient } from '../../modules/patients/models/patient';
+import { PatientApi } from '../../modules/patients/services/patient-api';
 import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
 import { ToastService } from './toast.service';
 
@@ -8,14 +8,14 @@ import { ToastService } from './toast.service';
   providedIn: 'root'
 })
 export class RecordStateService {
-  private recordApi = inject(RecordApi);
+  private recordApi = inject(PatientApi);
   private toastService = inject(ToastService);
 
   // --- Search ---
   private searchSubject = new Subject<string>();
 
   // --- State Signals ---
-  readonly records = signal<Record[]>([]);
+  readonly records = signal<Patient[]>([]);
   readonly totalRecords = signal(0);
   readonly currentPage = signal(1);
   readonly rowsPerPage = signal(10);
@@ -44,7 +44,7 @@ export class RecordStateService {
 
   // --- Data Fetching ---
   fetchRecords(): void {
-    this.recordApi.getRecords(
+    this.recordApi.getPatients(
       this.currentPage(),
       this.rowsPerPage(),
       this.searchTerm(),
@@ -60,7 +60,7 @@ export class RecordStateService {
   }
 
   fetchRecordById(id: number) {
-    return this.recordApi.getRecord(id).pipe(
+    return this.recordApi.getPatient(id).pipe(
       // In a real app, you might want to set a `selectedRecord` signal here
     );
   }
@@ -121,7 +121,7 @@ export class RecordStateService {
       return;
     }
 
-    this.recordApi.deleteRecords(idsToDelete).subscribe(() => {
+    this.recordApi.deletePatients(idsToDelete).subscribe(() => {
       this.toastService.show({ message: `${idsToDelete.length} record(s) deleted successfully.`, type: 'success' });
       // Check if the current page would be empty after deletion
       const newTotal = this.totalRecords() - idsToDelete.length;

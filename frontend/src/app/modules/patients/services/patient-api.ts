@@ -1,23 +1,23 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Record } from '../models/record';
+import { Patient } from '../models/patient';
 import { PaginatedResponse } from '../../../shared/models/api';
 
 @Injectable({
   providedIn: 'root'
 })
-export class RecordApi {
+export class PatientApi {
   private http = inject(HttpClient);
   private apiUrl = '/api/patients';
 
-  getRecords(
+  getPatients(
     page: number,
     limit: number,
     search?: string,
     sortBy: string = 'created_at',
     sortOrder: 'ASC' | 'DESC' = 'DESC'
-  ): Observable<PaginatedResponse<Record>> {
+  ): Observable<PaginatedResponse<Patient>> {
     let params = new HttpParams()
       .set('page', page.toString())
       .set('limit', limit.toString())
@@ -28,7 +28,7 @@ export class RecordApi {
       params = params.set('search', search);
     }
 
-    return this.http.get<PaginatedResponse<Record>>(this.apiUrl, { params });
+    return this.http.get<PaginatedResponse<Patient>>(this.apiUrl, { params });
   }
 
   getCategories(): Observable<string[]> {
@@ -37,11 +37,11 @@ export class RecordApi {
     return this.http.get<string[]>(`${this.apiUrl}/categories`);
   }
 
-  deleteRecords(ids: number[]): Observable<void> {
+  deletePatients(ids: number[]): Observable<void> {
     return this.http.delete<void>(this.apiUrl, { body: { ids } });
   }
 
-  getRecord(id: number): Observable<Record> {
-    return this.http.get<Record>(`${this.apiUrl}/${id}`);
+  getPatient(id: number): Observable<Patient> {
+    return this.http.get<Patient>(`${this.apiUrl}/${id}`);
   }
 }
