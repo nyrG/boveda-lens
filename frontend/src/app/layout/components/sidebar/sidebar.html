@@ -1,0 +1,184 @@
+<aside
+  class="bg-slate-50 text-slate-600 h-full flex flex-col transition-all duration-300 border-r border-slate-200"
+  [class.w-20]="layoutService.isSidebarCollapsed()"
+  [class.w-56]="!layoutService.isSidebarCollapsed()"
+>
+  <!-- Logo Section -->
+  <div
+    class="flex items-center h-16 flex-shrink-0"
+    [class.px-6]="!layoutService.isSidebarCollapsed()"
+    [class.justify-center]="layoutService.isSidebarCollapsed()"
+  >
+    <a routerLink="/" class="flex items-center gap-3" title="Bóveda Lens Home">
+      <img ngSrc="assets/logo.png" alt="Boveda Logo" class="h-6 w-6" width="24" height="24" />
+      @if (!layoutService.isSidebarCollapsed()) {
+        <span class="text-xl font-semibold text-slate-800 whitespace-nowrap">Bóveda Lens</span>
+      }
+    </a>
+  </div>
+
+  <!-- Navigation Links -->
+  <nav class="flex-1 py-4 overflow-y-auto" [class.px-4]="!layoutService.isSidebarCollapsed()">
+    <ul class="space-y-2 list-none">
+      @for (item of navItems; track item.link) {
+        <li>
+          <a
+            [routerLink]="item.link"
+            [title]="layoutService.isSidebarCollapsed() ? item.text : null"
+            class="flex items-center h-10 rounded-lg text-sm transition-colors hover:bg-slate-100"
+            [class.px-2]="!layoutService.isSidebarCollapsed()"
+            [class.justify-center]="layoutService.isSidebarCollapsed()"
+            routerLinkActive="bg-primary-light text-primary font-semibold hover:bg-primary-light"
+            [routerLinkActiveOptions]="{ exact: !!item.exact }"
+          >
+            <i class="fa-solid {{ item.icon }} w-5 text-center text-lg"></i>
+            @if (!layoutService.isSidebarCollapsed()) {
+              <span class="ml-3 whitespace-nowrap">{{ item.text }}</span>
+            }
+          </a>
+        </li>
+      }
+    </ul>
+  </nav>
+
+  <!-- Footer Section -->
+  <div class="bg-slate-100 flex-shrink-0 border-t border-slate-200">
+    <div class="flex flex-col">
+      @if (!layoutService.isSidebarCollapsed()) {
+        <!-- Expanded Mode Layout -->
+        <div class="p-4">
+          <a
+            routerLink="/notifications"
+            class="flex items-center h-10 rounded-lg text-sm transition-colors hover:bg-slate-100 px-2"
+            title="Notifications"
+          >
+            <i class="fa-regular fa-bell w-5 text-center text-lg"></i>
+            <span class="ml-3 whitespace-nowrap">Notifications</span>
+          </a>
+        </div>
+        <div class="p-4">
+          <div class="flex items-center">
+            <div class="relative flex-1">
+              <button
+                (click)="toggleProfileMenu()"
+                class="flex w-full items-center gap-3 focus:outline-none"
+              >
+                <div
+                  class="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-primary text-sm font-semibold text-white"
+                >
+                  T
+                </div>
+                <div class="text-left">
+                  <p class="text-sm font-semibold text-slate-700">Tony Stark</p>
+                  <p class="text-xs text-slate-500">Admin</p>
+                </div>
+              </button>
+              @if (isProfileMenuOpen()) {
+                <div
+                  class="absolute bottom-full left-0 z-20 mb-2 w-56 origin-bottom-left rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
+                >
+                  <div class="p-2" role="menu" aria-orientation="vertical">
+                    <a
+                      routerLink="/profile"
+                      class="flex items-center h-10 px-3 rounded-lg text-sm text-slate-600 hover:bg-slate-100 hover:text-slate-800"
+                      role="menuitem"
+                    >
+                      <i class="fa-regular fa-user w-5"></i>
+                      <span class="ml-3">My Profile</span>
+                    </a>
+                    <a
+                      routerLink="/settings"
+                      class="flex items-center h-10 px-3 rounded-lg text-sm text-slate-600 hover:bg-slate-100 hover:text-slate-800"
+                      role="menuitem"
+                    >
+                      <i class="fa-solid fa-gear w-5"></i>
+                      <span class="ml-3">Settings</span>
+                    </a>
+                    <div class="my-1 border-t border-slate-100"></div>
+                    <a
+                      (click)="logout()"
+                      class="flex items-center h-10 px-3 rounded-lg text-sm text-slate-600 hover:bg-slate-100 hover:text-slate-800 cursor-pointer"
+                      role="menuitem"
+                    >
+                      <i class="fa-solid fa-right-from-bracket w-5"></i>
+                      <span class="ml-3">Logout</span>
+                    </a>
+                  </div>
+                </div>
+              }
+            </div>
+            <button
+              (click)="layoutService.toggleSidebar()"
+              class="flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-800"
+            >
+              <i class="fa-solid fa-chevron-left"></i>
+            </button>
+          </div>
+        </div>
+      } @else {
+        <!-- Collapsed Mode Layout -->
+        <div class="p-4 flex flex-col items-center gap-2">
+          <!-- Notifications Button -->
+          <a
+            routerLink="/notifications"
+            class="flex items-center justify-center h-10 w-full rounded-lg text-sm transition-colors hover:bg-slate-100"
+            title="Notifications"
+          >
+            <i class="fa-regular fa-bell w-5 text-center text-lg"></i>
+          </a>
+          <!-- User Profile Button -->
+          <div class="relative">
+            <button
+              (click)="toggleProfileMenu()"
+              class="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-sm font-semibold text-white focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+            >
+              T
+            </button>
+            @if (isProfileMenuOpen()) {
+              <div
+                class="absolute bottom-full left-0 z-20 mb-2 w-56 origin-bottom-left rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
+              >
+                <div class="p-2" role="menu" aria-orientation="vertical">
+                  <a
+                    routerLink="/profile"
+                    class="flex items-center h-10 px-3 rounded-lg text-sm text-slate-600 hover:bg-slate-100 hover:text-slate-800"
+                    role="menuitem"
+                  >
+                    <i class="fa-regular fa-user w-5"></i>
+                    <span class="ml-3">My Profile</span>
+                  </a>
+                  <a
+                    routerLink="/settings"
+                    class="flex items-center h-10 px-3 rounded-lg text-sm text-slate-600 hover:bg-slate-100 hover:text-slate-800"
+                    role="menuitem"
+                  >
+                    <i class="fa-solid fa-gear w-5"></i>
+                    <span class="ml-3">Settings</span>
+                  </a>
+                  <div class="my-1 border-t border-slate-100"></div>
+                  <a
+                    (click)="logout()"
+                    class="flex items-center h-10 px-3 rounded-lg text-sm text-slate-600 hover:bg-slate-100 hover:text-slate-800 cursor-pointer"
+                    role="menuitem"
+                  >
+                    <i class="fa-solid fa-right-from-bracket w-5"></i>
+                    <span class="ml-3">Logout</span>
+                  </a>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+        <!-- Divider and Expand Button -->
+        <div class="px-4 pb-4">
+          <button
+            (click)="layoutService.toggleSidebar()"
+            class="mt-4 flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-800 mx-auto"
+          >
+            <i class="fa-solid fa-chevron-right"></i>
+          </button>
+        </div>
+      }
+    </div>
+  </div>
+</aside>

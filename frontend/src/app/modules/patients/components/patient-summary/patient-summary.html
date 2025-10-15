@@ -1,0 +1,66 @@
+@if (summary; as summary) {
+  <div class="rounded-lg border border-slate-200 bg-white shadow-sm">
+    <!-- Redesigned Critical Info Section -->
+    <div class="grid grid-cols-1 border-b border-slate-200 sm:grid-cols-2">
+      <!-- Final Diagnosis -->
+      <div class="flex items-center justify-between border-r border-slate-200 p-4 sm:p-6">
+        <div>
+          <p class="text-sm text-slate-500">Final Diagnosis</p>
+          @if (summary.final_diagnosis.length) {
+            <ul class="mt-1 list-inside list-disc space-y-1 text-lg font-bold text-slate-800">
+              @for (dx of summary.final_diagnosis; track dx) {
+                <li>{{ dx }}</li>
+              }
+            </ul>
+          } @else {
+            <p class="text-lg font-bold text-slate-800">N/A</p>
+          }
+        </div>
+        <i class="fa-solid fa-clipboard-check text-3xl text-slate-300"></i>
+      </div>
+      <!-- Allergies -->
+      <div class="flex items-center justify-between p-4 sm:p-6">
+        <div>
+          <p class="text-sm text-red-600">Allergies</p>
+          @if (summary.allergies?.length) {
+            <ul class="mt-1 list-inside list-disc space-y-1 text-lg font-bold text-red-800">
+              @for (allergy of summary.allergies; track allergy) {
+                <li>{{ allergy }}</li>
+              }
+            </ul>
+          } @else {
+            <p class="text-lg font-bold text-slate-800">N/A</p>
+          }
+        </div>
+        <i class="fa-solid fa-triangle-exclamation text-3xl text-red-300"></i>
+      </div>
+    </div>
+
+    <!-- Card Body -->
+    <div class="p-4 md:p-6">
+      <!-- Main Content Column -->
+      <div class="space-y-8">
+        <app-detail-item
+          icon="fa-comment-dots"
+          label="Primary Complaint"
+          [value]="summary.primary_complaint"
+        />
+        <app-detail-item
+          icon="fa-magnifying-glass-plus"
+          label="Key Findings"
+          [value]="summary.key_findings"
+        />
+        <app-detail-item
+          icon="fa-pills"
+          label="Medications Taken"
+          [values]="summary.medications_taken"
+        />
+      </div>
+    </div>
+  </div>
+} @else {
+  <div class="text-center text-slate-500">
+    <i class="fa-solid fa-file-circle-xmark fa-2x mb-2"></i>
+    <p>No summary information available for this patient.</p>
+  </div>
+}

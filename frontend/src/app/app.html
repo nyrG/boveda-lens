@@ -1,16 +1,20 @@
 @if (isLoggedIn()) {
-  <div class="flex flex-col h-screen bg-white">
-    <app-header></app-header>
-    <div class="flex flex-1 overflow-hidden">
-      <app-sidebar class="flex-shrink-0"></app-sidebar>
-      <main class="flex-1 overflow-y-auto p-6">
-        <router-outlet></router-outlet>
-      </main>
+  <div class="flex h-screen">
+    <app-sidebar></app-sidebar>
+    <div class="flex-1 flex flex-col overflow-hidden">
+      <app-header></app-header>
+      <div class="flex flex-1 overflow-y-auto">
+        <main class="flex-1 px-6 py-8">
+          <div>
+            <app-toast></app-toast>
+            <router-outlet></router-outlet>
+            <app-action-dialog></app-action-dialog>
+          </div>
+        </main>
+        <app-action-sidebar></app-action-sidebar>
+      </div>
     </div>
   </div>
 } @else {
-  <!-- For pages like Login, show only the router outlet without the main layout -->
-  <main class="container mx-auto">
-    <router-outlet></router-outlet>
-  </main>
+  <router-outlet></router-outlet>
 }

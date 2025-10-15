@@ -1,18 +1,22 @@
-import { Component, signal, inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { Header } from './layout/header/header';
-import { Sidebar } from './layout/sidebar/sidebar';
-import { AuthService } from './services/auth.service';
+import { Header } from './layout/components/header/header';
+import { Sidebar } from './layout/components/sidebar/sidebar';
+import { ActionSidebar } from './layout/components/action-sidebar/action-sidebar';
+import { AuthService } from './core/services/auth.service';
+import { LayoutService } from './layout/services/layout.service';
+import { Toast } from './shared/components/toast/toast';
+import { ActionDialog } from "./shared/components/action-dialog/action-dialog";
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, Header, Sidebar],
+  imports: [RouterOutlet, Header, Sidebar, ActionSidebar, Toast, ActionDialog],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
 export class App {
-  //protected readonly title = signal('frontend');
   private authService = inject(AuthService);
+  layoutService = inject(LayoutService);
 
   // Expose the isLoggedIn computed signal to the template
   isLoggedIn = this.authService.isLoggedIn;

@@ -1,0 +1,28 @@
+@keyframes toast-in-right {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes toast-out-right {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+.toast-item {
+  /* The 'forwards' keyword ensures the element stays in its final state */
+  animation: toast-in-right 0.3s ease-out forwards;
+}
+
+/* A 'leaving' class would be needed for a fade-out animation, which requires a change in the ToastService to delay removal. */

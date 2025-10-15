@@ -1,11 +1,28 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { RecordList } from '../../shared/components/record-list/record-list';
+import { HeaderStateService } from '../../layout/services/header-state.service';
+import { LayoutService } from '../../layout/services/layout.service';
 
 @Component({
   selector: 'app-records',
-  imports: [],
+  imports: [RecordList],
   templateUrl: './records.html',
   styleUrl: './records.css'
 })
-export class Records {
+export class Records implements OnInit, OnDestroy {
+  private headerState = inject(HeaderStateService);
+  private layoutService = inject(LayoutService);
 
+  ngOnInit(): void {
+    this.headerState.setTitle('Records');
+    this.headerState.setShowFilterButton(true);
+    this.headerState.setShowRefreshButton(true);
+  }
+
+  ngOnDestroy(): void {
+    // When leaving the page, hide the filter button and close the sidebar
+    this.headerState.setShowFilterButton(false);
+    this.layoutService.closeActionSidebar();
+    this.headerState.setShowRefreshButton(false);
+  }
 }

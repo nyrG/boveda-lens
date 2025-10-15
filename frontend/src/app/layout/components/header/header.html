@@ -1,0 +1,87 @@
+<header class="bg-white h-16 flex items-center justify-between px-6 border-b border-slate-200">
+  <div>
+    <!-- Page Title -->
+    <h1 class="text-xl font-semibold flex items-center">
+      @for (crumb of headerState.breadcrumbs(); track crumb.text; let isLast = $last) {
+        <div class="flex items-center transition-opacity duration-300 animate-fade-in">
+          @if (!isNaN(Number(crumb.text))) {
+            <!-- Special styling for a numeric breadcrumb (e.g., Patient ID) -->
+            @if (crumb.link) {
+              <a
+                [routerLink]="crumb.link"
+                class="text-sm inline-flex items-center gap-2 rounded-md border border-slate-200 bg-slate-100 mx-2 px-2 py-1 font-semibold text-slate-700 transition-colors hover:bg-slate-200"
+                title="{{ crumb.text }}"
+              >
+                <i class="fa-solid fa-file text-slate-500"></i>
+                <span class="truncate max-w-48">{{ crumb.text }}</span>
+              </a>
+            } @else {
+              <span
+                class="text-sm inline-flex items-center gap-2 rounded-md border border-slate-200 bg-slate-100 mx-2 px-2 py-1 font-semibold text-slate-700"
+                title="{{ crumb.text }}"
+              >
+                <i class="fa-solid fa-file text-slate-500"></i>
+                <span class="truncate max-w-48">{{ crumb.text }}</span>
+              </span>
+            }
+          } @else if (crumb.link) {
+            <a
+              [routerLink]="crumb.link"
+              class="px-2 py-1 rounded-md transition-colors duration-200 text-slate-500 hover:bg-slate-100 hover:text-slate-700"
+            >
+              {{ crumb.text }}
+            </a>
+          } @else {
+            <!-- Default styling for a non-linked breadcrumb (e.g., a page title) -->
+            <span class="px-2 py-1 text-slate-800 font-semibold">{{ crumb.text }}</span>
+          }
+
+          @if (!isLast) {
+            <span class="mx-1 text-slate-400 font-light select-none">&gt;</span>
+          }
+        </div>
+      }
+    </h1>
+  </div>
+
+  <!-- Right Section: Actions -->
+  <div class="flex items-center gap-2">
+    @if (headerState.backButtonState(); as backButton) {
+      @if (backButton.visible) {
+        <!-- Use a different style if text is provided -->
+        <a
+          [routerLink]="backButton.link"
+          class="inline-flex items-center gap-2 rounded-md border border-slate-200 bg-white px-3 py-1.5 text-sm font-semibold text-slate-600 transition-colors hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-teal-500"
+          [attr.aria-label]="backButton.text || 'Go back'"
+        >
+          <i class="fa-solid fa-arrow-left text-sm"></i>
+          <!-- Display text if it exists -->
+          <span>{{ backButton.text }}</span>
+        </a>
+      }
+    }
+    @if (headerState.showRefreshButton()) {
+      <button
+        class="h-10 w-10 flex items-center justify-center bg-white text-slate-500 hover:bg-slate-100 rounded-full focus:outline-none focus:ring-2 focus:ring-teal-500 border border-slate-200 disabled:cursor-wait"
+        aria-label="Refresh list"
+        (click)="recordState.fetchRecords({ showNotification: true })"
+        [disabled]="recordState.isLoading()"
+      >
+        @if (recordState.isLoading()) {
+          <i class="fa-solid fa-spinner animate-spin text-sm"></i>
+        } @else {
+          <i class="fa-solid fa-rotate text-sm"></i>
+        }
+      </button>
+    }
+    @if (headerState.showFilterButton()) {
+      <button
+        class="h-10 w-10 flex items-center justify-center bg-white text-slate-500 hover:bg-slate-100 rounded-full focus:outline-none focus:ring-2 focus:ring-teal-500 border border-slate-200"
+        aria-label="Open filters and sorting"
+        (click)="layoutService.toggleActionSidebar()"
+      >
+        <i class="fa-solid fa-sliders text-sm"></i>
+      </button>
+    }
+  </div>
+</header>

@@ -1,0 +1,160 @@
+<div>
+  @if (record(); as patient) {
+    <div class="space-y-6">
+      <!-- Page Header -->
+      <div class="flex items-center justify-between">
+        <h2 class="text-xl font-bold text-slate-800">{{ patient.name }}</h2>
+        <!-- Action Buttons -->
+        <div class="flex gap-2">
+          <button
+            (click)="navigateToEdit()"
+            class="inline-flex items-center gap-2 rounded-md border border-transparent bg-primary px-3 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+          >
+            <i class="fa-solid fa-pencil"></i>
+            <span>Edit</span>
+          </button>
+          <!-- More Actions Dropdown -->
+          <div class="relative actions-dropdown-container">
+            <button
+              (click)="toggleActionsMenu(); $event.stopPropagation()"
+              class="inline-flex h-9 w-9 items-center justify-center rounded-md border border-slate-200 bg-slate-100 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-200"
+            >
+              <i class="fa-solid fa-ellipsis-vertical text-slate-500"></i>
+            </button>
+            @if (isActionsMenuOpen()) {
+              <div
+                class="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none dropdown-menu-enter"
+              >
+                <div class="py-1">
+                  <button
+                    class="flex w-full items-center gap-2 px-4 py-2 text-sm text-slate-700 hover:bg-slate-100"
+                  >
+                    <i class="fa-solid fa-print w-4 text-center"></i>
+                    <span>Print</span>
+                  </button>
+                  <button
+                    (click)="deleteRecord()"
+                    class="flex w-full items-center gap-2 px-4 py-2 text-sm text-slate-700 hover:bg-slate-100"
+                  >
+                    <i class="fa-solid fa-trash-can w-4 text-center"></i>
+                    <span>Delete Record</span>
+                  </button>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab Navigation -->
+      <div class="border-b border-slate-200">
+        <nav class="flex gap-4 -mb-px">
+          @for (tab of tabs; track tab.id) {
+            <button
+              (click)="setActiveTab(tab.id)"
+              [ngClass]="{
+                'border-primary text-primary': activeTab() === tab.id,
+                'border-transparent text-slate-500 hover:border-slate-300 hover:text-slate-700':
+                  activeTab() !== tab.id,
+              }"
+              class="border-b-2 py-3 px-2 font-medium transition-colors"
+            >
+              {{ tab.label }}
+            </button>
+          }
+        </nav>
+      </div>
+
+      <!-- Tab Content Panel with CSS Animation -->
+      <div class="mt-6">
+        @switch (activeTab()) {
+          @case ('info') {
+            <app-patient-info [info]="patient.patient_info" class="tab-content-enter" />
+          }
+          @case ('summary') {
+            <app-patient-summary [summary]="patient.summary" class="tab-content-enter" />
+          }
+          @case ('consultations') {
+            <app-patient-consultations
+              [consultations]="patient.medical_encounters?.consultations"
+              class="tab-content-enter"
+            />
+          }
+          @case ('labs') {
+            <app-patient-labs
+              [labResults]="patient.medical_encounters?.lab_results"
+              class="tab-content-enter"
+            />
+          }
+          @case ('radiology') {
+            <app-patient-radiology
+              [radiologyReports]="patient.medical_encounters?.radiology_reports"
+              class="tab-content-enter"
+            />
+          }
+          @case ('sponsor') {
+            <app-patient-sponsor [sponsorInfo]="patient.sponsor_info" class="tab-content-enter" />
+          }
+        }
+      </div>
+    </div>
+  } @else {
+    <!-- Skeleton Loader -->
+    <div class="animate-pulse space-y-6">
+      <!-- Page Header Skeleton -->
+      <div class="flex items-center justify-between">
+        <div class="h-7 w-48 rounded-md bg-slate-200"></div>
+        <div class="flex gap-2">
+          <div class="h-9 w-9 rounded-md bg-slate-200"></div>
+          <div class="h-9 w-20 rounded-md bg-slate-200"></div>
+          <div class="h-9 w-9 rounded-md bg-slate-200"></div>
+        </div>
+      </div>
+
+      <!-- Tab Navigation Skeleton -->
+      <div class="border-b border-slate-200">
+        <div class="flex gap-4 -mb-px">
+          <div class="h-12 w-28 rounded-t-md bg-slate-200"></div>
+          <div class="h-12 w-24 rounded-t-md bg-slate-200"></div>
+          <div class="h-12 w-32 rounded-t-md bg-slate-200"></div>
+          <div class="h-12 w-28 rounded-t-md bg-slate-200"></div>
+        </div>
+      </div>
+
+      <!-- Tab Content Skeleton (mimicking patient-info card) -->
+      <div class="mt-6">
+        <div class="rounded-lg border border-slate-200 bg-white shadow-sm">
+          <!-- Top Stats Skeleton -->
+          <div class="grid grid-cols-2 border-b border-slate-200 sm:grid-cols-4">
+            @for (_ of [1, 2, 3, 4]; track _) {
+              <div class="flex items-center justify-between p-4 sm:p-6">
+                <div class="space-y-2">
+                  <div class="h-4 w-16 rounded-md bg-slate-200"></div>
+                  <div class="h-6 w-20 rounded-md bg-slate-200"></div>
+                </div>
+                <div class="h-8 w-8 rounded-full bg-slate-200"></div>
+              </div>
+            }
+          </div>
+          <!-- Detailed Info Skeleton -->
+          <div class="p-4 md:p-6">
+            <div class="grid grid-cols-1 gap-x-8 gap-y-6 sm:grid-cols-2">
+              @for (_ of [1, 2]; track _) {
+                <div class="space-y-2">
+                  <div class="h-4 w-24 rounded-md bg-slate-200"></div>
+                  <div class="h-5 w-40 rounded-md bg-slate-200"></div>
+                </div>
+              }
+              <div class="sm:col-span-2">
+                <div class="space-y-2">
+                  <div class="h-4 w-24 rounded-md bg-slate-200"></div>
+                  <div class="h-5 w-full max-w-lg rounded-md bg-slate-200"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+</div>

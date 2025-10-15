@@ -9,7 +9,12 @@ module.exports = {
         lg: '8rem',
       },
     },
-    extend: {},
+    extend: {
+      colors: {
+        primary: 'var(--primary-color)',
+        'primary-light': 'var(--primary-color-light)',
+      },
+    },
   },
-  plugins: [],
+  plugins: [require('@tailwindcss/forms')],
 };

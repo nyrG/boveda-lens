@@ -1,0 +1,53 @@
+<div class="fixed bottom-5 right-5 z-50 w-full max-w-xs space-y-3">
+  @for (toast of toastService.toasts(); track toast) {
+    <div
+      class="toast-item flex items-center w-full p-4 rounded-lg shadow-lg"
+      [ngClass]="{
+        'bg-white text-slate-700': toast.type === 'info',
+        'bg-green-50 text-green-800': toast.type === 'success',
+        'bg-red-50 text-red-800': toast.type === 'error',
+      }"
+      role="alert"
+    >
+      <!-- Icon -->
+      <div
+        class="inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg"
+        [ngClass]="{
+          'bg-blue-100 text-blue-500': toast.type === 'info',
+          'bg-green-100 text-green-500': toast.type === 'success',
+          'bg-red-100 text-red-500': toast.type === 'error',
+        }"
+      >
+        @switch (toast.type) {
+          @case ('success') {
+            <i class="fa-solid fa-check"></i>
+          }
+          @case ('error') {
+            <i class="fa-solid fa-triangle-exclamation"></i>
+          }
+          @default {
+            <i class="fa-solid fa-info"></i>
+          }
+        }
+      </div>
+      <!-- Message -->
+      <div class="ms-3 text-sm font-normal flex-grow">{{ toast.message }}</div>
+      <!-- Action Button -->
+      @if (toast.action) {
+        <button
+          (click)="executeAction(toast); $event.stopPropagation()"
+          class="ms-3 text-sm font-semibold text-blue-600 hover:text-blue-700"
+        >
+          {{ toast.action.label }}
+        </button>
+      }
+      <!-- Close Button -->
+      <button
+        (click)="toastService.remove(toast.id)"
+        class="-mx-1.5 -my-1.5 ms-auto inline-flex h-8 w-8 items-center justify-center rounded-lg p-1.5 hover:bg-slate-200/50"
+      >
+        <i class="fa-solid fa-xmark text-slate-500"></i>
+      </button>
+    </div>
+  }
+</div>

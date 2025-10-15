@@ -1,0 +1,26 @@
+<div>
+  <!-- Label with Icon -->
+  <h3 class="flex items-center gap-3 text-sm font-semibold text-slate-800">
+    <i class="fa-solid {{ icon }} w-5 text-center text-slate-400"></i>
+    <span>{{ label }}</span>
+  </h3>
+
+  <!-- Conditional Value Display -->
+  @if (values?.length) {
+    <!-- Display as a list if 'values' array is provided -->
+    <ul class="ml-8 list-disc list-inside space-y-1 text-slate-600">
+      @for (item of values; track item) {
+        <li>{{ item }}</li>
+      }
+    </ul>
+  } @else {
+    <!-- Default to single value display -->
+    <p class="ml-8 leading-relaxed text-slate-600">
+      @if (value !== null && value !== undefined && value !== '') {
+        {{ value }}{{ unit ? ' ' + unit : '' }}
+      } @else {
+        <span class="text-slate-500">N/A</span>
+      }
+    </p>
+  }
+</div>

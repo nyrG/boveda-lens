@@ -1,0 +1,891 @@
+<div>
+  @if (record(); as patient) {
+    <form [formGroup]="patientForm" (ngSubmit)="saveChanges()" class="space-y-6 pb-12">
+      <!-- Page Header -->
+      <div class="flex items-center justify-between">
+        <h2 class="text-xl font-bold text-slate-800">Editing: {{ patient.name }}</h2>
+        <!-- Action Buttons -->
+        <div class="flex gap-2">
+          <button
+            type="button"
+            (click)="cancel()"
+            class="inline-flex items-center gap-2 rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50"
+          >
+            <i class="fa-solid fa-xmark"></i>
+            <span>Cancel</span>
+          </button>
+          <button
+            type="submit"
+            class="inline-flex items-center gap-2 rounded-md border border-transparent bg-primary px-3 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+          >
+            <i class="fa-solid fa-check"></i>
+            <span>Save Changes</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Tab Navigation -->
+      <div class="border-b border-slate-200">
+        <nav class="flex gap-4 -mb-px">
+          @for (tab of tabs; track tab.id) {
+            <button
+              type="button"
+              (click)="setActiveTab(tab.id)"
+              [ngClass]="{
+                'border-primary text-primary': activeTab() === tab.id,
+                'border-transparent text-slate-500 hover:border-slate-300 hover:text-slate-700':
+                  activeTab() !== tab.id,
+              }"
+              class="border-b-2 py-3 px-2 font-medium transition-colors"
+            >
+              {{ tab.label }}
+            </button>
+          }
+        </nav>
+      </div>
+
+      <!-- Tab Content Panel -->
+      <div class="mt-6">
+        @switch (activeTab()) {
+          @case ('info') {
+            <!-- Patient Info Form Card -->
+            <div class="rounded-lg border border-slate-200 bg-white shadow-sm tab-content-enter">
+              <div class="p-6" formGroupName="patient_info">
+                <h3 class="text-lg font-semibold text-slate-800">Patient Information</h3>
+                <p class="mt-1 text-sm text-slate-500">
+                  Update the patient's demographic and contact details.
+                </p>
+
+                <!-- Personal Information -->
+                <div class="mt-6 border-t border-slate-200 pt-6">
+                  <h4 class="text-base font-semibold text-slate-700">Personal Information</h4>
+                  <div class="mt-4 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
+                    <div class="sm:col-span-6" formGroupName="full_name">
+                      <div class="grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
+                        <div class="sm:col-span-2">
+                          <label for="first-name" class="form-label">First name</label>
+                          <input
+                            type="text"
+                            id="first-name"
+                            formControlName="first_name"
+                            class="form-input"
+                            [ngClass]="{
+                              'form-input-error':
+                                patientForm.get('patient_info.full_name.first_name')?.invalid &&
+                                patientForm.get('patient_info.full_name.first_name')?.touched,
+                            }"
+                          />
+                          @if (
+                            patientForm
+                              .get('patient_info.full_name.first_name')
+                              ?.hasError('required') &&
+                            patientForm.get('patient_info.full_name.first_name')?.touched
+                          ) {
+                            <p class="form-error-text">First name is required.</p>
+                          }
+                        </div>
+                        <div class="sm:col-span-2">
+                          <label for="last-name" class="form-label">Last name</label>
+                          <input
+                            type="text"
+                            id="last-name"
+                            formControlName="last_name"
+                            class="form-input"
+                            [ngClass]="{
+                              'form-input-error':
+                                patientForm.get('patient_info.full_name.last_name')?.invalid &&
+                                patientForm.get('patient_info.full_name.last_name')?.touched,
+                            }"
+                          />
+                          @if (
+                            patientForm
+                              .get('patient_info.full_name.last_name')
+                              ?.hasError('required') &&
+                            patientForm.get('patient_info.full_name.last_name')?.touched
+                          ) {
+                            <p class="form-error-text">Last name is required.</p>
+                          }
+                        </div>
+                        <div class="sm:col-span-2">
+                          <label for="middle-initial" class="form-label">Middle Initial</label>
+                          <input
+                            type="text"
+                            id="middle-initial"
+                            formControlName="middle_initial"
+                            class="form-input"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                    <div class="sm:col-span-2">
+                      <label for="dob" class="form-label">Date of Birth</label>
+                      <input
+                        type="date"
+                        id="dob"
+                        formControlName="date_of_birth"
+                        class="form-input"
+                        [ngClass]="{
+                          'form-input-error':
+                            patientForm.get('patient_info.date_of_birth')?.invalid &&
+                            patientForm.get('patient_info.date_of_birth')?.touched,
+                        }"
+                      />
+                      @if (
+                        patientForm.get('patient_info.date_of_birth')?.hasError('required') &&
+                        patientForm.get('patient_info.date_of_birth')?.touched
+                      ) {
+                        <p class="form-error-text">Date of birth is required.</p>
+                      }
+                    </div>
+                    <div class="sm:col-span-2">
+                      <label for="age" class="form-label">Documented Age</label>
+                      <input
+                        type="number"
+                        id="age"
+                        class="form-input"
+                        formControlName="documented_age"
+                      />
+                    </div>
+                    <div class="sm:col-span-2">
+                      <label for="sex" class="form-label">Sex</label>
+                      <select
+                        id="sex"
+                        formControlName="sex"
+                        class="form-input"
+                        [ngClass]="{
+                          'form-input-error':
+                            patientForm.get('patient_info.sex')?.invalid &&
+                            patientForm.get('patient_info.sex')?.touched,
+                        }"
+                      >
+                        <option value="M">Male</option>
+                        <option value="F">Female</option>
+                      </select>
+                      @if (
+                        patientForm.get('patient_info.sex')?.hasError('required') &&
+                        patientForm.get('patient_info.sex')?.touched
+                      ) {
+                        <p class="form-error-text">Sex is required.</p>
+                      }
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Record Details -->
+                <div class="mt-8 border-t border-slate-200 pt-6">
+                  <h4 class="text-base font-semibold text-slate-700">Record Details</h4>
+                  <div class="mt-4 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-2">
+                    <div>
+                      <label for="record-number" class="form-label">Record Number</label>
+                      <input
+                        type="text"
+                        id="record-number"
+                        formControlName="patient_record_number"
+                        class="form-input"
+                      />
+                    </div>
+                    <div>
+                      <label for="category" class="form-label">Category</label>
+                      <input
+                        type="text"
+                        id="category"
+                        class="form-input"
+                        formControlName="category"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Service Information -->
+                <div class="mt-8 border-t border-slate-200 pt-6">
+                  <h4 class="text-base font-semibold text-slate-700">Service Information</h4>
+                  <p class="mt-1 text-sm text-slate-500">
+                    Fill this section out only if the patient is the service member.
+                  </p>
+                  <div class="mt-4 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-2">
+                    <div>
+                      <label for="patient-rank" class="form-label">Rank</label
+                      ><input
+                        type="text"
+                        id="patient-rank"
+                        class="form-input"
+                        formControlName="rank"
+                      />
+                    </div>
+                    <div>
+                      <label for="patient-afpsn" class="form-label">AFPSN</label
+                      ><input
+                        type="text"
+                        id="patient-afpsn"
+                        class="form-input"
+                        formControlName="afpsn"
+                      />
+                    </div>
+                    <div>
+                      <label for="patient-branch" class="form-label">Branch of Service</label
+                      ><input
+                        type="text"
+                        id="patient-branch"
+                        class="form-input"
+                        formControlName="branch_of_service"
+                      />
+                    </div>
+                    <div>
+                      <label for="patient-unit" class="form-label">Unit Assignment</label
+                      ><input
+                        type="text"
+                        id="patient-unit"
+                        class="form-input"
+                        formControlName="unit_assignment"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Address -->
+                <div class="mt-8 border-t border-slate-200 pt-6">
+                  <h4 class="text-base font-semibold text-slate-700">Address</h4>
+                  <div
+                    class="mt-4 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6"
+                    formGroupName="address"
+                  >
+                    <div class="col-span-full">
+                      <label for="address" class="form-label">Street address</label>
+                      <input
+                        type="text"
+                        id="address"
+                        class="form-input"
+                        formControlName="house_no_street"
+                      />
+                    </div>
+                    <div class="sm:col-span-2">
+                      <label for="city" class="form-label">City / Municipality</label>
+                      <input
+                        type="text"
+                        id="city"
+                        class="form-input"
+                        formControlName="city_municipality"
+                      />
+                    </div>
+                    <div class="sm:col-span-2">
+                      <label for="province" class="form-label">Province</label>
+                      <input
+                        type="text"
+                        id="province"
+                        class="form-input"
+                        formControlName="province"
+                      />
+                    </div>
+                    <div class="sm:col-span-2">
+                      <label for="zip" class="form-label">ZIP / Postal code</label>
+                      <input type="text" id="zip" class="form-input" formControlName="zip_code" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          }
+          @case ('summary') {
+            <!-- Findings/Summary Form Card -->
+            <div
+              class="rounded-lg border border-slate-200 bg-white shadow-sm tab-content-enter"
+              formGroupName="summary"
+            >
+              <div class="p-6">
+                <h3 class="text-lg font-semibold text-slate-800">Clinical Findings</h3>
+                <p class="mt-1 text-sm text-slate-500">
+                  Update the patient's key clinical summary information.
+                </p>
+
+                <div class="mt-6 space-y-6">
+                  <div>
+                    <label for="primary-complaint" class="form-label">Primary Complaint</label>
+                    <textarea
+                      id="primary-complaint"
+                      class="form-input"
+                      rows="3"
+                      formControlName="primary_complaint"
+                    ></textarea>
+                  </div>
+
+                  <div>
+                    <label for="key-findings" class="form-label">Key Findings</label>
+                    <textarea
+                      id="key-findings"
+                      class="form-input"
+                      rows="4"
+                      formControlName="key_findings"
+                    ></textarea>
+                  </div>
+
+                  <div>
+                    <label for="final-diagnosis" class="form-label">Final Diagnosis</label>
+                    <input
+                      type="text"
+                      id="final-diagnosis"
+                      class="form-input"
+                      formControlName="final_diagnosis"
+                    />
+                    <p class="mt-2 text-xs text-slate-500">
+                      Enter multiple diagnoses separated by commas.
+                    </p>
+                  </div>
+
+                  <div>
+                    <label for="medications-taken" class="form-label">Medications Taken</label>
+                    <input
+                      type="text"
+                      id="medications-taken"
+                      class="form-input"
+                      formControlName="medications_taken"
+                    />
+                    <p class="mt-2 text-xs text-slate-500">
+                      Enter multiple medications separated by commas.
+                    </p>
+                  </div>
+
+                  <div>
+                    <label for="allergies" class="form-label">Allergies</label>
+                    <input
+                      type="text"
+                      id="allergies"
+                      class="form-input"
+                      formControlName="allergies"
+                    />
+                    <p class="mt-2 text-xs text-slate-500">
+                      Enter multiple allergies separated by commas.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          }
+          @case ('consultations') {
+            <!-- Consultations Form Card -->
+            <div class="tab-content-enter" formGroupName="medical_encounters">
+              <div class="space-y-6" formArrayName="consultations">
+                <!-- Header with Add Button -->
+                <div class="flex items-center justify-between">
+                  <h3 class="text-lg font-semibold text-slate-800">Consultation Records</h3>
+                  <button
+                    type="button"
+                    (click)="addConsultation()"
+                    class="inline-flex items-center gap-2 rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50"
+                  >
+                    <i class="fa-solid fa-plus"></i>
+                    <span>Add Consultation</span>
+                  </button>
+                </div>
+
+                @for (consultationGroup of consultations.controls; track $index) {
+                  <div
+                    class="rounded-lg border border-slate-200 bg-white shadow-sm"
+                    [formGroupName]="$index"
+                  >
+                    <!-- Card Header -->
+                    <div
+                      class="flex items-center justify-between border-b border-slate-200 bg-slate-50 p-4"
+                    >
+                      <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-calendar-alt text-slate-400"></i>
+                        <label for="consultation-date-{{ $index }}" class="form-label !m-0"
+                          >Consultation Date</label
+                        >
+                        <input
+                          type="date"
+                          id="consultation-date-{{ $index }}"
+                          class="form-input !mt-0 w-40"
+                          formControlName="consultation_date"
+                        />
+                      </div>
+                      <button
+                        type="button"
+                        (click)="removeConsultation($index)"
+                        class="text-slate-400 hover:text-red-500"
+                        title="Remove this consultation"
+                      >
+                        <i class="fa-solid fa-trash-can"></i>
+                      </button>
+                    </div>
+
+                    <!-- Card Body -->
+                    <div class="p-6 space-y-6">
+                      <!-- Vitals -->
+                      <div formGroupName="vitals" class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                        <div>
+                          <label for="height-{{ $index }}" class="form-label">Height (cm)</label>
+                          <input
+                            type="number"
+                            id="height-{{ $index }}"
+                            class="form-input"
+                            formControlName="height_cm"
+                          />
+                        </div>
+                        <div>
+                          <label for="weight-{{ $index }}" class="form-label">Weight (kg)</label>
+                          <input
+                            type="number"
+                            id="weight-{{ $index }}"
+                            class="form-input"
+                            formControlName="weight_kg"
+                          />
+                        </div>
+                        <div>
+                          <label for="temp-{{ $index }}" class="form-label">Temp (°C)</label>
+                          <input
+                            type="number"
+                            id="temp-{{ $index }}"
+                            class="form-input"
+                            formControlName="temperature_c"
+                          />
+                        </div>
+                      </div>
+
+                      <!-- Encounter Details -->
+                      <div class="space-y-4">
+                        <div>
+                          <label for="complaint-{{ $index }}" class="form-label"
+                            >Chief Complaint</label
+                          ><textarea
+                            id="complaint-{{ $index }}"
+                            class="form-input"
+                            rows="2"
+                            formControlName="chief_complaint"
+                          ></textarea>
+                        </div>
+                        <div>
+                          <label for="notes-{{ $index }}" class="form-label">Notes / HPI</label
+                          ><textarea
+                            id="notes-{{ $index }}"
+                            class="form-input"
+                            rows="4"
+                            formControlName="notes"
+                          ></textarea>
+                        </div>
+                        <div>
+                          <label for="diagnosis-{{ $index }}" class="form-label"
+                            >Diagnosis / Assessment</label
+                          ><textarea
+                            id="diagnosis-{{ $index }}"
+                            class="form-input"
+                            rows="2"
+                            formControlName="diagnosis"
+                          ></textarea>
+                        </div>
+                        <div>
+                          <label for="treatment-{{ $index }}" class="form-label"
+                            >Treatment Plan</label
+                          ><textarea
+                            id="treatment-{{ $index }}"
+                            class="form-input"
+                            rows="3"
+                            formControlName="treatment_plan"
+                          ></textarea>
+                        </div>
+                        <div>
+                          <label for="physician-{{ $index }}" class="form-label"
+                            >Attending Physician</label
+                          ><input
+                            type="text"
+                            id="physician-{{ $index }}"
+                            class="form-input"
+                            formControlName="attending_physician"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                } @empty {
+                  <div class="text-center py-12 text-slate-400 rounded-lg border-2 border-dashed">
+                    <i class="fa-solid fa-file-circle-xmark fa-3x mb-3"></i>
+                    <p class="font-medium">No Consultation Records</p>
+                    <p class="text-sm">Click "Add Consultation" to create the first record.</p>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+          @case ('labs') {
+            <!-- Lab Results Form Card -->
+            <div class="tab-content-enter" formGroupName="medical_encounters">
+              <div class="space-y-6" formArrayName="lab_results">
+                <!-- Header with Add Button -->
+                <div class="flex items-center justify-between">
+                  <h3 class="text-lg font-semibold text-slate-800">Laboratory Results</h3>
+                  <button
+                    type="button"
+                    (click)="addLabResult()"
+                    class="inline-flex items-center gap-2 rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50"
+                  >
+                    <i class="fa-solid fa-plus"></i>
+                    <span>Add Lab Report</span>
+                  </button>
+                </div>
+
+                @for (labGroup of labResults.controls; track $index) {
+                  <div
+                    class="rounded-lg border border-slate-200 bg-white shadow-sm"
+                    [formGroupName]="$index"
+                  >
+                    <!-- Card Header -->
+                    <div
+                      class="flex items-center justify-between border-b border-slate-200 bg-slate-50 p-4"
+                    >
+                      <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
+                        <div class="flex items-center gap-2">
+                          <i class="fa-solid fa-calendar-alt text-slate-400"></i>
+                          <label for="lab-date-{{ $index }}" class="form-label !m-0"
+                            >Date Performed</label
+                          >
+                          <input
+                            type="date"
+                            id="lab-date-{{ $index }}"
+                            class="form-input !mt-0 w-40"
+                            formControlName="date_performed"
+                          />
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        (click)="removeLabResult($index)"
+                        class="text-slate-400 hover:text-red-500"
+                        title="Remove this lab report"
+                      >
+                        <i class="fa-solid fa-trash-can"></i>
+                      </button>
+                    </div>
+
+                    <!-- Card Body with Results Table -->
+                    <div class="p-6">
+                      <div class="mb-6">
+                        <label for="test-type-{{ $index }}" class="form-label"
+                          >Test Type / Report Name</label
+                        >
+                        <input
+                          type="text"
+                          id="test-type-{{ $index }}"
+                          class="form-input"
+                          formControlName="test_type"
+                          placeholder="e.g., Complete Blood Count"
+                        />
+                      </div>
+
+                      <div formArrayName="results">
+                        <div class="overflow-x-auto">
+                          <table class="min-w-full text-sm">
+                            <thead class="bg-slate-50">
+                              <tr>
+                                <th class="px-3 py-2 text-left font-medium text-slate-600">Test</th>
+                                <th class="px-3 py-2 text-left font-medium text-slate-600">
+                                  Result
+                                </th>
+                                <th class="px-3 py-2 text-left font-medium text-slate-600">Unit</th>
+                                <th class="px-3 py-2 text-left font-medium text-slate-600">
+                                  Reference Range
+                                </th>
+                                <th
+                                  class="w-12 px-3 py-2 text-right font-medium text-slate-600"
+                                ></th>
+                              </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-200">
+                              @for (
+                                testRow of getTestRows($index).controls;
+                                let rowIndex = $index;
+                                track rowIndex
+                              ) {
+                                <tr [formGroupName]="rowIndex">
+                                  <td class="p-1">
+                                    <input
+                                      type="text"
+                                      class="form-input !mt-0"
+                                      formControlName="test_name"
+                                    />
+                                  </td>
+                                  <td class="p-1">
+                                    <input
+                                      type="text"
+                                      class="form-input !mt-0"
+                                      formControlName="value"
+                                    />
+                                  </td>
+                                  <td class="p-1">
+                                    <input
+                                      type="text"
+                                      class="form-input !mt-0"
+                                      formControlName="unit"
+                                    />
+                                  </td>
+                                  <td class="p-1">
+                                    <input
+                                      type="text"
+                                      class="form-input !mt-0"
+                                      formControlName="reference_range"
+                                    />
+                                  </td>
+                                  <td class="p-1 text-right">
+                                    <button
+                                      type="button"
+                                      (click)="getTestRows($index).removeAt(rowIndex)"
+                                      class="text-slate-400 hover:text-red-500 h-9 w-9"
+                                      title="Remove test row"
+                                    >
+                                      <i class="fa-solid fa-xmark"></i>
+                                    </button>
+                                  </td>
+                                </tr>
+                              }
+                            </tbody>
+                          </table>
+                        </div>
+                        <button
+                          type="button"
+                          (click)="getTestRows($index).push(createTestRowGroup())"
+                          class="mt-4 inline-flex items-center gap-2 rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50"
+                        >
+                          <i class="fa-solid fa-plus"></i>
+                          <span>Add Test Row</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                } @empty {
+                  <div class="text-center py-12 text-slate-400 rounded-lg border-2 border-dashed">
+                    <i class="fa-solid fa-flask-vial fa-3x mb-3"></i>
+                    <p class="font-medium">No Lab Reports</p>
+                    <p class="text-sm">Click "Add Lab Report" to create the first one.</p>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+          @case ('radiology') {
+            <!-- Radiology Form Card -->
+            <div class="tab-content-enter" formGroupName="medical_encounters">
+              <div class="space-y-6" formArrayName="radiology_reports">
+                <!-- Header with Add Button -->
+                <div class="flex items-center justify-between">
+                  <h3 class="text-lg font-semibold text-slate-800">Radiology Reports</h3>
+                  <button
+                    type="button"
+                    (click)="addRadiologyReport()"
+                    class="inline-flex items-center gap-2 rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50"
+                  >
+                    <i class="fa-solid fa-plus"></i>
+                    <span>Add Report</span>
+                  </button>
+                </div>
+
+                @for (reportGroup of radiologyReports.controls; track $index) {
+                  <div
+                    class="rounded-lg border border-slate-200 bg-white shadow-sm"
+                    [formGroupName]="$index"
+                  >
+                    <!-- Card Header -->
+                    <div
+                      class="flex items-center justify-between border-b border-slate-200 bg-slate-50 p-4"
+                    >
+                      <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-calendar-alt text-slate-400"></i>
+                        <label for="radiology-date-{{ $index }}" class="form-label !m-0"
+                          >Date Performed</label
+                        >
+                        <input
+                          type="date"
+                          id="radiology-date-{{ $index }}"
+                          class="form-input !mt-0 w-40"
+                          formControlName="date_performed"
+                        />
+                      </div>
+                      <button
+                        type="button"
+                        (click)="removeRadiologyReport($index)"
+                        class="text-slate-400 hover:text-red-500"
+                        title="Remove this report"
+                      >
+                        <i class="fa-solid fa-trash-can"></i>
+                      </button>
+                    </div>
+
+                    <!-- Card Body -->
+                    <div class="p-6 space-y-6">
+                      <div>
+                        <label for="examination-{{ $index }}" class="form-label">Examination</label
+                        ><input
+                          type="text"
+                          id="examination-{{ $index }}"
+                          class="form-input"
+                          formControlName="examination"
+                          placeholder="e.g., Chest X-Ray PA View"
+                        />
+                      </div>
+                      <div>
+                        <label for="findings-{{ $index }}" class="form-label">Findings</label
+                        ><textarea
+                          id="findings-{{ $index }}"
+                          class="form-input"
+                          rows="5"
+                          formControlName="findings"
+                        ></textarea>
+                      </div>
+                      <div>
+                        <label for="impression-{{ $index }}" class="form-label">Impression</label
+                        ><textarea
+                          id="impression-{{ $index }}"
+                          class="form-input"
+                          rows="3"
+                          formControlName="impression"
+                        ></textarea>
+                      </div>
+                    </div>
+                  </div>
+                } @empty {
+                  <div class="text-center py-12 text-slate-400 rounded-lg border-2 border-dashed">
+                    <i class="fa-solid fa-radiation fa-3x mb-3"></i>
+                    <p class="font-medium">No Radiology Reports</p>
+                    <p class="text-sm">Click "Add Report" to create the first one.</p>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+          @case ('sponsor') {
+            @if (showSponsorForm()) {
+              <!-- Sponsor Form Card -->
+              <div
+                class="rounded-lg border border-slate-200 bg-white shadow-sm tab-content-enter"
+                formGroupName="sponsor_info"
+              >
+                <div class="p-6">
+                  <h3 class="text-lg font-semibold text-slate-800">Sponsor Information</h3>
+                  <p class="mt-1 text-sm text-slate-500">
+                    Update the sponsor's personal and service details.
+                  </p>
+
+                  <!-- Personal Information -->
+                  <div class="mt-6 border-t border-slate-200 pt-6">
+                    <h4 class="text-base font-semibold text-slate-700">Personal Information</h4>
+                    <div
+                      class="mt-4 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6"
+                      formGroupName="sponsor_name"
+                    >
+                      <div class="sm:col-span-2">
+                        <label for="sponsor-first-name" class="form-label">First name</label>
+                        <input
+                          type="text"
+                          id="sponsor-first-name"
+                          class="form-input"
+                          formControlName="first_name"
+                        />
+                      </div>
+                      <div class="sm:col-span-2">
+                        <label for="sponsor-last-name" class="form-label">Last name</label>
+                        <input
+                          type="text"
+                          id="sponsor-last-name"
+                          class="form-input"
+                          formControlName="last_name"
+                        />
+                      </div>
+                      <div class="sm:col-span-2">
+                        <label for="sponsor-middle-initial" class="form-label"
+                          >Middle Initial</label
+                        >
+                        <input
+                          type="text"
+                          id="sponsor-middle-initial"
+                          class="form-input"
+                          formControlName="middle_initial"
+                        />
+                      </div>
+                    </div>
+                    <div class="mt-8 sm:col-span-2">
+                      <label for="sponsor-sex" class="form-label">Sex</label>
+                      <select id="sponsor-sex" class="form-input max-w-xs" formControlName="sex">
+                        <option value="M">Male</option>
+                        <option value="F">Female</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <!-- Service Information -->
+                  <div class="mt-8 border-t border-slate-200 pt-6">
+                    <h4 class="text-base font-semibold text-slate-700">Service Information</h4>
+                    <div class="mt-4 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-2">
+                      <div formGroupName="sponsor_name">
+                        <label for="sponsor-rank" class="form-label">Rank</label
+                        ><input
+                          type="text"
+                          id="sponsor-rank"
+                          class="form-input"
+                          formControlName="rank"
+                        />
+                      </div>
+                      <div>
+                        <label for="sponsor-afpsn" class="form-label">AFPSN</label
+                        ><input
+                          type="text"
+                          id="sponsor-afpsn"
+                          class="form-input"
+                          formControlName="afpsn"
+                        />
+                      </div>
+                      <div>
+                        <label for="sponsor-branch" class="form-label">Branch of Service</label
+                        ><input
+                          type="text"
+                          id="sponsor-branch"
+                          class="form-input"
+                          formControlName="branch_of_service"
+                        />
+                      </div>
+                      <div>
+                        <label for="sponsor-unit" class="form-label">Unit Assignment</label
+                        ><input
+                          type="text"
+                          id="sponsor-unit"
+                          class="form-input"
+                          formControlName="unit_assignment"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            } @else {
+              <div
+                class="text-center py-12 text-slate-400 rounded-lg border-2 border-dashed tab-content-enter"
+              >
+                <i class="fa-solid fa-user-shield fa-3x mb-3"></i>
+                <p class="font-medium">No Sponsor Information</p>
+                <p class="text-sm mb-4">There is no sponsor on file for this patient.</p>
+                <button
+                  type="button"
+                  (click)="registerSponsor()"
+                  class="inline-flex items-center gap-2 rounded-md border border-transparent bg-primary px-3 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-primary/90"
+                >
+                  <i class="fa-solid fa-plus"></i>
+                  <span>Register Sponsor</span>
+                </button>
+              </div>
+            }
+          }
+        }
+      </div>
+    </form>
+  } @else {
+    <!-- Skeleton Loader -->
+    <div class="animate-pulse space-y-6">
+      <!-- Page Header Skeleton -->
+      <div class="flex items-center justify-between">
+        <div class="h-7 w-64 rounded-md bg-slate-200"></div>
+        <div class="flex gap-2">
+          <div class="h-9 w-24 rounded-md bg-slate-200"></div>
+          <div class="h-9 w-32 rounded-md bg-slate-200"></div>
+        </div>
+      </div>
+      <!-- Form Card Skeleton -->
+      <div class="h-96 rounded-lg border border-slate-200 bg-slate-200"></div>
+    </div>
+  }
+</div>

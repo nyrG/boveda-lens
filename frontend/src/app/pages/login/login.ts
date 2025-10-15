@@ -1,12 +1,13 @@
 import { Component, inject } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 import { Router } from "@angular/router";
-import { AuthService } from "../../services/auth.service";
+import { NgOptimizedImage } from "@angular/common";
+import { AuthService } from "../../core/services/auth.service";
 
 @Component({
   selector: "app-login",
   standalone: true,
-  imports: [FormsModule], // Import FormsModule for ngModel
+  imports: [FormsModule, NgOptimizedImage], // Import FormsModule for ngModel
   templateUrl: "./login.html",
 })
 export class Login {

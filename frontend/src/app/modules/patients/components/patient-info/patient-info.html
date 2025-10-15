@@ -1,0 +1,82 @@
+<div class="rounded-lg border border-slate-200 bg-white shadow-sm">
+  <!-- Top Stats Section -->
+  <div class="grid grid-cols-2 border-b border-slate-200 sm:grid-cols-4">
+    <div class="flex items-center justify-between p-4 sm:border-r sm:border-slate-200 sm:p-6">
+      <div>
+        <p class="text-sm text-slate-500">Record #</p>
+        <p class="text-lg font-bold text-slate-800">{{ info.patient_record_number || 'N/A' }}</p>
+      </div>
+      <i class="fa-solid fa-file text-3xl text-slate-300"></i>
+    </div>
+    <div class="flex items-center justify-between p-4 sm:border-r sm:border-slate-200 sm:p-6">
+      <div>
+        <p class="text-sm text-slate-500">Age</p>
+        <p class="text-lg font-bold text-slate-800">{{ info.age ? info.age + ' yrs' : 'N/A' }}</p>
+      </div>
+      <i class="fa-solid fa-user-clock text-3xl text-slate-300"></i>
+    </div>
+    <div
+      class="flex items-center justify-between border-t border-slate-200 p-4 sm:border-r sm:border-t-0 sm:border-slate-200 sm:p-6"
+    >
+      <div>
+        <p class="text-sm text-slate-500">Sex</p>
+        <p class="text-lg font-bold text-slate-800">
+          {{ info.sex === 'M' ? 'Male' : info.sex === 'F' ? 'Female' : 'N/A' }}
+        </p>
+      </div>
+      <i class="fa-solid fa-venus-mars text-3xl text-slate-300"></i>
+    </div>
+    <div
+      class="flex items-center justify-between border-t border-slate-200 p-4 sm:border-t-0 sm:p-6"
+    >
+      <div>
+        <p class="text-sm text-slate-500">Category</p>
+        <p class="text-lg font-bold text-slate-800">{{ info.category || 'N/A' }}</p>
+      </div>
+      <i class="fa-solid fa-tags text-3xl text-slate-300"></i>
+    </div>
+  </div>
+
+  <!-- Detailed Info Section -->
+  <div class="p-4 md:p-6">
+    <div class="space-y-4">
+      <app-detail-item
+        icon="fa-cake-candles"
+        label="Date of Birth"
+        [value]="info.date_of_birth | date: 'longDate'"
+      />
+      <app-detail-item
+        icon="fa-id-badge"
+        label="Documented Age"
+        [value]="info.documented_age"
+        unit="yrs"
+      />
+      <app-detail-item
+        icon="fa-location-dot"
+        label="Address"
+        [value]="getFullAddress(info.address)"
+      />
+    </div>
+  </div>
+
+  <!-- Service Information Section -->
+  @if (info.rank || info.afpsn || info.branch_of_service || info.unit_assignment) {
+    <div class="border-t border-slate-200 p-4 md:p-6">
+      <h4 class="mb-4 text-base font-semibold text-slate-700">Service Information</h4>
+      <div class="space-y-4">
+        <app-detail-item icon="fa-star" label="Rank" [value]="info.rank" />
+        <app-detail-item icon="fa-id-card" label="AFPSN" [value]="info.afpsn" />
+        <app-detail-item
+          icon="fa-building-flag"
+          label="Branch of Service"
+          [value]="info.branch_of_service"
+        />
+        <app-detail-item
+          icon="fa-location-crosshairs"
+          label="Unit Assignment"
+          [value]="info.unit_assignment"
+        />
+      </div>
+    </div>
+  }
+</div>
