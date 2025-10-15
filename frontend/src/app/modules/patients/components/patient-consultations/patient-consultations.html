@@ -9,7 +9,7 @@
           {{ item.consultation_date ? (item.consultation_date | date: 'longDate') : 'N/A' }}
         </span>
         @if (item.age_at_visit) {
-          <span class="rounded-full bg-blue-100 px-2 py-0.5 text-sm font-medium text-blue-800">
+          <span class="rounded-full bg-primary-light px-2 py-0.5 text-sm font-medium text-primary">
             Age at Visit: {{ item.age_at_visit }}
           </span>
         }

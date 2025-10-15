@@ -6,14 +6,8 @@
         <h2 class="text-xl font-bold text-slate-800">{{ patient.name }}</h2>
         <!-- Action Buttons -->
         <div class="flex gap-2">
-          <a
-            routerLink="/records"
-            class="inline-flex h-9 w-9 items-center justify-center rounded-md border border-slate-200 bg-slate-100 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-200"
-          >
-            <i class="fa-solid fa-arrow-left text-slate-500"></i>
-          </a>
           <button
-            class="inline-flex items-center gap-2 rounded-md border border-transparent bg-blue-600 px-3 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-blue-700"
+            class="inline-flex items-center gap-2 rounded-md border border-transparent bg-primary px-3 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
           >
             <i class="fa-solid fa-pencil"></i>
             <span>Edit</span>
@@ -48,6 +42,12 @@
               </div>
             }
           </div>
+          <a
+            routerLink="/records"
+            class="inline-flex h-9 w-9 items-center justify-center rounded-md border border-slate-200 bg-slate-100 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-200"
+          >
+            <i class="fa-solid fa-arrow-left text-slate-500"></i>
+          </a>
         </div>
       </div>
 
@@ -58,8 +58,8 @@
             <button
               (click)="setActiveTab(tab.id)"
               [ngClass]="{
-                'border-blue-600 text-blue-600': activeTab() === tab.id,
-                'border-transparent text-slate-600 hover:border-slate-300 hover:text-slate-900':
+                'border-primary text-primary': activeTab() === tab.id,
+                'border-transparent text-slate-500 hover:border-slate-300 hover:text-slate-700':
                   activeTab() !== tab.id,
               }"
               class="border-b-2 py-3 px-2 font-medium transition-colors"

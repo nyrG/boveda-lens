@@ -8,7 +8,7 @@
             <th class="p-4 w-12 text-left text-sm font-bold text-slate-800">
               <input
                 type="checkbox"
-                class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                class="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
                 [checked]="isSelectAllChecked()"
                 [indeterminate]="isAnyButNotAllSelected()"
                 (click)="onSelectAll(); $event.preventDefault()"
@@ -29,15 +29,15 @@
             <tr
               class="cursor-pointer transition-all duration-150 border-l-4 border-transparent border-b border-slate-200"
               [routerLink]="['/records', record.id]"
-              [class.bg-blue-50]="recordState.selectedRecordIds().has(record.id)"
-              [class.border-l-blue-600]="recordState.selectedRecordIds().has(record.id)"
+              [class.bg-primary-light]="recordState.selectedRecordIds().has(record.id)"
+              [class.border-l-primary]="recordState.selectedRecordIds().has(record.id)"
               [class.hover:bg-slate-100]="!recordState.selectedRecordIds().has(record.id)"
-              [class.hover:border-l-blue-600]="!recordState.selectedRecordIds().has(record.id)"
+              [class.hover:border-l-primary]="!recordState.selectedRecordIds().has(record.id)"
             >
               <td class="py-3 px-4">
                 <input
                   type="checkbox"
-                  class="patient-checkbox h-4 w-4 rounded border-gray-300"
+                  class="patient-checkbox h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
                   [checked]="recordState.selectedRecordIds().has(record.id)"
                   (click)="$event.stopPropagation(); onSelectRow(record.id, $event)"
                 />
@@ -96,9 +96,9 @@
         @for (page of [].constructor(recordState.totalPages()); track $index) {
           <button
             class="hidden h-9 w-9 items-center justify-center rounded-md border border-slate-200 text-sm font-medium transition-colors sm:inline-flex"
-            [class.bg-blue-600]="$index + 1 === recordState.currentPage()"
+            [class.bg-primary]="$index + 1 === recordState.currentPage()"
             [class.text-white]="$index + 1 === recordState.currentPage()"
-            [class.border-blue-600]="$index + 1 === recordState.currentPage()"
+            [class.border-primary]="$index + 1 === recordState.currentPage()"
             [class.hover:bg-slate-50]="$index + 1 !== recordState.currentPage()"
             (click)="onPageChange($index + 1)"
           >

@@ -1,3 +1,10 @@
+@layer base {
+  :root {
+    --primary-color: #0f766e; /* teal-700 */
+    --primary-color-light: #ccfbf1; /* teal-100 */
+  }
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
