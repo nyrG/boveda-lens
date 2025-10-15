@@ -15,5 +15,6 @@ export class DetailItem {
   @Input({ required: true }) icon!: string;
   @Input({ required: true }) label!: string;
   @Input() value: string | number | null | undefined;
+  @Input() values: string[] | null | undefined;
   @Input() unit?: string;
 }

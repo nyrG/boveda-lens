@@ -1,6 +1,6 @@
 import { Component, ElementRef, HostListener, OnDestroy, effect, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { switchMap } from 'rxjs';
 import { RecordStateService } from '../../../../shared/services/record-state.service';
 import { HeaderStateService } from '../../../../layout/services/header-state.service';
@@ -20,7 +20,6 @@ type PatientTab = 'info' | 'summary' | 'consultations' | 'labs' | 'radiology' | 
   standalone: true,
   imports: [
     CommonModule, // Provides pipes like 'date'
-    RouterLink,
     PatientInfo,
     PatientSummary,
     PatientConsultations,
@@ -69,6 +68,7 @@ export class PatientDetail implements OnDestroy {
     // Set the initial title and hide the filter button
     this.headerState.setBreadcrumbs([{ text: 'Records', link: '/records' }]);
     this.headerState.setShowFilterButton(false);
+    this.headerState.setBackButton(true, '/records', 'Back to Records');
 
     // Update the header title when the record data is loaded
     effect(() => {
@@ -127,5 +127,6 @@ export class PatientDetail implements OnDestroy {
   ngOnDestroy(): void {
     // Reset the title when leaving the component. The Records page will set its own title.
     this.headerState.setTitle('Records');
+    this.headerState.setBackButton(false);
   }
 }

@@ -1,89 +1,60 @@
-@if (summary) {
+@if (summary; as summary) {
   <div class="rounded-lg border border-slate-200 bg-white shadow-sm">
-    <!-- Card Header -->
-    <div class="border-b border-slate-200 p-4 md:px-6 md:py-4">
-      <h3 class="text-lg font-semibold text-slate-800">Key Findings & Summary</h3>
+    <!-- Redesigned Critical Info Section -->
+    <div class="grid grid-cols-1 border-b border-slate-200 sm:grid-cols-2">
+      <!-- Final Diagnosis -->
+      <div class="flex items-center justify-between border-r border-slate-200 p-4 sm:p-6">
+        <div>
+          <p class="text-sm text-slate-500">Final Diagnosis</p>
+          @if (summary.final_diagnosis.length) {
+            <ul class="mt-1 list-inside list-disc space-y-1 text-lg font-bold text-slate-800">
+              @for (dx of summary.final_diagnosis; track dx) {
+                <li>{{ dx }}</li>
+              }
+            </ul>
+          } @else {
+            <p class="text-lg font-bold text-slate-800">N/A</p>
+          }
+        </div>
+        <i class="fa-solid fa-clipboard-check text-3xl text-slate-300"></i>
+      </div>
+      <!-- Allergies -->
+      <div class="flex items-center justify-between p-4 sm:p-6">
+        <div>
+          <p class="text-sm text-red-600">Allergies</p>
+          @if (summary.allergies?.length) {
+            <ul class="mt-1 list-inside list-disc space-y-1 text-lg font-bold text-red-800">
+              @for (allergy of summary.allergies; track allergy) {
+                <li>{{ allergy }}</li>
+              }
+            </ul>
+          } @else {
+            <p class="text-lg font-bold text-slate-800">N/A</p>
+          }
+        </div>
+        <i class="fa-solid fa-triangle-exclamation text-3xl text-red-300"></i>
+      </div>
     </div>
 
     <!-- Card Body -->
     <div class="p-4 md:p-6">
-      <div class="grid grid-cols-1 gap-8 lg:grid-cols-3">
-        <!-- Main Content Column -->
-        <div class="space-y-8 lg:col-span-2">
-          <!-- Primary Complaint -->
-          <div>
-            <h3 class="flex items-center gap-3 text-lg font-semibold text-slate-800">
-              <i class="fa-solid fa-comment-dots w-5 text-center text-slate-400"></i>
-              <span>Primary Complaint</span>
-            </h3>
-            <p class="mt-2 ml-8 text-slate-600">{{ summary.primary_complaint || 'N/A' }}</p>
-          </div>
-
-          <!-- Key Findings -->
-          <div>
-            <h3 class="flex items-center gap-3 text-lg font-semibold text-slate-800">
-              <i class="fa-solid fa-magnifying-glass-plus w-5 text-center text-slate-400"></i>
-              <span>Key Findings</span>
-            </h3>
-            <p class="mt-2 ml-8 leading-relaxed text-slate-600">
-              {{ summary.key_findings || 'N/A' }}
-            </p>
-          </div>
-
-          <!-- Medications -->
-          <div>
-            <h3 class="flex items-center gap-3 text-lg font-semibold text-slate-800">
-              <i class="fa-solid fa-pills w-5 text-center text-slate-400"></i>
-              <span>Medications Taken</span>
-            </h3>
-            @if (summary.medications_taken?.length) {
-              <ul class="mt-2 ml-8 list-disc list-inside space-y-1 text-slate-600">
-                @for (med of summary.medications_taken; track med) {
-                  <li>{{ med }}</li>
-                }
-              </ul>
-            } @else {
-              <p class="mt-2 ml-8 text-slate-500">No medications listed.</p>
-            }
-          </div>
-        </div>
-
-        <!-- Sidebar Column for Critical Info -->
-        <div class="space-y-6">
-          <!-- Allergies Card -->
-          <div class="rounded-lg border border-red-200 bg-red-50 p-4">
-            <h3 class="flex items-center gap-2 font-semibold text-red-800">
-              <i class="fa-solid fa-triangle-exclamation"></i>
-              <span>Allergies</span>
-            </h3>
-            @if (summary.allergies?.length) {
-              <ul class="mt-2 list-disc list-inside space-y-1 font-medium text-red-700">
-                @for (allergy of summary.allergies; track allergy) {
-                  <li>{{ allergy }}</li>
-                }
-              </ul>
-            } @else {
-              <p class="mt-2 text-sm text-red-700">No known allergies.</p>
-            }
-          </div>
-
-          <!-- Final Diagnosis Card -->
-          <div class="rounded-lg border border-slate-200 bg-slate-50 p-4">
-            <h3 class="flex items-center gap-2 font-semibold text-slate-800">
-              <i class="fa-solid fa-clipboard-check"></i>
-              <span>Final Diagnosis</span>
-            </h3>
-            @if (summary.final_diagnosis.length) {
-              <ul class="mt-2 list-disc list-inside space-y-1 text-slate-700">
-                @for (dx of summary.final_diagnosis; track dx) {
-                  <li>{{ dx }}</li>
-                }
-              </ul>
-            } @else {
-              <p class="mt-2 text-sm text-slate-500">No final diagnosis available.</p>
-            }
-          </div>
-        </div>
+      <!-- Main Content Column -->
+      <div class="space-y-8">
+        <app-detail-item
+          icon="fa-comment-dots"
+          label="Primary Complaint"
+          [value]="summary.primary_complaint"
+        />
+        <app-detail-item
+          icon="fa-magnifying-glass-plus"
+          label="Key Findings"
+          [value]="summary.key_findings"
+        />
+        <app-detail-item
+          icon="fa-pills"
+          label="Medications Taken"
+          [values]="summary.medications_taken"
+        />
       </div>
     </div>
   </div>
