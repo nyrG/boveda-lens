@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { HttpClient, HttpParams, HttpRequest, HttpEvent } from '@angular/common/http';
+import { Observable, filter, map } from 'rxjs';
 import { Patient } from '../models/patient';
 import { PaginatedResponse } from '../../../shared/models/api';
 
@@ -51,5 +51,14 @@ export class PatientApi {
 
   updatePatient(id: number, patientData: Partial<Patient>): Observable<Patient> {
     return this.http.patch<Patient>(`${this.apiUrl}/${id}`, patientData);
+  }
+
+  uploadPatientDocument(formData: FormData): Observable<HttpEvent<Patient>> {
+    // The endpoint for PDF extraction is different from the standard patient API.
+    const req = new HttpRequest('POST', '/api/extraction/upload', formData, {
+      reportProgress: true,
+    });
+
+    return this.http.request<Patient>(req);
   }
 }

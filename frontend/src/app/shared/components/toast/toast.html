@@ -31,10 +31,19 @@
         }
       </div>
       <!-- Message -->
-      <div class="ms-3 text-sm font-normal">{{ toast.message }}</div>
+      <div class="ms-3 text-sm font-normal flex-grow">{{ toast.message }}</div>
+      <!-- Action Button -->
+      @if (toast.action) {
+        <button
+          (click)="executeAction(toast); $event.stopPropagation()"
+          class="ms-3 text-sm font-semibold text-blue-600 hover:text-blue-700"
+        >
+          {{ toast.action.label }}
+        </button>
+      }
       <!-- Close Button -->
       <button
-        (click)="toastService.remove(toast)"
+        (click)="toastService.remove(toast.id)"
         class="-mx-1.5 -my-1.5 ms-auto inline-flex h-8 w-8 items-center justify-center rounded-lg p-1.5 hover:bg-slate-200/50"
       >
         <i class="fa-solid fa-xmark text-slate-500"></i>
