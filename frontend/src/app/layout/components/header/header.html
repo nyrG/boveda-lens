@@ -4,22 +4,33 @@
     <h1 class="text-xl font-semibold flex items-center">
       @for (crumb of headerState.breadcrumbs(); track crumb.text; let isLast = $last) {
         <div class="flex items-center transition-opacity duration-300 animate-fade-in">
-          @if (crumb.link) {
+          @if (!isNaN(Number(crumb.text))) {
+            <!-- Special styling for a numeric breadcrumb (e.g., Patient ID) -->
+            @if (crumb.link) {
+              <a
+                [routerLink]="crumb.link"
+                class="text-sm inline-flex items-center gap-2 rounded-md border border-slate-200 bg-slate-100 mx-2 px-2 py-1 font-semibold text-slate-700 transition-colors hover:bg-slate-200"
+                title="{{ crumb.text }}"
+              >
+                <i class="fa-solid fa-file text-slate-500"></i>
+                <span class="truncate max-w-48">{{ crumb.text }}</span>
+              </a>
+            } @else {
+              <span
+                class="text-sm inline-flex items-center gap-2 rounded-md border border-slate-200 bg-slate-100 mx-2 px-2 py-1 font-semibold text-slate-700"
+                title="{{ crumb.text }}"
+              >
+                <i class="fa-solid fa-file text-slate-500"></i>
+                <span class="truncate max-w-48">{{ crumb.text }}</span>
+              </span>
+            }
+          } @else if (crumb.link) {
             <a
               [routerLink]="crumb.link"
               class="px-2 py-1 rounded-md transition-colors duration-200 text-slate-500 hover:bg-slate-100 hover:text-slate-700"
             >
               {{ crumb.text }}
             </a>
-          } @else if (isLast && headerState.breadcrumbs().length > 1) {
-            <!-- Special styling for the last breadcrumb when it's not a link (e.g., Patient ID) -->
-            <span
-              class="text-sm inline-flex items-center gap-2 rounded-md border border-slate-200 bg-slate-100 mx-2 px-2 py-1 font-semibold text-slate-700"
-              title="{{ crumb.text }}"
-            >
-              <i class="fa-solid fa-file text-slate-500"></i>
-              <span class="truncate max-w-48">{{ crumb.text }}</span>
-            </span>
           } @else {
             <!-- Default styling for a non-linked breadcrumb (e.g., a page title) -->
             <span class="px-2 py-1 text-slate-800 font-semibold">{{ crumb.text }}</span>

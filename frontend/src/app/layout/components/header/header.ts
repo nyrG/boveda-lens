@@ -15,4 +15,8 @@ export class Header {
   layoutService = inject(LayoutService);
   headerState = inject(HeaderStateService);
   recordState = inject(RecordStateService);
+
+  // Expose global functions to the template
+  readonly Number = Number;
+  readonly isNaN = isNaN;
 }

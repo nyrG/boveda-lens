@@ -7,6 +7,7 @@
         <!-- Action Buttons -->
         <div class="flex gap-2">
           <a
+            [queryParams]="{ tab: activeTab() }"
             [routerLink]="['/records', patient.id, 'edit']"
             class="inline-flex items-center gap-2 rounded-md border border-transparent bg-primary px-3 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
           >

@@ -58,4 +58,25 @@
       />
     </div>
   </div>
+
+  <!-- Service Information Section -->
+  @if (info.rank || info.afpsn || info.branch_of_service || info.unit_assignment) {
+    <div class="border-t border-slate-200 p-4 md:p-6">
+      <h4 class="mb-4 text-base font-semibold text-slate-700">Service Information</h4>
+      <div class="space-y-4">
+        <app-detail-item icon="fa-star" label="Rank" [value]="info.rank" />
+        <app-detail-item icon="fa-id-card" label="AFPSN" [value]="info.afpsn" />
+        <app-detail-item
+          icon="fa-building-flag"
+          label="Branch of Service"
+          [value]="info.branch_of_service"
+        />
+        <app-detail-item
+          icon="fa-location-crosshairs"
+          label="Unit Assignment"
+          [value]="info.unit_assignment"
+        />
+      </div>
+    </div>
+  }
 </div>
