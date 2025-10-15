@@ -3,11 +3,13 @@
     <app-sidebar></app-sidebar>
     <div class="flex-1 flex flex-col overflow-hidden">
       <app-header></app-header>
-      <div class="flex flex-1 overflow-hidden">
-        <main class="flex-1 overflow-x-hidden overflow-y-auto container mx-auto px-6 py-8">
-          <app-toast></app-toast>
-          <router-outlet></router-outlet>
-          <app-action-dialog></app-action-dialog>
+      <div class="flex flex-1 overflow-y-auto">
+        <main class="flex-1 px-6 py-8">
+          <div class="container mx-auto">
+            <app-toast></app-toast>
+            <router-outlet></router-outlet>
+            <app-action-dialog></app-action-dialog>
+          </div>
         </main>
         <app-action-sidebar></app-action-sidebar>
       </div>

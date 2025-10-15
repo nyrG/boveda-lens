@@ -1,1 +1,154 @@
-<p>patient-edit works!</p>
+<div>
+  @if (record(); as patient) {
+    <form [formGroup]="patientForm" (ngSubmit)="saveChanges()" class="space-y-6">
+      <!-- Page Header -->
+      <div class="flex items-center justify-between">
+        <h2 class="text-xl font-bold text-slate-800">Editing: {{ patient.name }}</h2>
+        <!-- Action Buttons -->
+        <div class="flex gap-2">
+          <a
+            [routerLink]="['/records', patient.id]"
+            class="inline-flex items-center gap-2 rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50"
+          >
+            <i class="fa-solid fa-xmark"></i>
+            <span>Cancel</span>
+          </a>
+          <button
+            type="submit"
+            class="inline-flex items-center gap-2 rounded-md border border-transparent bg-primary px-3 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+          >
+            <i class="fa-solid fa-check"></i>
+            <span>Save Changes</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Main Content Card -->
+      <div class="rounded-lg border border-slate-200 bg-white shadow-sm">
+        <div class="p-6" formGroupName="patient_info">
+          <h3 class="text-lg font-semibold text-slate-800">Patient Information</h3>
+          <p class="mt-1 text-sm text-slate-500">
+            Update the patient's demographic and contact details.
+          </p>
+
+          <!-- Form Grid -->
+          <div class="mt-6 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
+            <!-- Full Name -->
+            <div class="sm:col-span-6">
+              <div
+                class="grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6"
+                formGroupName="full_name"
+              >
+                <div class="sm:col-span-2">
+                  <label for="first-name" class="form-label">First name</label>
+                  <input
+                    type="text"
+                    id="first-name"
+                    class="form-input"
+                    formControlName="first_name"
+                  />
+                </div>
+                <div class="sm:col-span-2">
+                  <label for="last-name" class="form-label">Last name</label>
+                  <input
+                    type="text"
+                    id="last-name"
+                    class="form-input"
+                    formControlName="last_name"
+                  />
+                </div>
+                <div class="sm:col-span-2">
+                  <label for="middle-initial" class="form-label">Middle Initial</label>
+                  <input
+                    type="text"
+                    id="middle-initial"
+                    class="form-input"
+                    formControlName="middle_initial"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <!-- Record Number & Category -->
+            <div class="sm:col-span-3">
+              <label for="record-number" class="form-label">Record Number</label>
+              <input
+                type="text"
+                id="record-number"
+                class="form-input"
+                formControlName="patient_record_number"
+              />
+            </div>
+            <div class="sm:col-span-3">
+              <label for="category" class="form-label">Category</label>
+              <input type="text" id="category" class="form-input" formControlName="category" />
+            </div>
+
+            <!-- DOB, Age, Sex -->
+            <div class="sm:col-span-2">
+              <label for="dob" class="form-label">Date of Birth</label>
+              <input type="date" id="dob" class="form-input" formControlName="date_of_birth" />
+            </div>
+            <div class="sm:col-span-2">
+              <label for="age" class="form-label">Documented Age</label>
+              <input type="number" id="age" class="form-input" formControlName="documented_age" />
+            </div>
+            <div class="sm:col-span-2">
+              <label for="sex" class="form-label">Sex</label>
+              <select id="sex" class="form-input" formControlName="sex">
+                <option value="M">Male</option>
+                <option value="F">Female</option>
+              </select>
+            </div>
+
+            <!-- Address -->
+            <div class="sm:col-span-6">
+              <div class="grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6" formGroupName="address">
+                <div class="col-span-full">
+                  <label for="address" class="form-label">Street address</label>
+                  <input
+                    type="text"
+                    id="address"
+                    class="form-input"
+                    formControlName="house_no_street"
+                  />
+                </div>
+                <div class="sm:col-span-2">
+                  <label for="city" class="form-label">City / Municipality</label>
+                  <input
+                    type="text"
+                    id="city"
+                    class="form-input"
+                    formControlName="city_municipality"
+                  />
+                </div>
+                <div class="sm:col-span-2">
+                  <label for="province" class="form-label">Province</label>
+                  <input type="text" id="province" class="form-input" formControlName="province" />
+                </div>
+                <div class="sm:col-span-2">
+                  <label for="zip" class="form-label">ZIP / Postal code</label>
+                  <input type="text" id="zip" class="form-input" formControlName="zip_code" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
+  } @else {
+    <!-- Skeleton Loader -->
+    <div class="animate-pulse space-y-6">
+      <!-- Page Header Skeleton -->
+      <div class="flex items-center justify-between">
+        <div class="h-7 w-64 rounded-md bg-slate-200"></div>
+        <div class="flex gap-2">
+          <div class="h-9 w-24 rounded-md bg-slate-200"></div>
+          <div class="h-9 w-32 rounded-md bg-slate-200"></div>
+        </div>
+      </div>
+      <!-- Form Card Skeleton -->
+      <div class="h-96 rounded-lg border border-slate-200 bg-slate-200"></div>
+    </div>
+  }
+</div>

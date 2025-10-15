@@ -1,6 +1,6 @@
 import { Component, ElementRef, HostListener, OnDestroy, effect, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { switchMap } from 'rxjs';
 import { RecordStateService } from '../../../../shared/services/record-state.service';
 import { HeaderStateService } from '../../../../layout/services/header-state.service';
@@ -20,6 +20,7 @@ type PatientTab = 'info' | 'summary' | 'consultations' | 'labs' | 'radiology' | 
   standalone: true,
   imports: [
     CommonModule, // Provides pipes like 'date'
+    RouterLink,
     PatientInfo,
     PatientSummary,
     PatientConsultations,
