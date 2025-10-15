@@ -1,1 +1,137 @@
-<p>patient-upload-modal works!</p>
+<div
+  class="fixed inset-0 bg-gray-600 bg-opacity-75 z-40 flex items-center justify-center p-4"
+  (click)="close.emit()"
+>
+  <div
+    class="modal-content bg-white rounded-lg shadow-xl w-full max-w-2xl border border-slate-200 overflow-hidden"
+    (click)="$event.stopPropagation()"
+  >
+    <!-- Header -->
+    <div class="p-5 border-b border-slate-200">
+      <h2 class="flex items-center gap-3 text-xl font-semibold text-slate-800">
+        <i class="fa-solid fa-notes-medical text-primary"></i>
+        <span>Create New Patient Record</span>
+      </h2>
+      <p class="text-sm text-slate-500 mt-1 ml-9">
+        Select a PDF document to begin the automated extraction process.
+      </p>
+    </div>
+
+    <!-- Body -->
+    <div class="p-4 sm:p-6 bg-slate-50 min-h-[300px]" [formGroup]="uploadForm">
+      <h3 class="font-semibold text-lg text-slate-700 mb-2 flex items-center gap-2">
+        <i class="fa-solid fa-file-arrow-up text-slate-400"></i>
+        <span>Select Document</span>
+      </h3>
+      <p class="text-sm text-slate-500 mb-6">Choose the medical record PDF you want to process.</p>
+
+      <!-- File Drop Zone -->
+      <div
+        class="border-2 border-dashed border-slate-300 rounded-lg transition-colors duration-200 ease-in-out"
+        [class.border-primary]="isDragging()"
+        [class.bg-primary-light]="isDragging()"
+        (dragover)="onDragOver($event)"
+        (dragleave)="onDragLeave($event)"
+        (drop)="onDrop($event)"
+      >
+        @if (!selectedFile()) {
+          <div class="p-6 text-center cursor-pointer" (click)="fileInput.click()">
+            <i class="fa-solid fa-cloud-arrow-up text-4xl text-slate-400 mb-3"></i>
+            <p class="text-slate-600 font-medium">Drag & drop your PDF here</p>
+            <p class="text-sm text-slate-400 my-1">or</p>
+            <input
+              #fileInput
+              type="file"
+              accept=".pdf"
+              class="hidden"
+              (change)="onFileSelected($event)"
+            />
+            <button
+              type="button"
+              class="text-sm font-semibold text-primary bg-primary-light px-4 py-2 rounded-md hover:bg-primary/20 transition-colors"
+            >
+              Browse File
+            </button>
+          </div>
+        } @else {
+          <div class="p-4 w-full bg-white flex items-center justify-between">
+            <div class="flex items-center gap-3 overflow-hidden">
+              <i class="fa-solid fa-file-pdf text-red-500 text-2xl flex-shrink-0"></i>
+              <div class="truncate">
+                <p
+                  class="text-sm font-medium text-slate-800 truncate"
+                  [title]="selectedFile()?.name"
+                >
+                  {{ selectedFile()?.name }}
+                </p>
+                <p class="text-xs text-slate-500">{{ formatBytes(selectedFile()?.size ?? 0) }}</p>
+              </div>
+            </div>
+            <button
+              type="button"
+              (click)="removeFile()"
+              class="text-slate-400 hover:text-red-600 transition-colors p-1 rounded-full flex-shrink-0"
+            >
+              <i class="fa-solid fa-xmark"></i>
+            </button>
+          </div>
+        }
+      </div>
+      <p class="text-red-500 text-sm mt-1 h-5">{{ fileError() }}</p>
+
+      <!-- Upload Settings -->
+      <h3 class="font-semibold text-lg text-slate-700 mb-2 mt-6 flex items-center gap-2">
+        <i class="fa-solid fa-cog text-slate-400"></i>
+        <span>Upload Settings</span>
+      </h3>
+      <p class="text-sm text-slate-500 mb-4">Specify the type of document for better processing.</p>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <label
+          class="border border-slate-200 rounded-lg p-4 cursor-pointer hover:border-primary hover:bg-primary-light transition-colors has-[:checked]:border-primary has-[:checked]:bg-primary-light"
+        >
+          <input
+            type="radio"
+            formControlName="documentType"
+            value="military"
+            class="mr-3 text-primary focus:ring-primary"
+          />
+          <span class="font-medium">Military Personnel</span>
+          <p class="text-xs text-slate-500 mt-1">
+            For records where the patient is the service member.
+          </p>
+        </label>
+        <label
+          class="border border-slate-200 rounded-lg p-4 cursor-pointer hover:border-primary hover:bg-primary-light transition-colors has-[:checked]:border-primary has-[:checked]:bg-primary-light"
+        >
+          <input
+            type="radio"
+            formControlName="documentType"
+            value="dependent"
+            class="mr-3 text-primary focus:ring-primary"
+          />
+          <span class="font-medium">Sponsored Dependent</span>
+          <p class="text-xs text-slate-500 mt-1">
+            For records where the patient is a civilian or dependent.
+          </p>
+        </label>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="bg-white p-4 border-t border-slate-200 flex justify-end gap-3">
+      <button
+        (click)="close.emit()"
+        class="px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-md hover:bg-slate-50"
+      >
+        Cancel
+      </button>
+      <button
+        (click)="startUpload()"
+        class="px-4 py-2 text-sm font-medium text-white bg-primary border border-transparent rounded-md hover:bg-primary/90 disabled:bg-slate-400 disabled:cursor-not-allowed"
+        [disabled]="!selectedFile()"
+      >
+        Upload & Process
+      </button>
+    </div>
+  </div>
+</div>

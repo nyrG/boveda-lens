@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { HttpEventType, HttpResponse } from '@angular/common/http';
-import { catchError, of, tap, filter } from 'rxjs';
+import { catchError, of, tap, filter, switchMap } from 'rxjs';
 
 import { PatientApi } from './patient-api';
 import { BackgroundTaskService } from '../../../shared/services/background-task.service';
@@ -50,17 +50,25 @@ export class PatientUploadService {
             this.backgroundTaskService.updateTaskProgress(taskId, Math.min(progress, 99));
           }
         }),
-        filter((event): event is HttpResponse<Patient> => event.type === HttpEventType.Response),
+        filter((event): event is HttpResponse<any> => event.type === HttpEventType.Response),
+        // Switch from the extraction response to the creation call
+        switchMap(response => {
+          if (response && response.body) {
+            // The body of the upload response is the extracted data, not a full patient record.
+            // We now use this data to create the actual patient record.
+            return this.patientApi.createPatient(response.body);
+          }
+          return of(null); // Or handle error if response is empty
+        }),
         catchError(error => {
           this.backgroundTaskService.failTask(taskId, error);
           this.toastService.show({ type: 'error', message: 'Failed to process document.' });
           return of(null); // Handle the error gracefully
         }),
       )
-      .subscribe(response => {
-        if (response && response.body) {
-          const newPatient = response.body;
-          this.backgroundTaskService.completeTask(taskId, newPatient);
+      .subscribe(newPatient => {
+        if (newPatient) {
+          this.backgroundTaskService.completeTask(taskId, newPatient); // Pass the actual patient object
           this.toastService.show({
             type: 'success',
             message: `Record created for ${newPatient.name}.`,

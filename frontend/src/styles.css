@@ -1,7 +1,7 @@
 @layer base {
   :root {
     --primary-color: #0f766e; /* teal-700 */
-    --primary-color-light: #ccfbf1; /* teal-100 */
+    --primary-color-light: #f0fdfa; /* teal-50 */
   }
 }
 

@@ -61,4 +61,8 @@ export class PatientApi {
 
     return this.http.request<Patient>(req);
   }
+
+  createPatient(patientData: Partial<Patient>): Observable<Patient> {
+    return this.http.post<Patient>(this.apiUrl, patientData);
+  }
 }

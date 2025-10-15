@@ -1,14 +1,15 @@
-import { Component, OnDestroy, OnInit, computed, inject } from '@angular/core';
+import { Component, OnDestroy, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { Patient } from '../../../modules/patients/models/patient';
 import { RecordStateService } from '../../services/record-state.service';
+import { PatientUploadModal } from '../../../modules/patients/components/patient-upload-modal/patient-upload-modal';
 
 @Component({
   selector: 'app-record-list',
   standalone: true,
-  imports: [CommonModule, RouterLink, FormsModule],
+  imports: [CommonModule, RouterLink, FormsModule, PatientUploadModal],
   templateUrl: './record-list.html',
   styleUrls: ['./record-list.css']
 })
@@ -16,6 +17,9 @@ export class RecordList implements OnInit, OnDestroy {
   // The component now injects the state service as its single source of truth.
   // All state properties are read-only signals from the service.
   recordState = inject(RecordStateService);
+
+  // --- Component-Specific State ---
+  isUploadModalOpen = signal(false);
 
   // --- Computed Signals for UI State ---
   isSelectAllChecked = computed(() => {
@@ -84,7 +88,11 @@ export class RecordList implements OnInit, OnDestroy {
   }
 
   onCreateFromPdf(): void {
-    console.log('Create from PDF clicked. Modal should open here.');
+    this.isUploadModalOpen.set(true);
+  }
+
+  closeUploadModal(): void {
+    this.isUploadModalOpen.set(false);
   }
 
   getPageNumbers(): number[] {
