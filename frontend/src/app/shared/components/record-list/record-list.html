@@ -1,4 +1,4 @@
-<div class="space-y-6">
+<div class="space-y-6 mb-6">
   <!-- Actions Bar (from record-list-actions.html) -->
   <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
     <!-- Search Input -->
@@ -193,16 +193,16 @@
           >
             Prev
           </button>
-          @for (page of [].constructor(recordState.totalPages()); track $index) {
+          @for (page of getPageNumbers(); track page) {
             <button
               class="hidden h-9 w-9 items-center justify-center rounded-md border border-slate-200 text-sm font-medium transition-colors sm:inline-flex"
-              [class.bg-primary]="$index + 1 === recordState.currentPage()"
-              [class.text-white]="$index + 1 === recordState.currentPage()"
-              [class.border-primary]="$index + 1 === recordState.currentPage()"
-              [class.hover:bg-slate-50]="$index + 1 !== recordState.currentPage()"
-              (click)="onPageChange($index + 1)"
+              [class.bg-primary]="page === recordState.currentPage()"
+              [class.text-white]="page === recordState.currentPage()"
+              [class.border-primary]="page === recordState.currentPage()"
+              [class.hover:bg-slate-50]="page !== recordState.currentPage()"
+              (click)="onPageChange(page)"
             >
-              {{ $index + 1 }}
+              {{ page }}
             </button>
           }
           <button

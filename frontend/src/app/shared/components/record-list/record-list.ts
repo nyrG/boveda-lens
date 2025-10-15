@@ -86,4 +86,8 @@ export class RecordList implements OnInit, OnDestroy {
   onCreateFromPdf(): void {
     console.log('Create from PDF clicked. Modal should open here.');
   }
+
+  getPageNumbers(): number[] {
+    return Array.from({ length: this.recordState.totalPages() }, (_, i) => i + 1);
+  }
 }
