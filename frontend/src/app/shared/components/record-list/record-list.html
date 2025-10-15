@@ -1,118 +1,219 @@
-<main class="main-content bg-white rounded-lg border border-slate-200">
-  <div class="overflow-x-auto">
-    <!-- The routerLink directive will be imported in the parent component -->
-    @if (recordState.records().length > 0) {
-      <table class="min-w-full">
-        <thead>
-          <tr class="border-b border-slate-200">
-            <th class="p-4 w-12 text-left text-sm font-bold text-slate-800">
-              <input
-                type="checkbox"
-                class="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
-                [checked]="isSelectAllChecked()"
-                [indeterminate]="isAnyButNotAllSelected()"
-                (click)="onSelectAll(); $event.preventDefault()"
-              />
-            </th>
-            <th class="p-4 text-left text-sm font-semibold text-slate-800">Patient Name</th>
-            <th class="hidden p-4 text-left text-sm font-semibold text-slate-800 md:table-cell">
-              Record #
-            </th>
-            <th class="p-4 text-left text-sm font-semibold text-slate-800">Final Diagnosis</th>
-            <th class="hidden p-4 text-left text-sm font-semibold text-slate-800 lg:table-cell">
-              Category
-            </th>
-          </tr>
-        </thead>
-        <tbody class="bg-white">
-          @for (record of recordState.records(); track record.id) {
-            <tr
-              class="cursor-pointer transition-all duration-150 border-l-4 border-transparent border-b border-slate-200"
-              [routerLink]="['/records', record.id]"
-              [class.bg-primary-light]="recordState.selectedRecordIds().has(record.id)"
-              [class.border-l-primary]="recordState.selectedRecordIds().has(record.id)"
-              [class.hover:bg-slate-100]="!recordState.selectedRecordIds().has(record.id)"
-              [class.hover:border-l-primary]="!recordState.selectedRecordIds().has(record.id)"
-            >
-              <td class="py-3 px-4">
+<div class="space-y-6">
+  <!-- Actions Bar (from record-list-actions.html) -->
+  <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+    <!-- Search Input -->
+    <div class="relative w-full md:w-auto">
+      <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+        <svg
+          class="w-4 h-4 text-slate-400"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+          ></path>
+        </svg>
+      </div>
+      <input
+        type="search"
+        class="block w-full md:w-80 pl-10 pr-3 py-2 border border-slate-300 rounded-md leading-5 bg-white placeholder-slate-500 focus:outline-none focus:placeholder-slate-400 focus:ring-1 focus:ring-primary focus:border-primary sm:text-sm"
+        placeholder="Search records..."
+        [ngModel]="recordState.searchTerm()"
+        (ngModelChange)="recordState.setSearchTerm($event)"
+      />
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="flex items-center justify-start md:justify-end gap-2 flex-wrap flex-shrink-0">
+      @if (recordState.isAnythingSelected()) {
+        <button
+          class="px-2 md:px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-md hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+          (click)="recordState.deleteSelectedRecords()"
+        >
+          <i class="fa-solid fa-trash-can mr-2"></i>
+          <span>
+            @if (recordState.selectedRecordIds().size === 1) {
+              Delete Record
+            } @else {
+              Delete Selected ({{ recordState.selectedRecordIds().size }})
+            }
+          </span>
+        </button>
+      }
+      <button
+        class="px-2 md:px-4 py-2 text-sm font-medium text-white bg-primary border border-transparent rounded-md hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+        (click)="onCreateFromPdf()"
+      >
+        <i class="fa-regular fa-square-plus mr-2"></i>
+        <span>Create from PDF</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Record List Table -->
+  <main class="main-content bg-white rounded-lg border border-slate-200">
+    <div class="overflow-x-auto">
+      @if (recordState.isLoading() && recordState.records().length === 0) {
+        <!-- Skeleton Loader -->
+        <div class="animate-pulse">
+          <table class="min-w-full">
+            <thead>
+              <tr class="border-b border-slate-200">
+                <th class="p-4 w-12">
+                  <div class="h-4 w-4 rounded bg-slate-200"></div>
+                </th>
+                @for (_ of [1, 2, 3, 4]; track _) {
+                  <th class="p-4">
+                    <div
+                      class="h-4 rounded bg-slate-200"
+                      [class.w-24]="$index === 0"
+                      [class.w-32]="$index > 0"
+                    ></div>
+                  </th>
+                }
+              </tr>
+            </thead>
+            <tbody>
+              @for (i of [].constructor(10); track i) {
+                <tr class="border-b border-slate-200">
+                  <td class="py-3 px-4">
+                    <div class="h-4 w-4 rounded bg-slate-200"></div>
+                  </td>
+                  <td class="py-3 px-4">
+                    <div class="h-4 w-32 rounded bg-slate-200"></div>
+                  </td>
+                  <td class="py-3 px-4">
+                    <div class="h-4 w-24 rounded bg-slate-200"></div>
+                  </td>
+                  <td class="py-3 px-4">
+                    <div class="h-4 w-48 rounded bg-slate-200"></div>
+                  </td>
+                  <td class="py-3 px-4">
+                    <div class="h-4 w-20 rounded bg-slate-200"></div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      } @else if (recordState.records().length > 0) {
+        <table class="min-w-full">
+          <thead>
+            <tr class="border-b border-slate-200">
+              <th class="p-4 w-12 text-left text-sm font-bold text-slate-800">
                 <input
                   type="checkbox"
-                  class="patient-checkbox h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
-                  [checked]="recordState.selectedRecordIds().has(record.id)"
-                  (click)="$event.stopPropagation(); onSelectRow(record.id, $event)"
+                  class="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                  [checked]="isSelectAllChecked()"
+                  [indeterminate]="isAnyButNotAllSelected()"
+                  (click)="onSelectAll(); $event.preventDefault()"
                 />
-              </td>
-              <td class="py-3 px-4 text-sm font-normal text-slate-800">
-                <div>{{ record.name || 'N/A' }}</div>
-                <div class="font-normal text-slate-500 md:hidden">
-                  #{{ record.patient_info.patient_record_number || 'N/A' }}
-                </div>
-              </td>
-              <td class="hidden py-3 px-4 text-sm text-slate-600 md:table-cell">
-                {{ record.patient_info.patient_record_number || 'N/A' }}
-              </td>
-              <td class="py-3 px-4 text-sm text-slate-600 max-w-xs truncate">
-                {{ getFinalDiagnosis(record) }}
-              </td>
-              <td class="hidden py-3 px-4 text-sm text-slate-600 lg:table-cell">
-                {{ record.patient_info.category || 'N/A' }}
-              </td>
+              </th>
+              <th class="p-4 text-left text-sm font-semibold text-slate-800">Patient Name</th>
+              <th class="hidden p-4 text-left text-sm font-semibold text-slate-800 md:table-cell">
+                Record #
+              </th>
+              <th class="p-4 text-left text-sm font-semibold text-slate-800">Final Diagnoses</th>
+              <th class="hidden p-4 text-left text-sm font-semibold text-slate-800 lg:table-cell">
+                Category
+              </th>
             </tr>
-          }
-        </tbody>
-      </table>
-    } @else {
-      <div class="text-center py-16 text-slate-500">
-        <i class="fa-solid fa-folder-open fa-2x mb-3"></i>
-        <p class="font-semibold">No Records Found</p>
-        <p class="text-sm">There are no patient records matching your criteria.</p>
-      </div>
-    }
-  </div>
-  <footer
-    class="flex flex-col items-center justify-between gap-4 border-t border-slate-200 p-4 md:flex-row"
-  >
-    <div class="flex items-center gap-3 self-start md:self-center">
-      <span class="text-sm text-slate-600">Rows per page:</span>
-      <select
-        class="px-2 py-1 text-sm border border-slate-200 rounded-md bg-white"
-        (change)="onRowsPerPageChange($event)"
-      >
-        <option class="p-2" value="10" [selected]="recordState.rowsPerPage() === 10">10</option>
-        <option class="p-2" value="25" [selected]="recordState.rowsPerPage() === 25">25</option>
-        <option class="p-2" value="50" [selected]="recordState.rowsPerPage() === 50">50</option>
-      </select>
-      <span class="text-sm text-slate-600">{{ getPaginationSummary() }}</span>
+          </thead>
+          <tbody class="bg-white">
+            @for (record of recordState.records(); track record.id) {
+              <tr
+                class="cursor-pointer transition-all duration-150 border-l-4 border-transparent border-b border-slate-200"
+                [routerLink]="['/records', record.id]"
+                [class.bg-primary-light]="recordState.selectedRecordIds().has(record.id)"
+                [class.border-l-primary]="recordState.selectedRecordIds().has(record.id)"
+                [class.hover:bg-slate-100]="!recordState.selectedRecordIds().has(record.id)"
+                [class.hover:border-l-primary]="!recordState.selectedRecordIds().has(record.id)"
+              >
+                <td class="py-3 px-4">
+                  <input
+                    type="checkbox"
+                    class="patient-checkbox h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                    [checked]="recordState.selectedRecordIds().has(record.id)"
+                    (click)="$event.stopPropagation(); onSelectRow(record.id, $event)"
+                  />
+                </td>
+                <td class="py-3 px-4 text-sm font-normal text-slate-800">
+                  <div>{{ record.name || 'N/A' }}</div>
+                  <div class="font-normal text-slate-500 md:hidden">
+                    #{{ record.patient_info.patient_record_number || 'N/A' }}
+                  </div>
+                </td>
+                <td class="hidden py-3 px-4 text-sm text-slate-600 md:table-cell">
+                  {{ record.patient_info.patient_record_number || 'N/A' }}
+                </td>
+                <td class="py-3 px-4 text-sm text-slate-600 max-w-xs">
+                  {{ getFinalDiagnosis(record) }}
+                </td>
+                <td class="hidden py-3 px-4 text-sm text-slate-600 lg:table-cell">
+                  {{ record.patient_info.category || 'N/A' }}
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      } @else if (!recordState.isLoading()) {
+        <div class="text-center py-16 text-slate-500">
+          <i class="fa-solid fa-folder-open fa-2x mb-3"></i>
+          <p class="font-semibold">No Records Found</p>
+          <p class="text-sm">There are no patient records matching your criteria.</p>
+        </div>
+      }
     </div>
-    <nav class="self-end md:self-center">
-      <div class="flex items-center gap-2">
-        <button
-          class="inline-flex h-9 w-9 items-center justify-center rounded-md border border-slate-200 text-sm font-medium transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
-          [disabled]="recordState.currentPage() === 1"
-          (click)="onPageChange(recordState.currentPage() - 1)"
+    <footer
+      class="flex flex-col items-center justify-between gap-4 border-t border-slate-200 p-4 md:flex-row"
+    >
+      <div class="flex items-center gap-3 self-start md:self-center">
+        <span class="text-sm text-slate-600">Rows per page:</span>
+        <select
+          class="px-2 py-1 text-sm border border-slate-200 rounded-md bg-white"
+          (change)="onRowsPerPageChange($event)"
         >
-          Prev
-        </button>
-        @for (page of [].constructor(recordState.totalPages()); track $index) {
-          <button
-            class="hidden h-9 w-9 items-center justify-center rounded-md border border-slate-200 text-sm font-medium transition-colors sm:inline-flex"
-            [class.bg-primary]="$index + 1 === recordState.currentPage()"
-            [class.text-white]="$index + 1 === recordState.currentPage()"
-            [class.border-primary]="$index + 1 === recordState.currentPage()"
-            [class.hover:bg-slate-50]="$index + 1 !== recordState.currentPage()"
-            (click)="onPageChange($index + 1)"
-          >
-            {{ $index + 1 }}
-          </button>
-        }
-        <button
-          class="inline-flex h-9 w-9 items-center justify-center rounded-md border border-slate-200 text-sm font-medium transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
-          [disabled]="recordState.currentPage() === recordState.totalPages()"
-          (click)="onPageChange(recordState.currentPage() + 1)"
-        >
-          Next
-        </button>
+          <option class="p-2" value="10" [selected]="recordState.rowsPerPage() === 10">10</option>
+          <option class="p-2" value="25" [selected]="recordState.rowsPerPage() === 25">25</option>
+          <option class="p-2" value="50" [selected]="recordState.rowsPerPage() === 50">50</option>
+        </select>
+        <span class="text-sm text-slate-600">{{ getPaginationSummary() }}</span>
       </div>
-    </nav>
-  </footer>
-</main>
+      <nav class="self-end md:self-center">
+        <div class="flex items-center gap-2">
+          <button
+            class="inline-flex h-9 w-9 items-center justify-center rounded-md border border-slate-200 text-sm font-medium transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+            [disabled]="recordState.currentPage() === 1"
+            (click)="onPageChange(recordState.currentPage() - 1)"
+          >
+            Prev
+          </button>
+          @for (page of [].constructor(recordState.totalPages()); track $index) {
+            <button
+              class="hidden h-9 w-9 items-center justify-center rounded-md border border-slate-200 text-sm font-medium transition-colors sm:inline-flex"
+              [class.bg-primary]="$index + 1 === recordState.currentPage()"
+              [class.text-white]="$index + 1 === recordState.currentPage()"
+              [class.border-primary]="$index + 1 === recordState.currentPage()"
+              [class.hover:bg-slate-50]="$index + 1 !== recordState.currentPage()"
+              (click)="onPageChange($index + 1)"
+            >
+              {{ $index + 1 }}
+            </button>
+          }
+          <button
+            class="inline-flex h-9 w-9 items-center justify-center rounded-md border border-slate-200 text-sm font-medium transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+            [disabled]="recordState.currentPage() === recordState.totalPages()"
+            (click)="onPageChange(recordState.currentPage() + 1)"
+          >
+            Next
+          </button>
+        </div>
+      </nav>
+    </footer>
+  </main>
+</div>

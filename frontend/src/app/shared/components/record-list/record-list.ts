@@ -1,13 +1,14 @@
 import { Component, OnDestroy, OnInit, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 import { Patient } from '../../../modules/patients/models/patient';
 import { RecordStateService } from '../../services/record-state.service';
 
 @Component({
   selector: 'app-record-list',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, FormsModule],
   templateUrl: './record-list.html',
   styleUrls: ['./record-list.css']
 })
@@ -80,5 +81,9 @@ export class RecordList implements OnInit, OnDestroy {
     const start = this.recordState.totalRecords() > 0 ? (this.recordState.currentPage() - 1) * this.recordState.rowsPerPage() + 1 : 0;
     const end = Math.min(this.recordState.currentPage() * this.recordState.rowsPerPage(), this.recordState.totalRecords());
     return `${start}-${end} of ${this.recordState.totalRecords()}`;
+  }
+
+  onCreateFromPdf(): void {
+    console.log('Create from PDF clicked. Modal should open here.');
   }
 }

@@ -1,12 +1,11 @@
 import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { RecordList } from '../../shared/components/record-list/record-list';
-import { RecordListActions } from '../../shared/components/record-list-actions/record-list-actions';
 import { HeaderStateService } from '../../layout/services/header-state.service';
 import { LayoutService } from '../../layout/services/layout.service';
 
 @Component({
   selector: 'app-records',
-  imports: [RecordList, RecordListActions],
+  imports: [RecordList],
   templateUrl: './records.html',
   styleUrl: './records.css'
 })
