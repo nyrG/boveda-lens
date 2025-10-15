@@ -175,7 +175,7 @@
       <div class="flex items-center gap-3 self-start md:self-center">
         <span class="text-sm text-slate-600">Rows per page:</span>
         <select
-          class="px-2 py-1 text-sm border border-slate-200 rounded-md bg-white"
+          class="pl-2 pr-8 py-1 text-sm border border-slate-200 rounded-md bg-white"
           (change)="onRowsPerPageChange($event)"
         >
           <option class="p-2" value="10" [selected]="recordState.rowsPerPage() === 10">10</option>
@@ -187,7 +187,7 @@
       <nav class="self-end md:self-center">
         <div class="flex items-center gap-2">
           <button
-            class="inline-flex h-9 w-9 items-center justify-center rounded-md border border-slate-200 text-sm font-medium transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+            class="inline-flex h-9 px-4 items-center justify-center rounded-md border border-slate-200 text-sm font-medium transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
             [disabled]="recordState.currentPage() === 1"
             (click)="onPageChange(recordState.currentPage() - 1)"
           >
@@ -206,7 +206,7 @@
             </button>
           }
           <button
-            class="inline-flex h-9 w-9 items-center justify-center rounded-md border border-slate-200 text-sm font-medium transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+            class="inline-flex h-9 px-4 items-center justify-center rounded-md border border-slate-200 text-sm font-medium transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
             [disabled]="recordState.currentPage() === recordState.totalPages()"
             (click)="onPageChange(recordState.currentPage() + 1)"
           >

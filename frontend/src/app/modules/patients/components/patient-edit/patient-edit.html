@@ -6,13 +6,14 @@
         <h2 class="text-xl font-bold text-slate-800">Editing: {{ patient.name }}</h2>
         <!-- Action Buttons -->
         <div class="flex gap-2">
-          <a
-            [routerLink]="['/records', patient.id]"
+          <button
+            type="button"
+            (click)="cancel()"
             class="inline-flex items-center gap-2 rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50"
           >
             <i class="fa-solid fa-xmark"></i>
             <span>Cancel</span>
-          </a>
+          </button>
           <button
             type="submit"
             class="inline-flex items-center gap-2 rounded-md border border-transparent bg-primary px-3 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
@@ -66,26 +67,52 @@
                           <input
                             type="text"
                             id="first-name"
-                            class="form-input"
                             formControlName="first_name"
+                            class="form-input"
+                            [ngClass]="{
+                              'form-input-error':
+                                patientForm.get('patient_info.full_name.first_name')?.invalid &&
+                                patientForm.get('patient_info.full_name.first_name')?.touched,
+                            }"
                           />
+                          @if (
+                            patientForm
+                              .get('patient_info.full_name.first_name')
+                              ?.hasError('required') &&
+                            patientForm.get('patient_info.full_name.first_name')?.touched
+                          ) {
+                            <p class="form-error-text">First name is required.</p>
+                          }
                         </div>
                         <div class="sm:col-span-2">
                           <label for="last-name" class="form-label">Last name</label>
                           <input
                             type="text"
                             id="last-name"
-                            class="form-input"
                             formControlName="last_name"
+                            class="form-input"
+                            [ngClass]="{
+                              'form-input-error':
+                                patientForm.get('patient_info.full_name.last_name')?.invalid &&
+                                patientForm.get('patient_info.full_name.last_name')?.touched,
+                            }"
                           />
+                          @if (
+                            patientForm
+                              .get('patient_info.full_name.last_name')
+                              ?.hasError('required') &&
+                            patientForm.get('patient_info.full_name.last_name')?.touched
+                          ) {
+                            <p class="form-error-text">Last name is required.</p>
+                          }
                         </div>
                         <div class="sm:col-span-2">
                           <label for="middle-initial" class="form-label">Middle Initial</label>
                           <input
                             type="text"
                             id="middle-initial"
-                            class="form-input"
                             formControlName="middle_initial"
+                            class="form-input"
                           />
                         </div>
                       </div>
@@ -95,9 +122,20 @@
                       <input
                         type="date"
                         id="dob"
-                        class="form-input"
                         formControlName="date_of_birth"
+                        class="form-input"
+                        [ngClass]="{
+                          'form-input-error':
+                            patientForm.get('patient_info.date_of_birth')?.invalid &&
+                            patientForm.get('patient_info.date_of_birth')?.touched,
+                        }"
                       />
+                      @if (
+                        patientForm.get('patient_info.date_of_birth')?.hasError('required') &&
+                        patientForm.get('patient_info.date_of_birth')?.touched
+                      ) {
+                        <p class="form-error-text">Date of birth is required.</p>
+                      }
                     </div>
                     <div class="sm:col-span-2">
                       <label for="age" class="form-label">Documented Age</label>
@@ -110,10 +148,25 @@
                     </div>
                     <div class="sm:col-span-2">
                       <label for="sex" class="form-label">Sex</label>
-                      <select id="sex" class="form-input" formControlName="sex">
+                      <select
+                        id="sex"
+                        formControlName="sex"
+                        class="form-input"
+                        [ngClass]="{
+                          'form-input-error':
+                            patientForm.get('patient_info.sex')?.invalid &&
+                            patientForm.get('patient_info.sex')?.touched,
+                        }"
+                      >
                         <option value="M">Male</option>
                         <option value="F">Female</option>
                       </select>
+                      @if (
+                        patientForm.get('patient_info.sex')?.hasError('required') &&
+                        patientForm.get('patient_info.sex')?.touched
+                      ) {
+                        <p class="form-error-text">Sex is required.</p>
+                      }
                     </div>
                   </div>
                 </div>
@@ -127,8 +180,8 @@
                       <input
                         type="text"
                         id="record-number"
-                        class="form-input"
                         formControlName="patient_record_number"
+                        class="form-input"
                       />
                     </div>
                     <div>

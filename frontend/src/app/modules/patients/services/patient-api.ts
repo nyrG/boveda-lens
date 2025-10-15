@@ -48,4 +48,8 @@ export class PatientApi {
   deletePatient(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
+
+  updatePatient(id: number, patientData: Partial<Patient>): Observable<Patient> {
+    return this.http.patch<Patient>(`${this.apiUrl}/${id}`, patientData);
+  }
 }

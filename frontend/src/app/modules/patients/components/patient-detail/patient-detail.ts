@@ -20,7 +20,6 @@ type PatientTab = 'info' | 'summary' | 'consultations' | 'labs' | 'radiology' | 
   standalone: true,
   imports: [
     CommonModule, // Provides pipes like 'date'
-    RouterLink,
     PatientInfo,
     PatientSummary,
     PatientConsultations,
@@ -100,6 +99,17 @@ export class PatientDetail implements OnDestroy {
     // would be caught by onDocumentClick. We stop propagation in the template.
     // For simplicity here, we just toggle. The template change will handle the rest.
     this.isActionsMenuOpen.update((isOpen) => !isOpen);
+  }
+
+  // Navigates to the edit page, passing the active tab via router state
+  navigateToEdit(): void {
+    const patientId = this.record()?.id;
+    if (!patientId) return;
+
+    // Use router state to pass data without adding it to the URL
+    this.router.navigate(['/records', patientId, 'edit'], {
+      state: { tab: this.activeTab() }
+    });
   }
 
   // Method to delete the current patient record

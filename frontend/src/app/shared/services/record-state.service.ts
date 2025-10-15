@@ -162,6 +162,10 @@ export class RecordStateService {
     );
   }
 
+  updateRecord(id: number, data: Partial<Patient>): Observable<Patient> {
+    return this.recordApi.updatePatient(id, data);
+  }
+
   /**
    * Toggles the selection of all records on the current page.
    * If any records are selected, it deselects all.

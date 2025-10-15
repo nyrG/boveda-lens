@@ -1,18 +1,20 @@
 import { Component, OnDestroy, effect, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { switchMap } from 'rxjs';
+import { EMPTY, catchError, switchMap } from 'rxjs';
 import { RecordStateService } from '../../../../shared/services/record-state.service';
 import { HeaderStateService } from '../../../../layout/services/header-state.service';
-import { CommonModule, DatePipe } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, FormArray, FormGroup } from '@angular/forms';
+import { CommonModule, DatePipe, Location } from '@angular/common';
+import { ReactiveFormsModule, FormBuilder, FormArray, FormGroup, Validators } from '@angular/forms';
+import { ToastService } from '../../../../shared/services/toast.service';
+import { Patient } from '../../../../modules/patients/models/patient';
 
 type PatientEditTab = 'info' | 'summary' | 'consultations' | 'labs' | 'radiology' | 'sponsor';
 
 @Component({
   standalone: true,
   selector: 'app-patient-edit',
-  imports: [CommonModule, ReactiveFormsModule, RouterLink],
+  imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './patient-edit.html',
   styleUrl: './patient-edit.css',
   providers: [DatePipe], // Add DatePipe for formatting dates in the form
@@ -23,7 +25,9 @@ export class PatientEdit implements OnDestroy {
   private recordState = inject(RecordStateService);
   private headerState = inject(HeaderStateService);
   private fb = inject(FormBuilder);
+  private toastService = inject(ToastService);
   private datePipe = inject(DatePipe);
+  private location = inject(Location);
 
   // Fetch the record based on the 'id' route parameter
   record = toSignal(
@@ -55,15 +59,15 @@ export class PatientEdit implements OnDestroy {
   patientForm = this.fb.group({
     patient_info: this.fb.group({
       full_name: this.fb.group({
-        first_name: [''],
-        last_name: [''],
+        first_name: ['', Validators.required],
+        last_name: ['', Validators.required],
         middle_initial: [''],
       }),
       patient_record_number: [''],
       category: [''],
-      date_of_birth: [''],
+      date_of_birth: ['', Validators.required],
       documented_age: [null as number | null],
-      sex: [''],
+      sex: ['', Validators.required],
       address: this.fb.group({
         house_no_street: [''],
         city_municipality: [''],
@@ -104,8 +108,10 @@ export class PatientEdit implements OnDestroy {
   constructor() {
     this.headerState.setShowFilterButton(false);
 
-    // Read the 'tab' query parameter to set the initial active tab
-    const initialTab = this.route.snapshot.queryParamMap.get('tab') as PatientEditTab | null;
+    // Read the 'tab' from router state (passed from detail view) or fall back to query params
+    const initialTab = (history.state?.tab || this.route.snapshot.queryParamMap.get('tab')) as
+      | PatientEditTab
+      | null;
     const isValidTab = this.tabs.some(t => t.id === initialTab);
     if (initialTab && isValidTab) {
       this.activeTab.set(initialTab);
@@ -189,8 +195,51 @@ export class PatientEdit implements OnDestroy {
     });
   }
 
-  // We will implement this later
-  saveChanges() { }
+  saveChanges() {
+    if (this.patientForm.invalid) {
+      this.toastService.show({ message: 'Please correct the errors before saving.', type: 'error' });
+      // Here you could add logic to mark all fields as touched to show validation errors
+      this.patientForm.markAllAsTouched();
+      return;
+    }
+
+    const patientId = this.record()?.id;
+    if (!patientId) {
+      console.error('Cannot save changes, patient ID is missing.');
+      this.toastService.show({ message: 'Error: Patient ID not found.', type: 'error' });
+      return;
+    }
+
+    // Use getRawValue to include all values, even if some were disabled
+    // Create a new object that conforms to Partial<Patient> to resolve type errors
+    const payload: Partial<Patient> = JSON.parse(JSON.stringify(this.patientForm.getRawValue()));
+
+    // Convert comma-separated strings back to arrays for summary fields
+    if (payload.summary) {
+      // The form has these as strings, but the Patient model expects string arrays.
+      // We cast to `any` to perform the transformation before sending.
+      payload.summary.final_diagnosis = ((payload.summary as any).final_diagnosis || '').split(',').map((s: string) => s.trim()).filter(Boolean);
+      payload.summary.medications_taken = ((payload.summary as any).medications_taken || '').split(',').map((s: string) => s.trim()).filter(Boolean);
+      payload.summary.allergies = ((payload.summary as any).allergies || '').split(',').map((s: string) => s.trim()).filter(Boolean);
+    }
+
+    this.recordState.updateRecord(patientId, payload).pipe(
+      catchError(err => {
+        console.error('Failed to save patient record:', err);
+        this.toastService.show({ message: 'Failed to save changes. Please try again.', type: 'error' });
+        return EMPTY; // Stop the observable chain on error
+      })
+    ).subscribe(() => {
+      this.toastService.show({ message: 'Patient record updated successfully!', type: 'success' });
+      // Navigate back to the detail view after a successful save
+      this.router.navigate(['/records', patientId]);
+    });
+  }
+
+  // Navigates back to the previous page in the browser's history
+  cancel(): void {
+    this.location.back();
+  }
 
   // Method to display the sponsor registration form
   registerSponsor(): void {
