@@ -1,2 +1,30 @@
+<!-- Top Stats -->
+<div class="mb-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+  <app-stats-card
+    [title]="'Total Patient Records'"
+    [value]="totalRecords()"
+    [isLoading]="isLoadingStats()"
+    [icon]="'fa-solid fa-users'"
+  ></app-stats-card>
+  <app-stats-card
+    [title]="'Average Patient Age'"
+    [value]="averageAge()"
+    [isLoading]="isLoadingStats()"
+    [icon]="'fa-solid fa-cake-candles'"
+  ></app-stats-card>
+  <app-stats-card
+    [title]="'Most Common Diagnosis'"
+    [value]="mostCommonDiagnosis()"
+    [isLoading]="isLoadingStats()"
+    [icon]="'fa-solid fa-stethoscope'"
+  ></app-stats-card>
+  <app-stats-card
+    [title]="'Top Patient Category'"
+    [value]="topCategory()"
+    [isLoading]="isLoadingStats()"
+    [icon]="'fa-solid fa-star'"
+  ></app-stats-card>
+</div>
+
 <!-- The record-list component now contains its own actions (search, delete, etc.) -->
 <app-record-list></app-record-list>

@@ -1,0 +1,44 @@
+<!-- Main card container -->
+<div class="flex h-full flex-col rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+  @if (isLoading()) {
+    <!-- Skeleton Loader -->
+    <div class="flex grow animate-pulse items-start justify-between">
+      <div class="flex h-full flex-col justify-between">
+        <div class="h-8 w-1/3 rounded bg-slate-200"></div>
+        <!-- Skeleton for value -->
+        <div class="h-4 w-4/5 rounded bg-slate-200"></div>
+        <!-- Skeleton for title -->
+      </div>
+      <div class="h-12 w-12 rounded-full bg-slate-200"></div>
+      <!-- Skeleton for icon -->
+    </div>
+  } @else {
+    <!-- Card Content -->
+    <div class="flex grow items-stretch justify-between">
+      <div class="flex flex-col justify-between">
+        <p
+          class="stats-card-title font-bold text-slate-800"
+          [ngClass]="{
+            'text-2xl': isNumeric(),
+            'text-xl': !isNumeric(),
+          }"
+        >
+          {{ formattedValue() }}
+        </p>
+        <p class="text-sm font-medium text-slate-500">{{ title() }}</p>
+      </div>
+      @if (icon()) {
+        <div
+          class="flex h-12 w-12 items-center justify-center rounded-full bg-primary-light text-primary"
+        >
+          <i class="text-xl" [ngClass]="icon()"></i>
+        </div>
+      }
+    </div>
+    @if (description()) {
+      <div class="mt-2 text-xs text-slate-500">
+        {{ description() }}
+      </div>
+    }
+  }
+</div>

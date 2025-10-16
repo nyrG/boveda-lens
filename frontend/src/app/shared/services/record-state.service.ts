@@ -1,9 +1,10 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { Patient } from '../../modules/patients/models/patient';
 import { PatientApi } from '../../modules/patients/services/patient-api';
-import { Observable, Subject, debounceTime, distinctUntilChanged, tap } from 'rxjs';
+import { Observable, Subject, debounceTime, distinctUntilChanged, takeUntil, tap } from 'rxjs';
 import { ToastService } from './toast.service';
 import { DialogService } from './dialog.service';
+import { HeaderStateService } from '../../layout/services/header-state.service';
 
 @Injectable({
   providedIn: 'root'
@@ -12,6 +13,8 @@ export class RecordStateService {
   private recordApi = inject(PatientApi);
   private dialogService = inject(DialogService);
   private toastService = inject(ToastService);
+  private headerState = inject(HeaderStateService);
+  private destroy$ = new Subject<void>(); // For cleaning up subscriptions
 
   // --- Search ---
   private searchSubject = new Subject<string>();
@@ -49,6 +52,15 @@ export class RecordStateService {
       this.searchTerm.set(search);
       this.fetchRecords();
     });
+
+    this.headerState.refresh$.pipe(takeUntil(this.destroy$)).subscribe(() => {
+      this.fetchRecords({ showNotification: true });
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   // --- Data Fetching ---

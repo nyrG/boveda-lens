@@ -107,3 +107,11 @@ export interface FullName {
     middle_initial?: string;
     last_name?: string;
 }
+
+export interface PatientStats {
+    totalPatients: number;
+    recentlyUpdated: number;
+    categories: { category: string; count: string }[];
+    topDiagnoses: { diagnosis: string; count: string }[];
+    averageAge: string;
+}
