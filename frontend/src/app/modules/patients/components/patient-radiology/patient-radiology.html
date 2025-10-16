@@ -21,11 +21,17 @@
 
         <!-- Report Details -->
         <div class="ml-2 space-y-4">
-          <app-detail-item icon="fa-file-medical" label="Findings" [value]="report.findings" />
+          <app-detail-item
+            icon="fa-file-medical"
+            label="Findings"
+            [value]="report.findings"
+            class="whitespace-pre-line"
+          />
           <app-detail-item
             icon="fa-comment-medical"
             label="Impression"
             [value]="report.impression"
+            class="whitespace-pre-line"
           />
         </div>
       </div>

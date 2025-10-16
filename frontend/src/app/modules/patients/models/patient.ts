@@ -113,5 +113,5 @@ export interface PatientStats {
     recentlyUpdated: number;
     categories: { category: string; count: string }[];
     topDiagnoses: { diagnosis: string; count: string }[];
-    averageAge: string;
+    averageAge: string | null;
 }

@@ -31,13 +31,25 @@ export interface PatientInfo {
  * Represents the structure of the `sponsor_info` JSONB column.
  */
 export interface SponsorInfo {
+  afpsn?: string;
+  branch_of_service?: string;
+  unit_assignment?: string;
   sponsor_name?: {
+    rank?: string;
     first_name?: string;
     middle_initial?: string;
     last_name?: string;
   };
   sex?: 'M' | 'F' | null;
-  // Add other sponsor properties here if needed
+}
+
+/**
+ * Represents the vitals taken during a consultation.
+ */
+export interface Vitals {
+  height_cm?: number | null;
+  weight_kg?: number | null;
+  temperature_c?: number | null;
 }
 
 /**
@@ -46,10 +58,43 @@ export interface SponsorInfo {
 export interface Consultation {
   consultation_date?: string;
   age_at_visit?: number | null; // Calculated field
+  vitals?: Vitals;
   attending_physician?: string;
   chief_complaint?: string;
   diagnosis?: string;
   treatment_plan?: string;
+  notes?: string;
+}
+
+/**
+ * Represents a single radiology report within `medical_encounters`.
+ */
+export interface RadiologyReport {
+  examination?: string;
+  age_at_visit?: number | null; // Calculated field
+  date_performed?: string;
+  findings?: string;
+  impression?: string;
+  radiologist?: string;
+}
+
+/**
+ * Represents a single test result within a lab report.
+ */
+export interface TestResult {
+  test_name?: string;
+  value?: string | number | null;
+  reference_range?: string;
+  unit?: string;
+}
+
+/**
+ * Represents a single lab result report within `medical_encounters`.
+ */
+export interface LabResult {
+  test_type?: string;
+  date_performed?: string;
+  results?: TestResult[];
 }
 
 /**
@@ -57,6 +102,19 @@ export interface Consultation {
  */
 export interface MedicalEncounter {
   consultations?: Consultation[];
+  radiology_reports?: RadiologyReport[];
+  lab_results?: LabResult[];
+}
+
+/**
+ * Represents the structure of the `summary` JSONB column.
+ */
+export interface Summary {
+  final_diagnosis?: string[];
+  primary_complaint?: string;
+  key_findings?: string;
+  medications_taken?: string[];
+  allergies?: string[];
 }
 
 /**

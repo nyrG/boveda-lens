@@ -53,6 +53,7 @@
           [routerLink]="backButton.link"
           class="inline-flex items-center gap-2 rounded-md border border-slate-200 bg-white px-3 py-1.5 text-sm font-semibold text-slate-600 transition-colors hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-teal-500"
           [attr.aria-label]="backButton.text || 'Go back'"
+          [title]="backButton.text || 'Go back'"
         >
           <i class="fa-solid fa-arrow-left text-sm"></i>
           <!-- Display text if it exists -->
@@ -64,6 +65,7 @@
       <button
         class="h-10 w-10 flex items-center justify-center bg-white text-slate-500 hover:bg-slate-100 rounded-full focus:outline-none focus:ring-2 focus:ring-teal-500 border border-slate-200 disabled:cursor-wait"
         aria-label="Refresh list"
+        title="Refresh list"
         (click)="headerState.triggerRefresh()"
         [disabled]="recordState.isLoading()"
       >
@@ -78,6 +80,7 @@
       <button
         class="h-10 w-10 flex items-center justify-center bg-white text-slate-500 hover:bg-slate-100 rounded-full focus:outline-none focus:ring-2 focus:ring-teal-500 border border-slate-200"
         aria-label="Open filters and sorting"
+        title="Filters & Sorting"
         (click)="layoutService.toggleActionSidebar()"
       >
         <i class="fa-solid fa-sliders text-sm"></i>

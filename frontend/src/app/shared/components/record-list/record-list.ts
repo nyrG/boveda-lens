@@ -13,7 +13,7 @@ import { PatientUploadModal } from '../../../modules/patients/components/patient
   templateUrl: './record-list.html',
   styleUrls: ['./record-list.css']
 })
-export class RecordList implements OnInit, OnDestroy {
+export class RecordList {
   // The component now injects the state service as its single source of truth.
   // All state properties are read-only signals from the service.
   recordState = inject(RecordStateService);
@@ -32,24 +32,6 @@ export class RecordList implements OnInit, OnDestroy {
     const recordsCount = this.recordState.records().length;
     return selectedCount > 0 && selectedCount < recordsCount;
   });
-
-  private pollingInterval: ReturnType<typeof setInterval> | undefined;
-
-  // --- Lifecycle Hooks ---
-  ngOnInit(): void {
-    this.recordState.fetchRecords();
-
-    // Poll for new data every 30 seconds.
-    // The `preserveSelection` option ensures that the user's current checkbox
-    // selections are not cleared on each background refresh.
-    this.pollingInterval = setInterval(() => {
-      this.recordState.fetchRecords({ preserveSelection: true });
-    }, 30000);
-  }
-
-  ngOnDestroy(): void {
-    clearInterval(this.pollingInterval);
-  }
 
   // --- Event Handlers ---
   onPageChange(page: number): void {

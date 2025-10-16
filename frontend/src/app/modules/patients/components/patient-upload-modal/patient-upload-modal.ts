@@ -114,7 +114,7 @@ export class PatientUploadModal {
     }
 
     const settings = {
-      model: 'gemini-2.5-flash-lite',
+      model: 'gemini-2.5-flash',
       documentType: this.determinedDocumentType(),
     };
     this.patientUploadService.uploadAndProcess(file, settings);

@@ -7,6 +7,7 @@ import { PatientApi } from './patient-api';
 import { BackgroundTaskService } from '../../../shared/services/background-task.service';
 import { ToastService } from '../../../shared/services/toast.service';
 import { Patient } from '../models/patient';
+import { RecordStateService } from '../../../shared/services/record-state.service';
 
 /**
  * Defines the settings required for a document upload.
@@ -24,6 +25,7 @@ export class PatientUploadService {
   private backgroundTaskService = inject(BackgroundTaskService);
   private toastService = inject(ToastService);
   private router = inject(Router);
+  private recordState = inject(RecordStateService);
 
   /**
    * Orchestrates the file upload and processing.
@@ -78,6 +80,8 @@ export class PatientUploadService {
               onClick: () => this.router.navigate(['/records', newPatient.id]),
             },
           });
+          // Refresh the record list to show the newly created patient
+          this.recordState.fetchRecords();
         }
       });
   }

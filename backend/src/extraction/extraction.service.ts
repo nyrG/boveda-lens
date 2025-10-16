@@ -105,6 +105,10 @@ export class ExtractionService {
       - **Proofread All Consultation Fields**: For all free-text fields within the "consultations" object (like 'chief_complaint', 'diagnosis', 'notes', and 'treatment_plan'), you must first extract the raw text, then proofread and rewrite it into a coherent, clinical narrative. Correct all spelling and grammar mistakes from the OCR process.
       - **Ensure Coherence**: Proofread the extracted data to be legible and coherent. All output must be in English. If a value is illegible, set it to null.
       
+      **TEXT FORMATTING INSTRUCTIONS:**
+      - For long-form text fields like 'notes', 'key_findings', 'findings', and 'impression', you MUST format the output. Combine fragmented sentences, create logical paragraphs separated by a newline character ('\\n'), and ensure proper sentence casing and punctuation. The goal is a clean, readable block of text, not just a direct transcription of the source.
+
+
       **JSON SCHEMA TO FOLLOW:**
       ${JSON.stringify(schema, null, 2)}
     `;
