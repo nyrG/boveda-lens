@@ -1,5 +1,3 @@
-// backend/src/patients/entities/patient.entity.ts
-
 import {
   Entity,
   PrimaryGeneratedColumn,
@@ -9,33 +7,9 @@ import {
   DeleteDateColumn,
   AfterLoad,
 } from 'typeorm';
+import type { PatientInfo, MedicalEncounter } from '../types/patient.types';
 
-type PatientInfo = {
-  date_of_birth?: string;
-  age?: number | null;
-  documented_age?: number | null;
-  address?: {
-    house_no_street?: string;
-    barangay?: string;
-    city_municipality?: string;
-    province?: string;
-    zip_code?: string;
-  } | null;
-  rank?: string | null;
-  afpsn?: string | null;
-  branch_of_service?: string | null;
-  unit_assignment?: string | null;
-  [key: string]: any;
-};
-
-// Define a type for a single consultation
-type Consultation = {
-  consultation_date?: string;
-  age_at_visit?: number | null;
-  [key: string]: any;
-};
-
-@Entity()
+@Entity('patients')
 export class Patient {
   @PrimaryGeneratedColumn()
   id: number;
@@ -50,10 +24,7 @@ export class Patient {
   sponsor_info: object | null;
 
   @Column('jsonb', { nullable: true })
-  medical_encounters: {
-    consultations?: Consultation[];
-    [key: string]: any;
-  } | null;
+  medical_encounters: MedicalEncounter | null;
 
   @Column('jsonb', { nullable: true })
   summary: object | null;
@@ -67,39 +38,41 @@ export class Patient {
   @DeleteDateColumn()
   deleted_at: Date;
 
+  /**
+   * Calculates the age based on a birth date and a reference "now" date.
+   * @param birthDate The date of birth.
+   * @param nowDate The date to calculate the age against.
+   * @returns The calculated age in years.
+   */
+  private calculateAge(birthDate: Date, nowDate: Date): number {
+    let age = nowDate.getFullYear() - birthDate.getFullYear();
+    const monthDiff = nowDate.getMonth() - birthDate.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && nowDate.getDate() < birthDate.getDate())) {
+      age--;
+    }
+    return age;
+  }
+
   @AfterLoad()
   calculateAges() {
-    if (this.patient_info && this.patient_info.date_of_birth) {
+    if (this.patient_info?.date_of_birth) {
       const birthDate = new Date(this.patient_info.date_of_birth);
-      const today = new Date();
-      let age = today.getFullYear() - birthDate.getFullYear();
-      const m = today.getMonth() - birthDate.getMonth();
-      if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
-        age--;
-      }
-      this.patient_info.age = age;
+      this.patient_info.age = this.calculateAge(birthDate, new Date());
 
       // Now, calculate age_at_visit for each consultation
       if (this.medical_encounters?.consultations) {
         this.medical_encounters.consultations.forEach((consultation) => {
           if (consultation.consultation_date) {
             const consultationDate = new Date(consultation.consultation_date);
-            let visitAge = consultationDate.getFullYear() - birthDate.getFullYear();
-            const monthDiff = consultationDate.getMonth() - birthDate.getMonth();
-            if (
-              monthDiff < 0 ||
-              (monthDiff === 0 && consultationDate.getDate() < birthDate.getDate())
-            ) {
-              visitAge--;
-            }
-            consultation.age_at_visit = visitAge;
+            consultation.age_at_visit = this.calculateAge(birthDate, consultationDate);
           } else {
             consultation.age_at_visit = null;
           }
         });
       }
     } else {
-      this.patient_info.age = null;
+      // Ensure age is null if date_of_birth is missing
+      if (this.patient_info) this.patient_info.age = null;
     }
   }
 }
