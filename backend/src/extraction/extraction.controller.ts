@@ -8,10 +8,13 @@ import {
   BadRequestException,
   UseFilters,
   Body,
+  ValidationPipe,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ExtractionService } from './extraction.service';
 import { GeminiApiExceptionFilter } from './gemini-api.filter'; // 1. Import the filter
+import { ExtractedPatientData } from '../patients/types/patient.types';
+import { UploadOptionsDto } from './dto/upload-options.dto';
 
 @Controller('extraction')
 @UseFilters(new GeminiApiExceptionFilter())
@@ -22,17 +25,16 @@ export class ExtractionController {
   @UseInterceptors(FileInterceptor('file'))
   async uploadFile(
     @UploadedFile() file: Express.Multer.File,
-    @Body('model') model: string,
-    @Body('documentType') documentType: string, // Add documentType here
-  ) {
+    @Body(new ValidationPipe()) uploadOptions: UploadOptionsDto,
+  ): Promise<ExtractedPatientData> {
     if (!file) {
       throw new BadRequestException('No file uploaded.');
     }
 
     return this.extractionService.extractDataFromPdf(
       file,
-      model || 'gemini-2.5-flash-lite',
-      documentType,
+      uploadOptions.model || 'gemini-1.5-flash-latest',
+      uploadOptions.documentType,
     );
   }
 }
