@@ -4,6 +4,7 @@
       class="toast-item flex items-center w-full p-4 rounded-lg shadow-lg"
       [ngClass]="{
         'bg-white text-slate-700': toast.type === 'info',
+        'bg-blue-50 text-blue-800': toast.type === 'action',
         'bg-green-50 text-green-800': toast.type === 'success',
         'bg-red-50 text-red-800': toast.type === 'error',
       }"
@@ -13,7 +14,7 @@
       <div
         class="inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg"
         [ngClass]="{
-          'bg-blue-100 text-blue-500': toast.type === 'info',
+          'bg-blue-100 text-blue-500': toast.type === 'action' || toast.type === 'info',
           'bg-green-100 text-green-500': toast.type === 'success',
           'bg-red-100 text-red-500': toast.type === 'error',
         }"
@@ -24,6 +25,9 @@
           }
           @case ('error') {
             <i class="fa-solid fa-triangle-exclamation"></i>
+          }
+          @case ('action') {
+            <i class="fa-solid fa-arrow-up-right-from-square"></i>
           }
           @default {
             <i class="fa-solid fa-info"></i>

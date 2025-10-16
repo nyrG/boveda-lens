@@ -109,14 +109,14 @@ export class PatientsService {
         .getRawMany<CategoryStat>(),
       this.patientsRepository.query(`
           SELECT diagnosis, COUNT(diagnosis) as count
-          FROM patient, jsonb_array_elements_text(summary->'final_diagnosis') AS diagnosis
+          FROM patients, jsonb_array_elements_text(summary->'final_diagnosis') AS diagnosis
           WHERE jsonb_typeof(summary->'final_diagnosis') = 'array' AND deleted_at IS NULL
           GROUP BY diagnosis
           ORDER BY count DESC
           LIMIT 5;
       `),
       this.patientsRepository.query(
-        `SELECT AVG(EXTRACT(YEAR FROM AGE(NOW(), (patient_info->>'date_of_birth')::date))) as "avgAge" FROM patient WHERE deleted_at IS NULL`,
+        `SELECT AVG(EXTRACT(YEAR FROM AGE(NOW(), (patient_info->>'date_of_birth')::date))) as "avgAge" FROM patients WHERE deleted_at IS NULL`,
       ),
     ])) as [number, number, CategoryStat[], DiagnosisStat[], AvgAgeResult[]];
 

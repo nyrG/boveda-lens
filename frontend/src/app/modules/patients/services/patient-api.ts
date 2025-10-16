@@ -1,8 +1,9 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams, HttpRequest, HttpEvent } from '@angular/common/http';
-import { Observable, filter, map } from 'rxjs';
+import { Observable } from 'rxjs';
 import { Patient } from '../models/patient';
 import { PaginatedResponse } from '../../../shared/models/api';
+import { PatientStats } from '../models/patient';
 
 @Injectable({
   providedIn: 'root'
@@ -29,6 +30,10 @@ export class PatientApi {
     }
 
     return this.http.get<PaginatedResponse<Patient>>(this.apiUrl, { params });
+  }
+
+  getStats(): Observable<PatientStats> {
+    return this.http.get<PatientStats>(`${this.apiUrl}/stats`);
   }
 
   getCategories(): Observable<string[]> {
