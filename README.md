@@ -1,7 +1,7 @@
 # Boveda-Lens: AI-Powered Patient Record Digitization
 
 <p align="center"\>
-<img src="./backend/public/logo.png" alt="Boveda Logo" width="120"\>
+<img src="./frontend/src/assets/logo-circle.png" alt="Boveda Logo" width="120"\>
 </p\>
 
 <p align="center">
