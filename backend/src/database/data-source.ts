@@ -1,8 +1,9 @@
 import { DataSource, DataSourceOptions } from 'typeorm';
 import * as dotenv from 'dotenv';
+import { join } from 'path';
 
 // Load environment variables from .env file in the root of the project
-dotenv.config();
+dotenv.config({ path: join(__dirname, '..', '..', '.env') });
 
 // Check if the environment is production
 const isProduction = process.env.NODE_ENV === 'production';
@@ -19,10 +20,12 @@ export const dataSourceOptions: DataSourceOptions = {
    */
   synchronize: !isProduction,
 
-  // Point to the correct entity files based on the environment
-  entities: [isProduction ? 'dist/**/*.entity.js' : 'src/**/*.entity.ts'],
+  // This robust pattern works for both development (ts-node) and production (node dist/main.js)
+  // It points to .ts files in dev and .js files in prod automatically.
+  entities: [join(__dirname, '..', '**', '*.entity.{ts,js}')],
 
-  migrations: ['dist/database/migrations/*.js'],
+  // It's good practice to also make migrations path dynamic
+  migrations: [join(__dirname, 'migrations', '*.{ts,js}')],
 };
 
 export const AppDataSource = new DataSource(dataSourceOptions);
