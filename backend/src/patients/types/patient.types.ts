@@ -12,6 +12,7 @@ export interface PatientInfo {
   date_of_birth?: string;
   age?: number | null; // Calculated field
   documented_age?: number | null;
+  sex?: 'M' | 'F' | null;
   address?: {
     house_no_street?: string;
     barangay?: string;
@@ -32,8 +33,10 @@ export interface PatientInfo {
 export interface SponsorInfo {
   sponsor_name?: {
     first_name?: string;
+    middle_initial?: string;
     last_name?: string;
   };
+  sex?: 'M' | 'F' | null;
   // Add other sponsor properties here if needed
 }
 
@@ -54,6 +57,19 @@ export interface Consultation {
  */
 export interface MedicalEncounter {
   consultations?: Consultation[];
+}
+
+/**
+ * Represents the shape of the JSON object returned by the Gemini API after data extraction.
+ */
+export interface ExtractedPatientData {
+  patient_info: PatientInfo;
+  sponsor_info?: SponsorInfo;
+  medical_encounters: MedicalEncounter;
+  extraction_info?: {
+    model_used: string;
+    processed_at: string;
+  };
 }
 
 // Define interfaces for the shapes of raw query results to ensure type safety.

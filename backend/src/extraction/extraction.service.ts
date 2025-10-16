@@ -1,12 +1,10 @@
-// backend/src/extraction/extraction.service.ts
-
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold, FileDataPart } from '@google/generative-ai';
-import dayjs from 'dayjs';
-import customParseFormat from 'dayjs/plugin/customParseFormat';
-
-dayjs.extend(customParseFormat);
+import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from '@google/generative-ai';
+import { ExtractedPatientData } from '../patients/types/patient.types';
+import { categoryList, diagnosisList, schema } from './extraction.constants';
+import { DocumentType } from './dto/upload-options.dto';
+import { recursiveClean, sanitizeJsonString } from './utils/extraction.utils';
 
 @Injectable()
 export class ExtractionService {
@@ -20,136 +18,55 @@ export class ExtractionService {
     this.genAI = new GoogleGenerativeAI(apiKey);
   }
 
-  // --- Date Formatting and Cleaning (No changes needed) ---
-  private formatDate(dateString: string | null): string | null {
-    if (!dateString || typeof dateString !== 'string') return null;
-    const formatsToTry = ['DD MMM YYYY', 'MMMM DD, YYYY', 'YYYY-MM-DD', 'M/D/YYYY', 'MM/DD/YYYY', 'MM/DD/YY', 'D-MMM-YY', 'DD-MMM-YY'];
-    for (const fmt of formatsToTry) {
-      const d = dayjs(dateString.trim(), fmt, 'en', true);
-      if (d.isValid()) {
-        let year = d.year();
-        if (fmt.toLowerCase().includes('yy') && !fmt.toLowerCase().includes('yyyy')) {
-          year = year > dayjs().year() % 100 ? 1900 + year : 2000 + year;
-        }
-        return d.year(year).format('YYYY-MM-DD');
-      }
-    }
-    console.warn(`Warning: Could not parse date '${dateString}'. Returning null.`);
-    return null;
-  }
+  /**
+   * Applies specific business logic and formatting rules to the extracted data.
+   */
+  private cleanData(data: ExtractedPatientData): ExtractedPatientData {
+    // 1. Perform a deep, generic clean first.
+    const cleanedData = recursiveClean(data);
 
-  private cleanData(data: any): any {
-    if (typeof data === 'string') return data.trim();
-    if (Array.isArray(data)) return data.map(item => this.cleanData(item));
-    if (typeof data === 'object' && data !== null) {
-      for (const key in data) {
-        if (key.toLowerCase().includes('date')) {
-          data[key] = this.formatDate(data[key]);
-        } else {
-          data[key] = this.cleanData(data[key]);
-        }
-      }
-
-      const formatMiddleInitial = (fullNameObject) => {
-        if (fullNameObject && fullNameObject.middle_initial) {
-          fullNameObject.middle_initial = fullNameObject.middle_initial.trim().charAt(0).toUpperCase();
-        }
-      };
-
-      formatMiddleInitial(data.patient_info?.full_name);
-      formatMiddleInitial(data.sponsor_info?.sponsor_name);
-
-      const standardizeSex = (infoObject) => {
-        if (infoObject && typeof infoObject.sex === 'string') {
-          const sex = infoObject.sex.toLowerCase().trim();
-          if (sex.startsWith('m')) {
-            infoObject.sex = 'M';
-          } else if (sex.startsWith('f')) {
-            infoObject.sex = 'F';
-          } else {
-            infoObject.sex = null;
-          }
-        }
-      };
-
-      standardizeSex(data.patient_info);
-      standardizeSex(data.sponsor_info);
-    }
-    return data;
-  }
-
-
-  private sanitizeJsonString(str: string): string {
-    return str.replace(/\\n/g, "\\n").replace(/\\'/g, "\\'").replace(/\\"/g, '\\"').replace(/\\&/g, "\\&").replace(/\\r/g, "\\r").replace(/\\t/g, "\\t").replace(/\\b/g, "\\b").replace(/\\f/g, "\\f").replace(/[\u0000-\u001F]+/g, "");
-  }
-
-  async extractDataFromPdf(file: Express.Multer.File, modelName: string, documentType: string): Promise<any> {
-    const schema = {
-      "patient_info": {
-        "patient_record_number": null,
-        "full_name": { "first_name": null, "middle_initial": null, "last_name": null },
-        "date_of_birth": null,
-        "age": null,
-        "documented_age": null,
-        "sex": null,
-        "address": {
-          "house_no_street": null,
-          "barangay": null,
-          "city_municipality": null,
-          "province": null,
-          "zip_code": null
-        },
-        "category": null,
-        "rank": null,
-        "afpsn": null,
-        "branch_of_service": null,
-        "unit_assignment": null
-      },
-      "sponsor_info": { "sponsor_name": { "rank": null, "first_name": null, "middle_initial": null, "last_name": null }, "sex": null, "afpsn": null, "branch_of_service": null, "unit_assignment": null },
-      "medical_encounters": { "consultations": [{ "consultation_date": null, "age_at_visit": null, "vitals": { "height_cm": null, "weight_kg": null, "temperature_c": null }, "chief_complaint": null, "diagnosis": null, "notes": null, "treatment_plan": null, "attending_physician": null }], "lab_results": [{ "test_type": null, "date_performed": null, "results": [{ "test_name": null, "value": null, "reference_range": null, "unit": null }], "medical_technologist": null, "pathologist": null }], "radiology_reports": [{ "examination": null, "date_performed": null, "findings": null, "impression": null, "radiologist": null }] },
-      "summary": {
-        "final_diagnosis": [],
-        "primary_complaint": null,
-        "key_findings": null,
-        "medications_taken": [],
-        "allergies": []
+    // 2. Apply specific formatting to the known structure.
+    const formatMiddleInitial = (fullNameObject: { middle_initial?: string } | undefined) => {
+      if (fullNameObject && fullNameObject.middle_initial) {
+        fullNameObject.middle_initial = fullNameObject.middle_initial.charAt(0).toUpperCase();
       }
     };
 
-    const diagnosisList = [
-      // Cardiovascular
-      "Hypertension", "Coronary Artery Disease", "Atrial Fibrillation", "Heart Failure", "Hyperlipidemia",
-      // Endocrine
-      "Type 2 Diabetes", "Type 1 Diabetes", "Hypothyroidism", "Hyperthyroidism", "Polycystic Ovary Syndrome (PCOS)",
-      // Respiratory
-      "Asthma", "COPD (Chronic Obstructive Pulmonary Disease)", "Pneumonia", "Acute Bronchitis", "Allergic Rhinitis", "Sleep Apnea",
-      // Gastrointestinal
-      "Gastroesophageal Reflux Disease (GERD)", "Gastroenteritis", "Irritable Bowel Syndrome (IBS)", "Peptic Ulcer Disease",
-      // Neurological
-      "Migraine", "Tension Headache", "Epilepsy", "Cerebrovascular Accident (Stroke)", "Dementia",
-      // Musculoskeletal
-      "Osteoarthritis", "Rheumatoid Arthritis", "Low Back Pain", "Fibromyalgia", "Gout",
-      // Genitourinary / Women's Health
-      "Urinary Tract Infection (UTI)", "Benign Prostatic Hyperplasia (BPH)", "Abnormal Uterine Bleeding (AUB-O)", "Endometriosis",
-      // Mental Health
-      "Depression", "Anxiety Disorder", "Bipolar Disorder", "ADHD (Attention-Deficit/Hyperactivity Disorder)",
-      // Other Common Conditions
-      "Anemia", "Obesity", "Osteoporosis", "Chronic Kidney Disease", "Dermatitis"
-    ];
+    formatMiddleInitial(cleanedData.patient_info?.full_name);
+    formatMiddleInitial(cleanedData.sponsor_info?.sponsor_name);
 
-    const categoryList = [
-      "EDM", "EDS", "EDD", "EDF", "EDW", "ODW", "ODM", "ODF", "ODS", "ODD",
-      "ACTIVE MILITARY", "RMP", "CAA", "CHR", "CIVILIAN", "CDT", "CS", "P2LT",
-      "OCS", "RES", "ODH", "EDH"
-    ];
+    const standardizeSex = (infoObject: { sex?: string | null } | undefined) => {
+      if (infoObject && typeof infoObject.sex === 'string') {
+        const sex = infoObject.sex.toLowerCase();
+        if (sex.startsWith('m')) infoObject.sex = 'M';
+        else if (sex.startsWith('f')) infoObject.sex = 'F';
+        else infoObject.sex = null;
+      }
+    };
 
-    let documentTypeInstruction = `5. **Documents with Sponsors**: If a sponsor is present in the document, ALL military information (rank, afpsn, branch_of_service, unit_assignment) MUST be placed in the 'sponsor_info' object. The corresponding fields in 'patient_info' should be null. Only if the PATIENT is the service member should these fields be filled in 'patient_info'.`;
+    standardizeSex(cleanedData.patient_info);
+    standardizeSex(cleanedData.sponsor_info);
 
-    if (documentType === 'military') {
+    return cleanedData;
+  }
+
+  async extractDataFromPdf(
+    file: Express.Multer.File,
+    modelName: string,
+    documentType: DocumentType,
+  ): Promise<ExtractedPatientData> {
+    let documentTypeInstruction: string;
+    switch (documentType) {
+      case DocumentType.MILITARY:
         documentTypeInstruction = `5. **This is a Military Personnel document**: ALL military information (rank, afpsn, branch_of_service, unit_assignment) MUST be placed in the 'patient_info' object. The 'sponsor_info' object should be used for dependent information if present, but should not contain the primary military details.`;
-    } else if (documentType === 'dependent') {
-        // --- MODIFIED: STRONGER INSTRUCTION ---
+        break;
+      case DocumentType.DEPENDENT:
         documentTypeInstruction = `5. **CRITICAL INSTRUCTION: This is a Sponsored Dependent document.** The patient is NOT the military member. ALL military information (rank, afpsn, branch of service, unit assignment) found anywhere in this document MUST be placed in the 'sponsor_info' object. The corresponding military fields in the 'patient_info' object MUST be set to null. There are no exceptions to this rule.`;
+        break;
+      case DocumentType.GENERAL:
+      default:
+        documentTypeInstruction = `5. **General Document Handling**: This is a general medical document. Extract all information for the primary patient into the 'patient_info' object. If the document explicitly mentions a sponsor or guarantor, place their details in the 'sponsor_info' object. Do not assume a military context unless military-specific identifiers (like rank, AFPSN, branch of service) are clearly present.`;
+        break;
     }
 
     const prompt = `
@@ -195,12 +112,17 @@ export class ExtractionService {
 
     const model = this.genAI.getGenerativeModel({
       model: modelName,
-      safetySettings: [{ category: HarmCategory.HARM_CATEGORY_HARASSMENT, threshold: HarmBlockThreshold.BLOCK_NONE }]
+      safetySettings: [
+        {
+          category: HarmCategory.HARM_CATEGORY_HARASSMENT,
+          threshold: HarmBlockThreshold.BLOCK_NONE,
+        },
+      ],
     });
 
     const fileDataPart = {
       inlineData: {
-        data: file.buffer.toString("base64"),
+        data: file.buffer.toString('base64'),
         mimeType: file.mimetype,
       },
     };
@@ -211,24 +133,28 @@ export class ExtractionService {
 
     if (!jsonMatch) {
       console.error('No valid JSON object found in Gemini response:', responseText);
-      throw new Error('Could not find a valid JSON object in the extracted data.');
+      throw new InternalServerErrorException(
+        'Could not find a valid JSON object in the extracted data.',
+      );
     }
 
-    const sanitizedJson = this.sanitizeJsonString(jsonMatch[0]);
+    const sanitizedJson = sanitizeJsonString(jsonMatch[0]);
 
     try {
-      const parsedData = JSON.parse(sanitizedJson);
+      const parsedData = JSON.parse(sanitizedJson) as ExtractedPatientData;
       const cleanedData = this.cleanData(parsedData);
-      
+
       cleanedData.extraction_info = {
         model_used: modelName,
-        processed_at: new Date().toISOString()
+        processed_at: new Date().toISOString(),
       };
 
       return cleanedData;
     } catch (error) {
       console.error('Failed to parse JSON from Gemini:', error, 'Raw Text:', sanitizedJson);
-      throw new Error('Could not parse the extracted data.');
+      throw new InternalServerErrorException(
+        'Could not parse the extracted data from the AI response.',
+      );
     }
   }
 }

@@ -1,0 +1,148 @@
+export const schema = {
+  patient_info: {
+    patient_record_number: null,
+    full_name: { first_name: null, middle_initial: null, last_name: null },
+    date_of_birth: null,
+    age: null,
+    documented_age: null,
+    sex: null,
+    address: {
+      house_no_street: null,
+      barangay: null,
+      city_municipality: null,
+      province: null,
+      zip_code: null,
+    },
+    category: null,
+    rank: null,
+    afpsn: null,
+    branch_of_service: null,
+    unit_assignment: null,
+  },
+  sponsor_info: {
+    sponsor_name: { rank: null, first_name: null, middle_initial: null, last_name: null },
+    sex: null,
+    afpsn: null,
+    branch_of_service: null,
+    unit_assignment: null,
+  },
+  medical_encounters: {
+    consultations: [
+      {
+        consultation_date: null,
+        age_at_visit: null,
+        vitals: { height_cm: null, weight_kg: null, temperature_c: null },
+        chief_complaint: null,
+        diagnosis: null,
+        notes: null,
+        treatment_plan: null,
+        attending_physician: null,
+      },
+    ],
+    lab_results: [
+      {
+        test_type: null,
+        date_performed: null,
+        results: [{ test_name: null, value: null, reference_range: null, unit: null }],
+        medical_technologist: null,
+        pathologist: null,
+      },
+    ],
+    radiology_reports: [
+      {
+        examination: null,
+        date_performed: null,
+        findings: null,
+        impression: null,
+        radiologist: null,
+      },
+    ],
+  },
+  summary: {
+    final_diagnosis: [],
+    primary_complaint: null,
+    key_findings: null,
+    medications_taken: [],
+    allergies: [],
+  },
+};
+
+export const diagnosisList = [
+  // Cardiovascular
+  'Hypertension',
+  'Coronary Artery Disease',
+  'Atrial Fibrillation',
+  'Heart Failure',
+  'Hyperlipidemia',
+  // Endocrine
+  'Type 2 Diabetes',
+  'Type 1 Diabetes',
+  'Hypothyroidism',
+  'Hyperthyroidism',
+  'Polycystic Ovary Syndrome (PCOS)',
+  // Respiratory
+  'Asthma',
+  'COPD (Chronic Obstructive Pulmonary Disease)',
+  'Pneumonia',
+  'Acute Bronchitis',
+  'Allergic Rhinitis',
+  'Sleep Apnea',
+  // Gastrointestinal
+  'Gastroesophageal Reflux Disease (GERD)',
+  'Gastroenteritis',
+  'Irritable Bowel Syndrome (IBS)',
+  'Peptic Ulcer Disease',
+  // Neurological
+  'Migraine',
+  'Tension Headache',
+  'Epilepsy',
+  'Cerebrovascular Accident (Stroke)',
+  'Dementia',
+  // Musculoskeletal
+  'Osteoarthritis',
+  'Rheumatoid Arthritis',
+  'Low Back Pain',
+  'Fibromyalgia',
+  'Gout',
+  // Genitourinary / Women's Health
+  'Urinary Tract Infection (UTI)',
+  'Benign Prostatic Hyperplasia (BPH)',
+  'Abnormal Uterine Bleeding (AUB-O)',
+  'Endometriosis',
+  // Mental Health
+  'Depression',
+  'Anxiety Disorder',
+  'Bipolar Disorder',
+  'ADHD (Attention-Deficit/Hyperactivity Disorder)',
+  // Other Common Conditions
+  'Anemia',
+  'Obesity',
+  'Osteoporosis',
+  'Chronic Kidney Disease',
+  'Dermatitis',
+];
+
+export const categoryList = [
+  'EDM',
+  'EDS',
+  'EDD',
+  'EDF',
+  'EDW',
+  'ODW',
+  'ODM',
+  'ODF',
+  'ODS',
+  'ODD',
+  'ACTIVE MILITARY',
+  'RMP',
+  'CAA',
+  'CHR',
+  'CIVILIAN',
+  'CDT',
+  'CS',
+  'P2LT',
+  'OCS',
+  'RES',
+  'ODH',
+  'EDH',
+];

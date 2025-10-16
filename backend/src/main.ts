@@ -12,10 +12,11 @@ async function bootstrap() {
   app.setGlobalPrefix('api');
 
   // 2. Enable the global validation pipe
+  // This enables global validation using class-validator DTOs
   app.useGlobalPipes(
     new ValidationPipe({
-      whitelist: true, // Strip away properties that do not have any decorators
-      transform: true, // Transform payloads to be instances of DTO classes
+      whitelist: true, // Strips properties that do not have any decorators
+      transform: true, // Automatically transform payloads to be objects typed according to their DTO classes
     }),
   );
 
