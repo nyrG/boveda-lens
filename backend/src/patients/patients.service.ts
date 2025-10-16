@@ -122,7 +122,7 @@ export class PatientsService {
 
     const averageAge = avgAgeResult[0]?.avgAge
       ? parseFloat(avgAgeResult[0].avgAge).toFixed(1)
-      : 'N/A';
+      : null;
 
     return { totalPatients, recentlyUpdated, categories, topDiagnoses, averageAge };
   }

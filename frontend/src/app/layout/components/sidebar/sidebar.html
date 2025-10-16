@@ -24,7 +24,7 @@
         <li>
           <a
             [routerLink]="item.link"
-            [title]="layoutService.isSidebarCollapsed() ? item.text : null"
+            [title]="item.title"
             class="flex items-center h-10 rounded-lg text-sm transition-colors hover:bg-slate-100"
             [class.px-2]="!layoutService.isSidebarCollapsed()"
             [class.justify-center]="layoutService.isSidebarCollapsed()"
@@ -75,7 +75,8 @@
               </button>
               @if (isProfileMenuOpen()) {
                 <div
-                  class="absolute bottom-full left-0 z-20 mb-2 w-56 origin-bottom-left rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
+                  class="profile-menu absolute bottom-full left-0 z-20 mb-2 w-56 origin-bottom-left rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
+                  [class.closing]="isProfileMenuClosing()"
                 >
                   <div class="p-2" role="menu" aria-orientation="vertical">
                     <a
@@ -136,7 +137,8 @@
             </button>
             @if (isProfileMenuOpen()) {
               <div
-                class="absolute bottom-full left-0 z-20 mb-2 w-56 origin-bottom-left rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
+                class="profile-menu absolute bottom-full left-0 z-20 mb-2 w-56 origin-bottom-left rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
+                [class.closing]="isProfileMenuClosing()"
               >
                 <div class="p-2" role="menu" aria-orientation="vertical">
                   <a

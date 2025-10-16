@@ -1,38 +1,30 @@
 @if (summary; as summary) {
   <div class="rounded-lg border border-slate-200 bg-white shadow-sm">
     <!-- Redesigned Critical Info Section -->
-    <div class="grid grid-cols-1 border-b border-slate-200 sm:grid-cols-2">
-      <!-- Final Diagnosis -->
-      <div class="flex items-center justify-between border-r border-slate-200 p-4 sm:p-6">
-        <div>
-          <p class="text-sm text-slate-500">Final Diagnosis</p>
+    <div class="border-b border-slate-200">
+      <!-- Diagnoses -->
+      <div class="p-4 sm:p-6">
+        <div class="flex items-center gap-3">
+          <i class="fa-solid fa-clipboard-check w-5 text-center text-slate-400"></i>
+          <h3 class="text-sm font-medium text-slate-600">
+            {{ summary.final_diagnosis.length === 1 ? 'Diagnosis' : 'Diagnoses' }}
+          </h3>
+        </div>
+        <div class="mt-2 pl-8">
           @if (summary.final_diagnosis.length) {
-            <ul class="mt-1 list-inside list-disc space-y-1 text-lg font-bold text-slate-800">
+            <div class="flex flex-wrap gap-2">
               @for (dx of summary.final_diagnosis; track dx) {
-                <li>{{ dx }}</li>
+                <span
+                  class="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-sm font-medium text-slate-700"
+                >
+                  {{ dx }}
+                </span>
               }
-            </ul>
+            </div>
           } @else {
-            <p class="text-lg font-bold text-slate-800">N/A</p>
+            <p class="text-sm text-slate-500">No diagnoses on record.</p>
           }
         </div>
-        <i class="fa-solid fa-clipboard-check text-3xl text-slate-300"></i>
-      </div>
-      <!-- Allergies -->
-      <div class="flex items-center justify-between p-4 sm:p-6">
-        <div>
-          <p class="text-sm text-red-600">Allergies</p>
-          @if (summary.allergies?.length) {
-            <ul class="mt-1 list-inside list-disc space-y-1 text-lg font-bold text-red-800">
-              @for (allergy of summary.allergies; track allergy) {
-                <li>{{ allergy }}</li>
-              }
-            </ul>
-          } @else {
-            <p class="text-lg font-bold text-slate-800">N/A</p>
-          }
-        </div>
-        <i class="fa-solid fa-triangle-exclamation text-3xl text-red-300"></i>
       </div>
     </div>
 
@@ -49,12 +41,35 @@
           icon="fa-magnifying-glass-plus"
           label="Key Findings"
           [value]="summary.key_findings"
+          class="whitespace-pre-line"
         />
         <app-detail-item
           icon="fa-pills"
           label="Medications Taken"
           [values]="summary.medications_taken"
         />
+        <!-- Allergies (Moved and restyled) -->
+        <div>
+          <div class="flex items-center gap-3">
+            <i class="fa-solid fa-triangle-exclamation w-5 text-center text-red-400"></i>
+            <h4 class="text-sm font-medium text-slate-600">Allergies</h4>
+          </div>
+          <div class="mt-2 pl-8">
+            @if (summary.allergies?.length && summary.allergies?.[0] !== 'None') {
+              <div class="flex flex-wrap gap-2">
+                @for (allergy of summary.allergies; track allergy) {
+                  <span
+                    class="inline-flex items-center rounded-full bg-red-100 px-3 py-1 text-sm font-medium text-red-800"
+                  >
+                    {{ allergy }}
+                  </span>
+                }
+              </div>
+            } @else {
+              <p class="text-sm text-slate-500">No known allergies</p>
+            }
+          </div>
+        </div>
       </div>
     </div>
   </div>

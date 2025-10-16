@@ -11,7 +11,7 @@ import { CommonModule } from '@angular/common';
 export class StatsCard {
   // --- Component Inputs ---
   title = input.required<string>();
-  value = input.required<string | number>();
+  value = input<string | number | null | undefined>();
   icon = input<string>();
   description = input<string>();
   isLoading = input<boolean>(false);
@@ -37,8 +37,9 @@ export class StatsCard {
    */
   formattedValue = computed(() => {
     const val = this.value();
-    if (this.isNumeric() || typeof val !== 'string') return val;
-
-    return val.replace(/\w\S*/g, (txt) => txt.charAt(0).toUpperCase() + txt.substring(1).toLowerCase());
+    // Display '0' correctly, but treat other falsy values (null, undefined, '') as "No data yet".
+    if (val === null || val === undefined || val === '') return 'None';
+    // Return the value as-is, without any case formatting.
+    return val;
   });
 }

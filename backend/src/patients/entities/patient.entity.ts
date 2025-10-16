@@ -7,7 +7,7 @@ import {
   DeleteDateColumn,
   AfterLoad,
 } from 'typeorm';
-import type { PatientInfo, MedicalEncounter } from '../types/patient.types';
+import type { PatientInfo, MedicalEncounter, SponsorInfo, Summary } from '../types/patient.types';
 
 @Entity('patients')
 export class Patient {
@@ -21,13 +21,13 @@ export class Patient {
   patient_info: PatientInfo;
 
   @Column('jsonb', { nullable: true })
-  sponsor_info: object | null;
+  sponsor_info: SponsorInfo | null;
 
   @Column('jsonb', { nullable: true })
   medical_encounters: MedicalEncounter | null;
 
   @Column('jsonb', { nullable: true })
-  summary: object | null;
+  summary: Summary | null;
 
   @CreateDateColumn()
   created_at: Date;
@@ -67,6 +67,18 @@ export class Patient {
             consultation.age_at_visit = this.calculateAge(birthDate, consultationDate);
           } else {
             consultation.age_at_visit = null;
+          }
+        });
+      }
+
+      // Also calculate age_at_visit for each radiology report
+      if (this.medical_encounters?.radiology_reports) {
+        this.medical_encounters.radiology_reports.forEach((report) => {
+          // Assuming radiology reports will have an 'age_at_visit' property.
+          // If not, this can be adapted. The logic mirrors consultations.
+          if (report.date_performed) {
+            const reportDate = new Date(report.date_performed);
+            report.age_at_visit = this.calculateAge(birthDate, reportDate);
           }
         });
       }

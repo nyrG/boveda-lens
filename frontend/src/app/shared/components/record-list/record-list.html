@@ -118,7 +118,7 @@
               <th class="hidden p-4 text-left text-sm font-semibold text-slate-800 md:table-cell">
                 Record #
               </th>
-              <th class="p-4 text-left text-sm font-semibold text-slate-800">Final Diagnoses</th>
+              <th class="p-4 text-left text-sm font-semibold text-slate-800">Diagnoses</th>
               <th class="hidden p-4 text-left text-sm font-semibold text-slate-800 lg:table-cell">
                 Category
               </th>
@@ -151,7 +151,10 @@
                 <td class="hidden py-3 px-4 text-sm text-slate-600 md:table-cell">
                   {{ record.patient_info.patient_record_number || 'N/A' }}
                 </td>
-                <td class="py-3 px-4 text-sm text-slate-600 max-w-xs">
+                <td
+                  class="py-3 px-4 text-sm text-slate-600 max-w-xs truncate"
+                  [title]="getFinalDiagnosis(record)"
+                >
                   {{ getFinalDiagnosis(record) }}
                 </td>
                 <td class="hidden py-3 px-4 text-sm text-slate-600 lg:table-cell">
