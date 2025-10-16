@@ -1,5 +1,3 @@
-// backend/src/patients/patients.controller.ts
-
 import {
   Controller,
   Get,

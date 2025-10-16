@@ -1,28 +1,28 @@
-import { DataSource } from 'typeorm';
-import { Patient } from '../patients/entities/patient.entity';
+import { DataSource, DataSourceOptions } from 'typeorm';
 import * as dotenv from 'dotenv';
-import * as path from 'path';
 
-// Configure dotenv to load the .env file from the project root
-dotenv.config({ path: path.join(__dirname, '..', '..', '..', '.env') });
+// Load environment variables from .env file in the root of the project
+dotenv.config();
 
-export const AppDataSource = new DataSource({
+// Check if the environment is production
+const isProduction = process.env.NODE_ENV === 'production';
+
+export const dataSourceOptions: DataSourceOptions = {
   type: 'postgres',
-  // MODIFIED: Use the connection URL instead of separate fields
   url: process.env.DATABASE_URL,
-  ssl: {
-    rejectUnauthorized: false, // Required for Neon's free tier
-  },
-  entities: [Patient],
-  synchronize: true, // Keep this as true for now
+  // Use SSL in production, as required by most cloud database providers
+  ssl: isProduction ? { rejectUnauthorized: false } : false,
 
-  // Local development configuration
-  /* type: 'postgres',
-    host: 'localhost',
-    port: 5432,
-    username: process.env.POSTGRES_USER,
-    password: process.env.POSTGRES_PASSWORD,
-    database: process.env.POSTGRES_DB,
-    entities: [Patient],
-    synchronize: true, */
-});
+  /**
+   * Use synchronize: false in production.
+   * Schema changes should be handled via migrations.
+   */
+  synchronize: !isProduction,
+
+  // Point to the correct entity files based on the environment
+  entities: [isProduction ? 'dist/**/*.entity.js' : 'src/**/*.entity.ts'],
+
+  migrations: ['dist/database/migrations/*.js'],
+};
+
+export const AppDataSource = new DataSource(dataSourceOptions);
