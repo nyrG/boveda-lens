@@ -8,6 +8,7 @@ import { PatientsModule } from './patients/patients.module';
 import { ExtractionModule } from './extraction/extraction.module';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
+import { RecordsModule } from './records/records.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { AuthModule } from './auth/auth.module';
     ExtractionModule,
     UsersModule,
     AuthModule,
+    RecordsModule,
   ],
   controllers: [],
   providers: [],
