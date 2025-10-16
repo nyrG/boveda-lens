@@ -25,4 +25,7 @@
   animation: toast-in-right 0.3s ease-out forwards;
 }
 
-/* A 'leaving' class would be needed for a fade-out animation, which requires a change in the ToastService to delay removal. */
+.toast-item.leaving {
+  /* The 'forwards' keyword ensures the element stays in its final state */
+  animation: toast-out-right 0.3s ease-in forwards;
+}

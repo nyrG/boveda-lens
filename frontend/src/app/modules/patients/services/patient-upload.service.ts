@@ -72,7 +72,7 @@ export class PatientUploadService {
           this.toastService.show({
             type: 'action',
             message: `Record created for ${newPatient.name}.`,
-            duration: 10000, // Give user more time to click
+            duration: 20000, // Give user more time to click
             action: {
               label: 'Review',
               onClick: () => this.router.navigate(['/records', newPatient.id]),

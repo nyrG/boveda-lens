@@ -1,34 +1,30 @@
 import { Component, EventEmitter, Output, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { PatientUploadService } from '../../services/patient-upload.service';
 import { ToastService } from '../../../../shared/services/toast.service';
-
+// We are importing this directly. In a real-world scenario, this would likely
+// come from a shared library or an API call to the backend.
+import { categoryTypes } from '../../../../../../../backend/src/extraction/extraction.constants';
 @Component({
   selector: 'app-patient-upload-modal',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule],
   templateUrl: './patient-upload-modal.html',
   styleUrl: './patient-upload-modal.css',
 })
 export class PatientUploadModal {
   @Output() close = new EventEmitter<void>();
 
-  private fb = inject(FormBuilder);
   private patientUploadService = inject(PatientUploadService);
   private toastService = inject(ToastService);
 
   // --- Component State Signals ---
   selectedFile = signal<File | null>(null);
+  determinedDocumentType = signal<'military' | 'dependent' | 'general'>('general');
   fileError = signal<string | null>(null);
   isDragging = signal(false);
 
-  // --- Form for Upload Settings ---
-  uploadForm = this.fb.group({
-    documentType: ['military', Validators.required],
-    // The model is hardcoded for now as per the service logic.
-    // This can be expanded to a form control if needed.
-  });
+  private categoryTypes = categoryTypes;
 
   // --- File Handling ---
 
@@ -68,7 +64,30 @@ export class PatientUploadModal {
     } else {
       this.fileError.set(null);
       this.selectedFile.set(file);
+      this.determineDocumentType(file.name);
     }
+  }
+
+  private determineDocumentType(fileName: string): void {
+    const upperCaseFileName = fileName.toUpperCase();
+
+    // Check for military categories first
+    for (const category of this.categoryTypes.military) {
+      if (upperCaseFileName.includes(category.toUpperCase())) {
+        this.determinedDocumentType.set('military');
+        return;
+      }
+    }
+
+    // Then check for dependent categories
+    for (const category of this.categoryTypes.dependent) {
+      if (upperCaseFileName.includes(category.toUpperCase())) {
+        this.determinedDocumentType.set('dependent');
+        return;
+      }
+    }
+
+    this.determinedDocumentType.set('general');
   }
 
   removeFile(): void {
@@ -94,7 +113,10 @@ export class PatientUploadModal {
       return;
     }
 
-    const settings = { model: 'gemini-2.5-flash-lite', documentType: this.uploadForm.value.documentType! };
+    const settings = {
+      model: 'gemini-2.5-flash-lite',
+      documentType: this.determinedDocumentType(),
+    };
     this.patientUploadService.uploadAndProcess(file, settings);
     this.toastService.show({ type: 'info', message: `Upload started for ${file.name}.` });
     this.close.emit();
