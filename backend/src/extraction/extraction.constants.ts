@@ -122,27 +122,20 @@ export const diagnosisList = [
   'Dermatitis',
 ];
 
-export const categoryList = [
-  'EDM',
-  'EDS',
-  'EDD',
-  'EDF',
-  'EDW',
-  'ODW',
-  'ODM',
-  'ODF',
-  'ODS',
-  'ODD',
-  'ACTIVE MILITARY',
-  'RMP',
-  'CAA',
-  'CHR',
-  'CIVILIAN',
-  'CDT',
-  'CS',
-  'P2LT',
-  'OCS',
-  'RES',
-  'ODH',
-  'EDH',
-];
+export const categoryTypes = {
+  dependent: ['EDM', 'EDS', 'EDD', 'EDF', 'EDW', 'ODW', 'ODM', 'ODF', 'ODS', 'ODD', 'CDT', 'ODH'],
+  military: [
+    'OCS',
+    'RES',
+    'EDH',
+    'ACTIVE MILITARY',
+    'RMP',
+    'CAA',
+    'CHR',
+    'CIVILIAN', // Note: Civilian can sometimes be a patient type without a sponsor.
+    'CS',
+    'P2LT',
+  ],
+};
+
+export const allCategories = [...categoryTypes.dependent, ...categoryTypes.military];

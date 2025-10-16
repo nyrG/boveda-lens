@@ -2,7 +2,7 @@ import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from '@google/generative-ai';
 import { ExtractedPatientData } from '../patients/types/patient.types';
-import { categoryList, diagnosisList, schema } from './extraction.constants';
+import { allCategories, diagnosisList, schema } from './extraction.constants';
 import { DocumentType } from './dto/upload-options.dto';
 import { recursiveClean, sanitizeJsonString } from './utils/extraction.utils';
 
@@ -63,7 +63,6 @@ export class ExtractionService {
       case DocumentType.DEPENDENT:
         documentTypeInstruction = `5. **CRITICAL INSTRUCTION: This is a Sponsored Dependent document.** The patient is NOT the military member. ALL military information (rank, afpsn, branch of service, unit assignment) found anywhere in this document MUST be placed in the 'sponsor_info' object. The corresponding military fields in the 'patient_info' object MUST be set to null. There are no exceptions to this rule.`;
         break;
-      case DocumentType.GENERAL:
       default:
         documentTypeInstruction = `5. **General Document Handling**: This is a general medical document. Extract all information for the primary patient into the 'patient_info' object. If the document explicitly mentions a sponsor or guarantor, place their details in the 'sponsor_info' object. Do not assume a military context unless military-specific identifiers (like rank, AFPSN, branch of service) are clearly present.`;
         break;
@@ -99,7 +98,7 @@ export class ExtractionService {
 
       **REFERENCE LISTS:**
       - **Diagnosis List**: ${diagnosisList.join(', ')}
-      - **Category List**: ${categoryList.join(', ')}
+      - **Category List**: ${allCategories.join(', ')}
 
       **DATA QUALITY INSTRUCTIONS:**
       - **Decipher Handwriting**: Make your best effort to accurately interpret handwritten notes.

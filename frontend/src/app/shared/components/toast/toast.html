@@ -3,6 +3,7 @@
     <div
       class="toast-item flex items-center w-full p-4 rounded-lg shadow-lg"
       [ngClass]="{
+        leaving: toast.state === 'leaving',
         'bg-white text-slate-700': toast.type === 'info',
         'bg-blue-50 text-blue-800': toast.type === 'action',
         'bg-green-50 text-green-800': toast.type === 'success',
@@ -40,7 +41,7 @@
       @if (toast.action) {
         <button
           (click)="executeAction(toast); $event.stopPropagation()"
-          class="ms-3 text-sm font-semibold text-blue-600 hover:text-blue-700"
+          class="ms-3 me-3 text-sm font-semibold text-blue-600 hover:text-blue-700"
         >
           {{ toast.action.label }}
         </button>
