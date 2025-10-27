@@ -12,7 +12,7 @@ import {
   JoinColumn,
 } from 'typeorm';
 import type { PatientInfo, Summary } from '../types/patient.types';
-import { Record } from '../../records/entities/record.entity';
+import { Record } from '../../../shared/records/entities/record.entity';
 import { Consultation } from './consultation.entity';
 import { LabReport } from './lab-report.entity';
 import { RadiologyReport } from './radiology-report.entity';

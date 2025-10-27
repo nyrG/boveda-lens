@@ -8,24 +8,14 @@ import {
   ManyToOne,
   JoinColumn,
 } from 'typeorm';
-import { Patient } from '../../patients/entities/patient.entity';
+import { Patient } from './patient.entity';
 
-/**
- * Represents a single test result within a lab report.
- */
-export interface TestResult {
-  test_name?: string;
-  value?: string | number | null;
-  reference_range?: string;
-  unit?: string;
-}
-
-@Entity('lab_reports')
-export class LabReport {
+@Entity('radiology_reports')
+export class RadiologyReport {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => Patient, (patient) => patient.lab_reports, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Patient, (patient) => patient.radiology_reports, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'patient_id' })
   patient: Patient;
 
@@ -33,13 +23,22 @@ export class LabReport {
   patient_id: number;
 
   @Column({ nullable: true })
-  test_type: string;
+  examination: string;
+
+  @Column({ type: 'int', nullable: true })
+  age_at_visit: number | null;
 
   @Column({ type: 'date', nullable: true })
   date_performed: string;
 
-  @Column('jsonb', { nullable: true })
-  results: TestResult[];
+  @Column({ type: 'text', nullable: true })
+  findings: string;
+
+  @Column({ type: 'text', nullable: true })
+  impression: string;
+
+  @Column({ nullable: true })
+  radiologist: string;
 
   @CreateDateColumn()
   created_at: Date;

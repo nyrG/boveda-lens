@@ -7,7 +7,7 @@ import {
   DeleteDateColumn,
   OneToMany,
 } from 'typeorm';
-import { Patient } from '../../patients/entities/patient.entity';
+import { Patient } from './patient.entity';
 
 @Entity('patient_categories')
 export class PatientCategory {

@@ -8,7 +8,7 @@ import {
   OneToOne,
   JoinColumn,
 } from 'typeorm';
-import { Patient } from '../../patients/entities/patient.entity';
+import { Patient } from '../../../domains/patients/entities/patient.entity';
 
 @Entity('records')
 export class Record {
