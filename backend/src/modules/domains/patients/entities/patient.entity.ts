@@ -43,8 +43,11 @@ export class Patient {
   @Column({ name: 'documented_age', type: 'int', nullable: true })
   documented_age: number;
 
-  @Column({ length: 1 })
-  sex: string;
+  @Column({
+    type: 'enum',
+    enum: ['M', 'F'],
+  })
+  sex: 'M' | 'F';
 
   @Column({ nullable: true })
   afpsn: string;

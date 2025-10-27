@@ -1,24 +1,5 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  CreateDateColumn,
-  UpdateDateColumn,
-  DeleteDateColumn,
-  ManyToOne,
-  JoinColumn,
-} from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
 import { Patient } from './patient.entity';
-
-/**
- * Represents the vitals taken during a consultation.
- * This corresponds to the structure of the 'vitals' JSONB column.
- */
-export interface Vitals {
-  height_cm?: number | null;
-  weight_kg?: number | null;
-  temperature_c?: number | null;
-}
 
 @Entity('consultations')
 export class Consultation {
@@ -38,8 +19,18 @@ export class Consultation {
   @Column({ type: 'int', nullable: true })
   age_at_visit: number | null;
 
-  @Column('jsonb', { nullable: true })
-  vitals: Vitals | null;
+  @Column({ name: 'height_cm', type: 'float', nullable: true })
+  height_cm: number;
+
+  @Column({ name: 'weight_kg', type: 'float', nullable: true })
+  weight_kg: number;
+
+  @Column({
+    name: 'temperature_c',
+    type: 'float',
+    nullable: true,
+  })
+  temperature_c: number;
 
   @Column({ nullable: true })
   attending_physician: string;
@@ -55,13 +46,4 @@ export class Consultation {
 
   @Column({ type: 'text', nullable: true })
   notes: string;
-
-  @CreateDateColumn()
-  created_at: Date;
-
-  @UpdateDateColumn()
-  updated_at: Date;
-
-  @DeleteDateColumn()
-  deleted_at: Date;
 }
