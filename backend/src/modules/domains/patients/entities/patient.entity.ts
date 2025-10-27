@@ -11,13 +11,14 @@ import {
   ManyToOne,
   JoinColumn,
 } from 'typeorm';
-import type { PatientInfo, Summary } from '../types/patient.types';
+import type { Summary } from '../types/patient.types';
 import { Record } from '../../../shared/records/entities/record.entity';
 import { Consultation } from './consultation.entity';
 import { LabReport } from './lab-report.entity';
 import { RadiologyReport } from './radiology-report.entity';
 import { Sponsor } from './sponsor.entity';
 import { PatientCategory } from './patient-category.entity';
+import { Address } from '../../../shared/addresses/entities/address.entity';
 
 @Entity('patients')
 export class Patient {
@@ -25,10 +26,37 @@ export class Patient {
   id: number;
 
   @Column()
-  name: string;
+  first_name: string;
 
-  @Column('jsonb')
-  patient_info: PatientInfo;
+  @Column({ length: 1, nullable: true })
+  middle_initial: string;
+
+  @Column()
+  last_name: string;
+
+  @Column({ name: 'patient_record_number', unique: true })
+  patient_record_number: string;
+
+  @Column({ type: 'date', name: 'date_of_birth' })
+  date_of_birth: string;
+
+  @Column({ name: 'documented_age', type: 'int', nullable: true })
+  documented_age: number;
+
+  @Column({ length: 1 })
+  sex: string;
+
+  @Column({ nullable: true })
+  afpsn: string;
+
+  @Column({ name: 'branch_of_service', nullable: true })
+  branch_of_service: string;
+
+  @Column({ nullable: true })
+  rank: string;
+
+  @Column({ name: 'unit_assignment', nullable: true })
+  unit_assignment: string;
 
   @Column('jsonb', { nullable: true })
   summary: Summary | null;
@@ -47,6 +75,12 @@ export class Patient {
 
   @OneToMany(() => Sponsor, (sponsor) => sponsor.patient)
   sponsors: Sponsor[];
+
+  // Polymorphic relationship with Address
+  @OneToMany(() => Address, (address) => address.entityId, {
+    cascade: true,
+  })
+  addresses: Address[];
 
   @ManyToOne(() => PatientCategory, (category) => category.patients, {
     nullable: true,
@@ -85,9 +119,9 @@ export class Patient {
 
   @AfterLoad()
   calculateAges() {
-    if (this.patient_info?.date_of_birth) {
-      const birthDate = new Date(this.patient_info.date_of_birth);
-      this.patient_info.age = this.calculateAge(birthDate, new Date());
+    if (this.date_of_birth) {
+      const birthDate = new Date(this.date_of_birth);
+      // Note: 'age' is a calculated, non-persistent property.
 
       // Now, calculate age_at_visit for each consultation
       if (this.consultations) {
@@ -113,9 +147,6 @@ export class Patient {
           }
         });
       }
-    } else {
-      // Ensure age is null if date_of_birth is missing
-      if (this.patient_info) this.patient_info.age = null;
     }
   }
 }
