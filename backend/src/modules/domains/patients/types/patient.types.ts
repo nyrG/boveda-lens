@@ -110,10 +110,10 @@ export interface MedicalEncounter {
  * Represents the structure of the `summary` JSONB column.
  */
 export interface Summary {
-  final_diagnosis?: string[];
+  diagnoses?: string[];
   primary_complaint?: string;
   key_findings?: string;
-  medications_taken?: string[];
+  medications_prescribed?: string[];
   allergies?: string[];
 }
 
