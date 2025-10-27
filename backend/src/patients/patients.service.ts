@@ -126,6 +126,7 @@ export class PatientsService {
 
     return { totalPatients, recentlyUpdated, categories, topDiagnoses, averageAge };
   }
+
   async update(id: number, updatePatientDto: UpdatePatientDto): Promise<Patient> {
     const patient = await this.findOne(id);
 

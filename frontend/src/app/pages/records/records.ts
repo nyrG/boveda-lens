@@ -26,8 +26,6 @@ export class Records implements OnInit, OnDestroy {
   mostCommonDiagnosis = signal<string>('...');
   topCategory = signal<string>('...');
 
-  private pollingInterval: ReturnType<typeof setInterval> | undefined;
-
   ngOnInit(): void {
     this.headerState.setTitle('Records');
     this.headerState.setShowFilterButton(true);
@@ -44,11 +42,6 @@ export class Records implements OnInit, OnDestroy {
       // but calling it here ensures a coordinated refresh if needed.
       // this.recordState.fetchRecords({ showNotification: true });
     });
-
-    this.pollingInterval = setInterval(() => {
-      this.fetchStats();
-      this.recordState.fetchRecords({ preserveSelection: true });
-    }, 30000);
   }
 
   private fetchStats(): void {
@@ -68,7 +61,6 @@ export class Records implements OnInit, OnDestroy {
     this.headerState.setShowFilterButton(false);
     this.layoutService.closeActionSidebar();
     this.headerState.setShowRefreshButton(false);
-    clearInterval(this.pollingInterval);
     this.destroy$.next();
     this.destroy$.complete();
   }
