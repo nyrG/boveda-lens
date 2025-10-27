@@ -4,11 +4,11 @@ import { join } from 'path';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { dataSourceOptions } from './database/data-source';
-import { PatientsModule } from './patients/patients.module';
-import { ExtractionModule } from './extraction/extraction.module';
-import { UsersModule } from './users/users.module';
-import { AuthModule } from './auth/auth.module';
-import { RecordsModule } from './records/records.module';
+import { PatientsModule } from './modules/domains/patients/patients.module';
+import { ExtractionModule } from './modules/domains/extraction/extraction.module';
+import { UsersModule } from './modules/domains/users/users.module';
+import { AuthModule } from './modules/domains/auth/auth.module';
+import { RecordsModule } from './modules/shared/records/records.module';
 
 @Module({
   imports: [

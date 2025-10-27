@@ -2,15 +2,15 @@
 
 import { DataSource } from 'typeorm';
 import { faker } from '@faker-js/faker';
-import { Patient } from '../../patients/entities/patient.entity';
-import { PatientCategory } from '../../patients/entities/patient-category.entity';
-import { Record } from '../../records/entities/record.entity';
-import { Sponsor } from '../../patients/entities/sponsor.entity';
-import { Consultation } from '../../patients/entities/consultation.entity';
-import { RadiologyReport } from '../../patients/entities/radiology-report.entity';
-import { LabReport } from '../../patients/entities/lab-report.entity';
+import { Patient } from '../../modules/domains/patients/entities/patient.entity';
+import { PatientCategory } from '../../modules/domains/patients/entities/patient-category.entity';
+import { Record } from '../../modules/shared/records/entities/record.entity';
+import { Sponsor } from '../../modules/domains/patients/entities/sponsor.entity';
+import { Consultation } from '../../modules/domains/patients/entities/consultation.entity';
+import { RadiologyReport } from '../../modules/domains/patients/entities/radiology-report.entity';
+import { LabReport } from '../../modules/domains/patients/entities/lab-report.entity';
 import { AppDataSource } from '../data-source';
-import { allCategories } from '../../extraction/extraction.constants'; // This is likely just an array of strings now
+import { allCategories } from '../../modules/domains/extraction/extraction.constants'; // This is likely just an array of strings now
 
 const NUM_PATIENTS_TO_SEED = 20;
 

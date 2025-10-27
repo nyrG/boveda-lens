@@ -12,7 +12,7 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ExtractionService } from './extraction.service';
-import { GeminiApiExceptionFilter } from './gemini-api.filter'; // 1. Import the filter
+import { GeminiApiExceptionFilter } from './utils/gemini-api.filter'; // 1. Import the filter
 import { ExtractedPatientData } from '../patients/types/patient.types';
 import { UploadOptionsDto } from './dto/upload-options.dto';
 
