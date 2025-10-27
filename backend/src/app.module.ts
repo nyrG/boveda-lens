@@ -9,6 +9,7 @@ import { ExtractionModule } from './modules/domains/extraction/extraction.module
 import { UsersModule } from './modules/domains/users/users.module';
 import { AuthModule } from './modules/domains/auth/auth.module';
 import { RecordsModule } from './modules/shared/records/records.module';
+import { AddressesModule } from './modules/shared/addresses/addresses.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { RecordsModule } from './modules/shared/records/records.module';
     UsersModule,
     AuthModule,
     RecordsModule,
+    AddressesModule,
   ],
   controllers: [],
   providers: [],
