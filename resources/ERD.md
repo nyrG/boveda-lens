@@ -15,7 +15,6 @@ erDiagram
     PATIENTS ||--o{ LAB_REPORTS : "has"
     PATIENTS ||--o{ RADIOLOGY_REPORTS : "has"
     PATIENTS ||--o{ SPONSORS : "has"
-    PATIENTS ||--o{ ADDRESSES : "has"
 
     USERS ||--o{ AUDIT_LOGS : "performs"
 
@@ -80,7 +79,8 @@ erDiagram
 
     ADDRESSES {
         int id PK
-        int patient_id FK "Links to the patient"
+        int entity_id FK "ID of the owner entity (e.g., Patient, User, Vendor)"
+        varchar entity_type "Type of the owner entity (e.g., 'Patient', 'User')"
         varchar address_type "e.g., 'RESIDENCE', 'MAILING', 'EMERGENCY'"
         boolean is_active "True if this is the current, valid address"
         timestamp deactivated_at "Date the address was marked inactive (null if active)"
