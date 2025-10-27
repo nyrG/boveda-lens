@@ -1,13 +1,4 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  CreateDateColumn,
-  UpdateDateColumn,
-  DeleteDateColumn,
-  ManyToOne,
-  JoinColumn,
-} from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
 import { Patient } from './patient.entity';
 
 @Entity('sponsors')
@@ -23,18 +14,6 @@ export class Sponsor {
   patient_id: number;
 
   @Column({ nullable: true })
-  afpsn: string;
-
-  @Column({ nullable: true })
-  branch_of_service: string;
-
-  @Column({ nullable: true })
-  unit_assignment: string;
-
-  @Column({ nullable: true })
-  rank: string;
-
-  @Column({ nullable: true })
   first_name: string;
 
   @Column({ length: 1, nullable: true })
@@ -43,19 +22,22 @@ export class Sponsor {
   @Column({ nullable: true })
   last_name: string;
 
+  @Column({ nullable: true })
+  rank: string;
+
+  @Column({ nullable: true })
+  afpsn: string;
+
+  @Column({ nullable: true })
+  branch_of_service: string;
+
+  @Column({ nullable: true })
+  unit_assignment: string;
+
   @Column({
     type: 'enum',
     enum: ['M', 'F'],
     nullable: true,
   })
   sex: 'M' | 'F' | null;
-
-  @CreateDateColumn()
-  created_at: Date;
-
-  @UpdateDateColumn()
-  updated_at: Date;
-
-  @DeleteDateColumn()
-  deleted_at: Date;
 }

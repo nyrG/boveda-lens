@@ -1,24 +1,6 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  CreateDateColumn,
-  UpdateDateColumn,
-  DeleteDateColumn,
-  ManyToOne,
-  JoinColumn,
-} from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
 import { Patient } from './patient.entity';
-
-/**
- * Represents a single test result within a lab report.
- */
-export interface TestResult {
-  test_name?: string;
-  value?: string | number | null;
-  reference_range?: string;
-  unit?: string;
-}
+import { TestResult } from '../types/patient.types';
 
 @Entity('lab_reports')
 export class LabReport {
@@ -41,12 +23,9 @@ export class LabReport {
   @Column('jsonb', { nullable: true })
   results: TestResult[];
 
-  @CreateDateColumn()
-  created_at: Date;
+  @Column({ nullable: true })
+  medical_technologist: string;
 
-  @UpdateDateColumn()
-  updated_at: Date;
-
-  @DeleteDateColumn()
-  deleted_at: Date;
+  @Column({ nullable: true })
+  pathologist: string;
 }

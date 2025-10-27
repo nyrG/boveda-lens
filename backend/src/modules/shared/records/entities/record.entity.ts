@@ -6,24 +6,31 @@ import {
   UpdateDateColumn,
   DeleteDateColumn,
   OneToOne,
+  ManyToOne,
   JoinColumn,
 } from 'typeorm';
 import { Patient } from '../../../domains/patients/entities/patient.entity';
+import { RecordType } from './record-type.entity';
 
 @Entity('records')
 export class Record {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ unique: true, nullable: true })
-  record_number: string; // A unique identifier for the medical record
+  @Column()
+  name: string; // Display name for the record, e.g., patient's name
 
-  @OneToOne(() => Patient, (patient) => patient.record, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'patient_id' })
+  @Column({ name: 'record_type_id' })
+  recordTypeId: number;
+
+  @ManyToOne(() => RecordType, (recordType) => recordType.records, {
+    eager: true, // Automatically load the record type
+  })
+  @JoinColumn({ name: 'record_type_id' })
+  recordType: RecordType;
+
+  @OneToOne(() => Patient, (patient) => patient.record)
   patient: Patient;
-
-  @Column({ unique: true })
-  patient_id: number; // Foreign key to the Patient entity
 
   @CreateDateColumn()
   created_at: Date;
