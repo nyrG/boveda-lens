@@ -10,14 +10,14 @@ import {
   Query,
 } from '@nestjs/common';
 import { PatientsService } from './patients.service';
-import { CreatePatientDto } from './dto/create-patient.dto';
-import { UpdatePatientDto } from './dto/update-patient.dto';
+import { CreatePatientDto } from './dto/patient/create-patient.dto';
+import { UpdatePatientDto } from './dto/patient/update-patient.dto';
 
 @Controller('patients')
 export class PatientsController {
   constructor(private readonly patientsService: PatientsService) {}
 
-  @Post()
+  /* @Post()
   create(@Body() createPatientDto: CreatePatientDto) {
     return this.patientsService.create(createPatientDto);
   }
@@ -58,5 +58,5 @@ export class PatientsController {
   @Delete()
   removeMany(@Body('ids') ids: number[]) {
     return this.patientsService.removeMany(ids);
-  }
+  } */
 }

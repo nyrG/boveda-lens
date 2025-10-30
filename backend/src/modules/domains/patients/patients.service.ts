@@ -2,8 +2,8 @@ import { Injectable, NotFoundException, BadRequestException } from '@nestjs/comm
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, MoreThan } from 'typeorm';
 import { Patient } from './entities/patient.entity';
-import { CreatePatientDto } from './dto/create-patient.dto';
-import { UpdatePatientDto } from './dto/update-patient.dto';
+import { CreatePatientDto } from './dto/patient/create-patient.dto';
+import { UpdatePatientDto } from './dto/patient/update-patient.dto';
 import { formatPatientDto } from './utils/patient-formatting.utils';
 import { PatientInfo, CategoryStat, DiagnosisStat, AvgAgeResult } from './types/patient.types';
 
@@ -14,7 +14,7 @@ export class PatientsService {
     private patientsRepository: Repository<Patient>,
   ) {}
 
-  create(createPatientDto: CreatePatientDto): Promise<Patient> {
+  /* create(createPatientDto: CreatePatientDto): Promise<Patient> {
     const info = createPatientDto.patient_info as PatientInfo;
 
     if (!info || !info.full_name || !info.full_name.first_name || !info.full_name.last_name) {
@@ -161,5 +161,5 @@ export class PatientsService {
     if (result.affected === 0) {
       // This is not necessarily an error, could mean records were already deleted.
     }
-  }
+  } */
 }
