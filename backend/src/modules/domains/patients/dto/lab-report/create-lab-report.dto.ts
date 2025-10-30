@@ -2,8 +2,6 @@ import {
   IsString,
   IsOptional,
   IsDateString,
-  IsNumber,
-  IsNotEmpty,
   IsArray,
   ValidateNested,
   IsDefined,
@@ -29,10 +27,6 @@ class TestResultDto {
 }
 
 export class CreateLabReportDto {
-  @IsNumber()
-  @IsNotEmpty()
-  patient_id: number;
-
   @IsOptional()
   @IsString()
   test_type?: string;
