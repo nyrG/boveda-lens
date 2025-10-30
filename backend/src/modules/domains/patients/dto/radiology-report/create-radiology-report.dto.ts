@@ -1,10 +1,6 @@
-import { IsString, IsOptional, IsDateString, IsNumber, IsNotEmpty } from 'class-validator';
+import { IsString, IsOptional, IsDateString } from 'class-validator';
 
 export class CreateRadiologyReportDto {
-  @IsNumber()
-  @IsNotEmpty()
-  patient_id: number;
-
   @IsOptional()
   @IsString()
   examination?: string;

@@ -1,10 +1,6 @@
-import { IsString, IsOptional, IsDateString, IsNumber, IsNotEmpty } from 'class-validator';
+import { IsString, IsOptional, IsDateString, IsNumber } from 'class-validator';
 
 export class CreateConsultationDto {
-  @IsNumber()
-  @IsNotEmpty()
-  patient_id: number;
-
   @IsOptional()
   @IsDateString()
   consultation_date?: string;
