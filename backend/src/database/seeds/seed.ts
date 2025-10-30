@@ -23,7 +23,7 @@ const NUM_PATIENTS_TO_SEED = 20;
  * @param allergies - Array of possible allergies.
  * @returns A new Patient instance.
  */
-const createRandomPatient = (
+/* const createRandomPatient = (
   category: PatientCategory,
   diagnoses: string[],
   complaints: string[],
@@ -236,4 +236,4 @@ AppDataSource.initialize()
     await seedPatients(AppDataSource);
     await AppDataSource.destroy();
   })
-  .catch((error) => console.error('Error seeding database:', error));
+  .catch((error) => console.error('Error seeding database:', error)); */

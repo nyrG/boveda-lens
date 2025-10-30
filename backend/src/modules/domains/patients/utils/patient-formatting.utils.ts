@@ -1,5 +1,5 @@
-import { CreatePatientDto } from '../dto/create-patient.dto';
-import { UpdatePatientDto } from '../dto/update-patient.dto';
+import { CreatePatientDto } from '../dto/patient/create-patient.dto';
+import { UpdatePatientDto } from '../dto/patient/update-patient.dto';
 import { MedicalEncounter, PatientInfo, SponsorInfo } from '../types/patient.types';
 
 /**
