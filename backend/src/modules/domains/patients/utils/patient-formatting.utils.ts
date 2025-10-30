@@ -22,7 +22,7 @@ const toTitleCase = (str: string | null | undefined): string | undefined => {
  * @param dto The DTO to format (CreatePatientDto or UpdatePatientDto).
  */
 export const formatPatientDto = (dto: CreatePatientDto | UpdatePatientDto): void => {
-  const info = dto.patient_info as PatientInfo;
+  /* const info = dto.patient_info as PatientInfo;
   const sponsorInfo = dto.sponsor_info as SponsorInfo;
   const encounters = dto.medical_encounters as MedicalEncounter;
 
@@ -53,5 +53,5 @@ export const formatPatientDto = (dto: CreatePatientDto | UpdatePatientDto): void
         consultation.attending_physician = toTitleCase(consultation.attending_physician);
       }
     });
-  }
+  } */
 };
