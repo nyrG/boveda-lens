@@ -12,10 +12,25 @@ import {
 import { PatientsService } from './patients.service';
 import { CreatePatientDto } from './dto/patient/create-patient.dto';
 import { UpdatePatientDto } from './dto/patient/update-patient.dto';
+import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { Patient } from './entities/patient.entity';
 
+@ApiTags('Patients')
 @Controller('patients')
 export class PatientsController {
   constructor(private readonly patientsService: PatientsService) {}
+
+  @Post()
+  @ApiOperation({ summary: 'Create a new patient record' })
+  @ApiResponse({
+    status: 201,
+    description: 'The patient has been successfully created.',
+    type: Patient,
+  })
+  @ApiResponse({ status: 400, description: 'Bad Request. Invalid input data.' })
+  create(@Body() createPatientDto: CreatePatientDto) {
+    return this.patientsService.create(createPatientDto);
+  }
 
   /* @Post()
   create(@Body() createPatientDto: CreatePatientDto) {

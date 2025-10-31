@@ -1,5 +1,4 @@
 import { Module } from '@nestjs/common';
-import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
@@ -17,9 +16,6 @@ import { AddressesModule } from './modules/shared/addresses/addresses.module';
     ConfigModule.forRoot({
       isGlobal: true, // Make the config service available globally
       envFilePath: join(__dirname, '..', '.env'),
-    }),
-    ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '..', 'public'),
     }),
     TypeOrmModule.forRoot(dataSourceOptions),
     PatientsModule,
