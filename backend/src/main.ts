@@ -24,7 +24,7 @@ async function bootstrap() {
   // 3. Setup Swagger for API documentation
   const config = new DocumentBuilder()
     .setTitle('Bóveda Lens API')
-    .setDescription('API documentation for the Bóveda Lens medical records system.')
+    .setDescription('API documentation for the Bóveda Lens records extraction system.')
     .setVersion('1.0')
     .build();
   const documentFactory = () => SwaggerModule.createDocument(app, config);
