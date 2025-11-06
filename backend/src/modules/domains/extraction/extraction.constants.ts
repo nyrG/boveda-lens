@@ -123,19 +123,22 @@ export const diagnosisList = [
 ];
 
 export const categoryTypes = {
-  dependent: ['EDM', 'EDS', 'EDD', 'EDF', 'EDW', 'ODW', 'ODM', 'ODF', 'ODS', 'ODD', 'CDT', 'ODH'],
-  military: [
-    'OCS',
-    'RES',
-    'EDH',
-    'ACTIVE MILITARY',
-    'RMP',
-    'CAA',
-    'CHR',
-    'CIVILIAN', // Note: Civilian can sometimes be a patient type without a sponsor.
-    'CS',
-    'P2LT',
+  dependent: [
+    'EDM',
+    'EDS',
+    'EDD',
+    'EDF',
+    'EDW',
+    'ODW',
+    'ODM',
+    'ODF',
+    'ODS',
+    'ODD',
+    'CDT',
+    'ODH',
+    'CIVILIAN',
   ],
+  military: ['OCS', 'RES', 'EDH', 'ACTIVE MILITARY', 'RMP', 'CAA', 'CHR', 'CS', 'P2LT'],
 };
 
 export const allCategories = [...categoryTypes.dependent, ...categoryTypes.military];
