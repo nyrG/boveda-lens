@@ -52,6 +52,7 @@ export class Records implements OnInit, OnDestroy {
       // The backend sorts these, so the top item is the first in the array.
       this.mostCommonDiagnosis.set(stats.topDiagnoses[0]?.diagnosis || 'None');
       this.topCategory.set(stats.categories[0]?.category || 'None');
+      this.recordState.categories.set(stats.categories); // Update the shared state
 
       this.isLoadingStats.set(false);
     });

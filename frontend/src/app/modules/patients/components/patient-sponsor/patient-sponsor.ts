@@ -1,6 +1,6 @@
 import { Component, Input, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { SponsorInfo } from '../../models/patient';
+import { Sponsor } from '../../models/patient';
 import { DetailItem } from '../../../../shared/components/detail-item/detail-item';
 
 @Component({
@@ -14,18 +14,24 @@ import { DetailItem } from '../../../../shared/components/detail-item/detail-ite
   },
 })
 export class PatientSponsor {
-  @Input({ required: true }) sponsorInfo: SponsorInfo | null | undefined;
+  @Input({ required: true }) sponsors: Sponsor[] | null | undefined;
+
+  // Computed signal to safely get the first sponsor from the array
+  primarySponsor = computed(() => {
+    if (this.sponsors && this.sponsors.length > 0) {
+      return this.sponsors[0];
+    }
+    return null;
+  });
 
   fullName = computed(() => {
-    if (!this.sponsorInfo?.sponsor_name) return 'N/A';
-    const { first_name, middle_initial, last_name } = this.sponsorInfo.sponsor_name;
-    return [first_name, middle_initial ? `${middle_initial}.` : '', last_name]
-      .filter(Boolean)
-      .join(' ');
+    const sponsor = this.primarySponsor();
+    if (!sponsor) return 'N/A';
+    return [sponsor.first_name, sponsor.middle_initial ? `${sponsor.middle_initial}.` : '', sponsor.last_name].filter(Boolean).join(' ');
   });
 
   sex = computed(() => {
-    const sex = this.sponsorInfo?.sex;
+    const sex = this.primarySponsor()?.sex;
     if (sex === 'M') {
       return 'Male';
     }

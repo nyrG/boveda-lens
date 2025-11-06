@@ -7,13 +7,13 @@
         <div class="flex items-center gap-3">
           <i class="fa-solid fa-clipboard-check w-5 text-center text-slate-400"></i>
           <h3 class="text-sm font-medium text-slate-600">
-            {{ summary.final_diagnosis.length === 1 ? 'Diagnosis' : 'Diagnoses' }}
+            {{ summary.diagnoses.length === 1 ? 'Diagnosis' : 'Diagnoses' }}
           </h3>
         </div>
         <div class="mt-2 pl-8">
-          @if (summary.final_diagnosis.length) {
+          @if (summary.diagnoses.length) {
             <div class="flex flex-wrap gap-2">
-              @for (dx of summary.final_diagnosis; track dx) {
+              @for (dx of summary.diagnoses; track dx) {
                 <span
                   class="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-sm font-medium text-slate-700"
                 >
@@ -46,7 +46,7 @@
         <app-detail-item
           icon="fa-pills"
           label="Medications Taken"
-          [values]="summary.medications_taken"
+          [values]="summary.medications_prescribed"
         />
         <!-- Allergies (Moved and restyled) -->
         <div>

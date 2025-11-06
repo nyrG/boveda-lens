@@ -1,4 +1,4 @@
-@if (sponsorInfo && (sponsorInfo.sponsor_name?.first_name || sponsorInfo.afpsn)) {
+@if (primarySponsor(); as sponsor) {
   <div class="rounded-lg border border-slate-200 bg-white shadow-sm">
     <!-- Card Header -->
     <div class="border-b border-slate-200 p-4 md:px-6 md:py-4">
@@ -29,17 +29,17 @@
           <span>Service Information</span>
         </h4>
         <div class="ml-2 grid grid-cols-1 gap-x-6 gap-y-6 sm:grid-cols-2">
-          <app-detail-item icon="fa-star" label="Rank" [value]="sponsorInfo.sponsor_name?.rank" />
-          <app-detail-item icon="fa-id-card" label="AFPSN" [value]="sponsorInfo.afpsn" />
+          <app-detail-item icon="fa-star" label="Rank" [value]="sponsor.rank" />
+          <app-detail-item icon="fa-id-card" label="AFPSN" [value]="sponsor.afpsn" />
           <app-detail-item
             icon="fa-building-flag"
             label="Branch of Service"
-            [value]="sponsorInfo.branch_of_service"
+            [value]="sponsor.branch_of_service"
           />
           <app-detail-item
             icon="fa-location-dot"
             label="Unit Assignment"
-            [value]="sponsorInfo.unit_assignment"
+            [value]="sponsor.unit_assignment"
           />
         </div>
       </div>

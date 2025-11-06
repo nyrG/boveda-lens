@@ -1,6 +1,6 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { Patient } from '../../modules/patients/models/patient';
-import { PatientApi } from '../../modules/patients/services/patient-api';
+import { PatientApi, PatientQuery } from '../../modules/patients/services/patient-api';
 import { Observable, Subject, debounceTime, distinctUntilChanged, takeUntil, tap } from 'rxjs';
 import { ToastService } from './toast.service';
 import { DialogService } from './dialog.service';
@@ -32,7 +32,7 @@ export class RecordStateService {
   readonly sortBy = signal('created_at');
   readonly sortOrder = signal<'ASC' | 'DESC'>('DESC');
   readonly filterCategory = signal('');
-  readonly categories = signal<string[]>([]);
+  readonly categories = signal<{ category: string; count: string }[]>([]);
 
   // --- Computed Signals ---
   readonly totalPages = computed(() => Math.ceil(this.totalRecords() / this.rowsPerPage()));
@@ -66,14 +66,18 @@ export class RecordStateService {
   // --- Data Fetching ---
   fetchRecords(options: { preserveSelection?: boolean; showNotification?: boolean } = {}): void {
     this.isLoading.set(true);
-    this.recordApi.getPatients(
-      this.currentPage(),
-      this.rowsPerPage(),
-      this.searchTerm(),
-      this.sortBy(),
-      this.sortOrder()
-    )
+    const query: PatientQuery = {
+      page: this.currentPage(),
+      limit: this.rowsPerPage(),
+      // --- DEBUGGING: Temporarily disabled to isolate the issue ---
+      search: this.searchTerm(),
+      sortBy: this.sortBy(),
+      sortOrder: this.sortOrder(),
+      category: this.filterCategory() || undefined,
+    };
+    this.recordApi.getPatients(query)
       .subscribe(response => {
+        console.log('API Response in RecordStateService:', response); // <-- Add this for debugging
         this.isLoading.set(false);
         this.records.set(response.data);
         this.totalRecords.set(response.total);
@@ -91,12 +95,6 @@ export class RecordStateService {
     return this.recordApi.getPatient(id).pipe(
       // In a real app, you might want to set a `selectedRecord` signal here
     );
-  }
-
-  fetchCategories(): void {
-    this.recordApi.getCategories().subscribe(categories => {
-      this.categories.set(categories);
-    });
   }
 
   // --- State Updaters ---
@@ -127,12 +125,9 @@ export class RecordStateService {
 
   setFilterCategory(category: string): void {
     this.filterCategory.set(category);
-    // In a real implementation, you would likely pass this to fetchRecords
-    // For now, we'll just log it or you can add it to the API call
-    console.log('Filtering by category:', category);
-    // Example of what it would look like:
-    // this.currentPage.set(1);
-    // this.fetchRecords();
+    // When a category filter is applied, reset to the first page and fetch.
+    this.currentPage.set(1);
+    this.fetchRecords();
   }
 
   deleteSelectedRecords(): void {

@@ -1,14 +1,13 @@
 import { Component, EventEmitter, Output, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { PatientUploadService } from '../../services/patient-upload.service';
 import { ToastService } from '../../../../shared/services/toast.service';
-// We are importing this directly. In a real-world scenario, this would likely
-// come from a shared library or an API call to the backend.
-import { categoryTypes } from '../../../../../../../backend/src/extraction/extraction.constants';
+
 @Component({
   selector: 'app-patient-upload-modal',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './patient-upload-modal.html',
   styleUrl: './patient-upload-modal.css',
 })
@@ -20,13 +19,13 @@ export class PatientUploadModal {
 
   // --- Component State Signals ---
   selectedFile = signal<File | null>(null);
-  determinedDocumentType = signal<'military' | 'dependent' | 'general'>('general');
+  // The document type is now controlled by the user via the template.
+  // 'general' is a safe default.
+  documentType = signal<'military' | 'dependent' | 'general'>('general');
   fileError = signal<string | null>(null);
   isDragging = signal(false);
 
-  private categoryTypes = categoryTypes;
-
-  // --- File Handling ---
+  // --- UI Interaction ---
 
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
@@ -64,30 +63,7 @@ export class PatientUploadModal {
     } else {
       this.fileError.set(null);
       this.selectedFile.set(file);
-      this.determineDocumentType(file.name);
     }
-  }
-
-  private determineDocumentType(fileName: string): void {
-    const upperCaseFileName = fileName.toUpperCase();
-
-    // Check for military categories first
-    for (const category of this.categoryTypes.military) {
-      if (upperCaseFileName.includes(category.toUpperCase())) {
-        this.determinedDocumentType.set('military');
-        return;
-      }
-    }
-
-    // Then check for dependent categories
-    for (const category of this.categoryTypes.dependent) {
-      if (upperCaseFileName.includes(category.toUpperCase())) {
-        this.determinedDocumentType.set('dependent');
-        return;
-      }
-    }
-
-    this.determinedDocumentType.set('general');
   }
 
   removeFile(): void {
@@ -115,7 +91,7 @@ export class PatientUploadModal {
 
     const settings = {
       model: 'gemini-2.5-flash',
-      documentType: this.determinedDocumentType(),
+      documentType: this.documentType(),
     };
     this.patientUploadService.uploadAndProcess(file, settings);
     this.toastService.show({ type: 'info', message: `Upload started for ${file.name}.` });

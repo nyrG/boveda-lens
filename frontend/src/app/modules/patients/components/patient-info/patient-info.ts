@@ -1,5 +1,5 @@
-import { Component, Input } from '@angular/core';
-import { PatientInfo as PatientInfoData, Address } from '../../models/patient';
+import { Component, Input, computed } from '@angular/core';
+import { Patient, Address } from '../../models/patient';
 import { CommonModule } from '@angular/common';
 import { DetailItem } from '../../../../shared/components/detail-item/detail-item';
 
@@ -14,7 +14,19 @@ import { DetailItem } from '../../../../shared/components/detail-item/detail-ite
   },
 })
 export class PatientInfo {
-  @Input({ required: true }) info!: PatientInfoData;
+  @Input({ required: true }) patient!: Patient;
+
+  // Computed signal to safely access the first address
+  primaryAddress = computed(() => {
+    if (this.patient?.addresses && this.patient.addresses.length > 0) {
+      return this.patient.addresses[0];
+    }
+    return null;
+  });
+
+  fullAddress = computed(() => {
+    return this.getFullAddress(this.primaryAddress());
+  });
 
   /**
    * Constructs a full address string from an Address object.
@@ -22,7 +34,7 @@ export class PatientInfo {
    * @param address The address object.
    * @returns A formatted address string or null if the address is empty.
    */
-  getFullAddress(address: Address | null | undefined): string | null {
+  private getFullAddress(address: Address | null | undefined): string | null {
     if (!address) {
       return null;
     }
