@@ -4,7 +4,6 @@ import { Repository, MoreThan, DataSource } from 'typeorm';
 import { Patient } from './entities/patient.entity';
 import { CreatePatientDto } from './dto/patient/create-patient.dto';
 import { UpdatePatientDto } from './dto/patient/update-patient.dto';
-import { formatPatientDto } from './utils/patient-formatting.utils';
 import { Record } from '../../shared/records/entities/record.entity';
 import { RecordType } from '../../shared/records/entities/record-type.entity';
 import { Consultation } from './entities/consultation.entity';
@@ -14,6 +13,7 @@ import { CreateLabReportDto } from './dto/lab-report/create-lab-report.dto';
 import { RadiologyReport } from './entities/radiology-report.entity';
 import { CreateRadiologyReportDto } from './dto/radiology-report/create-radiology-report.dto';
 import { Sponsor } from './entities/sponsor.entity';
+import { FindAllPatientsDto } from './dto/patient/find-all-patients.dto';
 import { CreateSponsorDto } from './dto/sponsor/create-sponsor.dto';
 
 @Injectable()
@@ -52,16 +52,13 @@ export class PatientsService {
       let recordType = await transactionalEntityManager.findOne(RecordType, {
         where: { name: recordTypeName },
       });
-      this.logger.debug(`1. Found recordType: ${JSON.stringify(recordType)}`);
 
       if (!recordType) {
-        this.logger.debug('--> RecordType not found, creating a new one.');
         recordType = transactionalEntityManager.create(RecordType, {
           name: recordTypeName,
           description: 'A record for a patient in the medical system.',
         });
         recordType = await transactionalEntityManager.save(recordType);
-        this.logger.debug(`--> Saved new recordType: ${JSON.stringify(recordType)}`);
       }
 
       // Step 2: Build the full entity graph
@@ -83,7 +80,6 @@ export class PatientsService {
           record_type_id: recordType.id,
         },
       });
-      this.logger.debug(`2. Patient entity to be saved: ${JSON.stringify(patientEntity)}`);
 
       const savedPatient = await transactionalEntityManager.save(patientEntity);
 
@@ -98,7 +94,6 @@ export class PatientsService {
           },
         );
         await transactionalEntityManager.save(consultationEntities);
-        this.logger.debug('--> Saved consultations.');
       }
 
       if (createPatientDto.lab_reports && createPatientDto.lab_reports.length > 0) {
@@ -111,7 +106,6 @@ export class PatientsService {
           },
         );
         await transactionalEntityManager.save(labReportEntities);
-        this.logger.debug('--> Saved lab reports.');
       }
 
       if (createPatientDto.radiology_reports && createPatientDto.radiology_reports.length > 0) {
@@ -124,7 +118,6 @@ export class PatientsService {
           },
         );
         await transactionalEntityManager.save(radiologyReportEntities);
-        this.logger.debug('--> Saved radiology reports.');
       }
 
       if (createPatientDto.sponsors && createPatientDto.sponsors.length > 0) {
@@ -135,7 +128,6 @@ export class PatientsService {
           });
         });
         await transactionalEntityManager.save(sponsorEntities);
-        this.logger.debug('--> Saved sponsors.');
       }
 
       // Return the patient, which now has its ID and relations populated
@@ -161,34 +153,34 @@ export class PatientsService {
     return patient;
   }
 
-  /* async findAll(
-    page: number,
-    limit: number,
-    search?: string,
-    sortBy: string = 'updated_at',
-    sortOrder: 'ASC' | 'DESC' = 'DESC',
-    category?: string,
-  ) {
+  async findAll(queryDto: FindAllPatientsDto) {
+    const { page, limit, search, sortBy, sortOrder, category } = queryDto;
+
     const skip = (page - 1) * limit;
 
-    const queryBuilder = this.patientsRepository.createQueryBuilder('patient');
+    const queryBuilder = this.patientsRepository
+      .createQueryBuilder('patient')
+      .leftJoinAndSelect('patient.category', 'category')
+      .leftJoinAndSelect('patient.record', 'record');
 
     if (search) {
-      queryBuilder.where('patient.name ILIKE :search', { search: `%${search}%` });
+      queryBuilder.where("CONCAT(patient.first_name, ' ', patient.last_name) ILIKE :search", {
+        search: `%${search}%`,
+      });
     }
 
     if (category) {
-      // This query specifically targets the 'category' key within the 'patient_info' JSONB column
-      queryBuilder.andWhere("patient.patient_info ->> 'category' = :category", { category });
+      queryBuilder.andWhere('category.name = :category', { category });
     }
 
     // Map API sort fields to database columns/expressions to prevent SQL injection
     // and provide a clear, maintainable mapping.
     const sortMap: { [key: string]: string } = {
-      name: 'patient.name',
-      patient_record_number: `patient.patient_info ->> 'patient_record_number'`,
-      final_diagnosis: `patient.summary ->> 'final_diagnosis'`,
-      category: `patient.patient_info ->> 'category'`,
+      name: "CONCAT(patient.first_name, ' ', patient.last_name)",
+      patient_record_number: 'patient.patient_record_number',
+      // Assuming final_diagnosis is a top-level field in the summary JSON
+      final_diagnosis: "patient.summary ->> 'final_diagnosis'",
+      category: 'category.name',
       created_at: 'patient.created_at',
       updated_at: 'patient.updated_at',
     };
@@ -201,7 +193,7 @@ export class PatientsService {
       queryBuilder.orderBy(sortColumn, sortOrder);
     } else {
       // Default to a safe sort order if the provided sortBy is not in our map.
-      queryBuilder.orderBy('patient.name', 'ASC');
+      queryBuilder.orderBy('patient.updated_at', 'DESC');
     }
 
     const [data, total] = await queryBuilder.skip(skip).take(limit).getManyAndCount();
@@ -209,27 +201,107 @@ export class PatientsService {
     return { data, total };
   }
 
-  async getStats() {
+  async update(id: number, updatePatientDto: UpdatePatientDto): Promise<Patient> {
+    return this.dataSource.transaction(async (transactionalEntityManager) => {
+      // Use the transactional entity manager to find the patient
+      const patient = await transactionalEntityManager.findOne(Patient, {
+        where: { id },
+        relations: ['record'],
+      });
+
+      if (!patient) {
+        throw new NotFoundException(`Patient with ID ${id} not found`);
+      }
+
+      // Merge the DTO into the patient entity. This applies the partial update.
+      transactionalEntityManager.merge(Patient, patient, updatePatientDto);
+
+      // If name fields are being updated, also update the associated record's name.
+      if (
+        updatePatientDto.first_name ||
+        updatePatientDto.last_name ||
+        updatePatientDto.middle_initial
+      ) {
+        const newFullName = [patient.first_name, patient.middle_initial, patient.last_name]
+          .filter(Boolean)
+          .join(' ');
+        patient.record.name = newFullName;
+        await transactionalEntityManager.save(Record, patient.record);
+      }
+
+      return transactionalEntityManager.save(Patient, patient);
+    });
+  }
+
+  async remove(id: number): Promise<void> {
+    await this.dataSource.transaction(async (transactionalEntityManager) => {
+      const patient = await transactionalEntityManager.findOne(Patient, {
+        where: { id },
+        relations: ['record'],
+      });
+
+      if (!patient) {
+        throw new NotFoundException(`Patient with ID ${id} not found`);
+      }
+
+      // Soft delete the associated record first
+      if (patient.record) {
+        await transactionalEntityManager.softDelete(Record, patient.record.id);
+      }
+
+      // Then soft delete the patient
+      const result = await transactionalEntityManager.softDelete(Patient, id);
+
+      if (result.affected === 0) {
+        // This case should ideally not be reached if the findOne check passes, but it's good for safety.
+        throw new NotFoundException(`Patient with ID ${id} could not be deleted.`);
+      }
+    });
+  }
+
+  async removeMany(ids: number[]): Promise<void> {
+    if (!ids || ids.length === 0) {
+      throw new BadRequestException('No record IDs provided for deletion.');
+    }
+    // The `remove` method handles transactions, so we can call it for each ID.
+    // Promise.all ensures all deletions are processed.
+    await Promise.all(ids.map((id) => this.remove(id)));
+  }
+
+  async getStats(): Promise<any> {
+    // Define interfaces for the raw query results for type safety
+    interface CategoryStat {
+      category: string;
+      count: string; // COUNT returns a string in raw queries
+    }
+    interface DiagnosisStat {
+      diagnosis: string;
+      count: string;
+    }
+    interface AvgAgeResult {
+      avgAge: string | null;
+    }
+
     const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
 
-    // Execute all statistics queries in parallel for better performance
     const [totalPatients, recentlyUpdated, categories, topDiagnoses, avgAgeResult]: [
       number,
       number,
       CategoryStat[],
       DiagnosisStat[],
       AvgAgeResult[],
-    ] = (await Promise.all([
+    ] = await Promise.all([
       this.patientsRepository.count(),
       this.patientsRepository.count({ where: { updated_at: MoreThan(oneDayAgo) } }),
       this.patientsRepository
         .createQueryBuilder('patient')
-        .select("patient.patient_info ->> 'category'", 'category')
+        .innerJoin('patient.category', 'category')
+        .select('category.name', 'category')
         .addSelect('COUNT(*)', 'count')
-        .groupBy("patient.patient_info ->> 'category'")
+        .groupBy('category.name')
         .orderBy('count', 'DESC')
         .getRawMany<CategoryStat>(),
-      this.patientsRepository.query(`
+      this.patientsRepository.query<DiagnosisStat[]>(`
           SELECT diagnosis, COUNT(diagnosis) as count
           FROM patients, jsonb_array_elements_text(summary->'final_diagnosis') AS diagnosis
           WHERE jsonb_typeof(summary->'final_diagnosis') = 'array' AND deleted_at IS NULL
@@ -237,10 +309,10 @@ export class PatientsService {
           ORDER BY count DESC
           LIMIT 5;
       `),
-      this.patientsRepository.query(
-        `SELECT AVG(EXTRACT(YEAR FROM AGE(NOW(), (patient_info->>'date_of_birth')::date))) as "avgAge" FROM patients WHERE deleted_at IS NULL`,
+      this.patientsRepository.query<AvgAgeResult[]>(
+        `SELECT AVG(EXTRACT(YEAR FROM AGE(NOW(), date_of_birth))) as "avgAge" FROM patients WHERE deleted_at IS NULL`,
       ),
-    ])) as [number, number, CategoryStat[], DiagnosisStat[], AvgAgeResult[]];
+    ]);
 
     const averageAge = avgAgeResult[0]?.avgAge
       ? parseFloat(avgAgeResult[0].avgAge).toFixed(1)
@@ -248,40 +320,4 @@ export class PatientsService {
 
     return { totalPatients, recentlyUpdated, categories, topDiagnoses, averageAge };
   }
-
-  async update(id: number, updatePatientDto: UpdatePatientDto): Promise<Patient> {
-    const patient = await this.findOne(id);
-
-    formatPatientDto(updatePatientDto);
-
-    const info = updatePatientDto.patient_info as PatientInfo;
-
-    const updatedPatient = this.patientsRepository.merge(patient, updatePatientDto);
-
-    // If the name was part of the update, re-generate the top-level `name` field
-    if (info?.full_name) {
-      updatedPatient.name = [info.full_name.first_name, info.full_name.last_name]
-        .filter(Boolean)
-        .join(' ');
-    }
-
-    return this.patientsRepository.save(updatedPatient);
-  }
-
-  async remove(id: number): Promise<void> {
-    const result = await this.patientsRepository.softDelete(id);
-    if (result.affected === 0) {
-      throw new NotFoundException(`Patient with ID ${id} not found`);
-    }
-  }
-
-  async removeMany(ids: number[]): Promise<void> {
-    if (!ids || ids.length === 0) {
-      throw new BadRequestException('No record IDs provided for deletion.');
-    }
-    const result = await this.patientsRepository.softDelete(ids);
-    if (result.affected === 0) {
-      // This is not necessarily an error, could mean records were already deleted.
-    }
-  } */
 }

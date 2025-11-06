@@ -9,6 +9,7 @@ import {
   IsObject,
   IsArray,
   ValidateNested,
+  ArrayNotEmpty,
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
@@ -124,4 +125,15 @@ export class CreatePatientDto {
   @ValidateNested({ each: true })
   @Type(() => CreateSponsorDto)
   sponsors?: CreateSponsorDto[];
+}
+
+export class IdsDto {
+  @ApiProperty({
+    description: 'An array of patient IDs to perform a bulk operation on.',
+    type: [Number],
+  })
+  @IsArray()
+  @ArrayNotEmpty()
+  @IsInt({ each: true })
+  ids: number[];
 }
