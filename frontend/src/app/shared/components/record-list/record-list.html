@@ -143,22 +143,22 @@
                   />
                 </td>
                 <td class="py-3 px-4 text-sm font-normal text-slate-800">
-                  <div>{{ record.name || 'N/A' }}</div>
+                  <div>{{ record.record.name || 'N/A' }}</div>
                   <div class="font-normal text-slate-500 md:hidden">
-                    #{{ record.patient_info.patient_record_number || 'N/A' }}
+                    #{{ record.patient_record_number || 'N/A' }}
                   </div>
                 </td>
                 <td class="hidden py-3 px-4 text-sm text-slate-600 md:table-cell">
-                  {{ record.patient_info.patient_record_number || 'N/A' }}
+                  {{ record.patient_record_number || 'N/A' }}
                 </td>
                 <td
                   class="py-3 px-4 text-sm text-slate-600 max-w-xs truncate"
-                  [title]="getFinalDiagnosis(record)"
+                  [title]="getDiagnoses(record)"
                 >
-                  {{ getFinalDiagnosis(record) }}
+                  {{ getDiagnoses(record) }}
                 </td>
                 <td class="hidden py-3 px-4 text-sm text-slate-600 lg:table-cell">
-                  {{ record.patient_info.category || 'N/A' }}
+                  {{ record.category?.name || 'N/A' }}
                 </td>
               </tr>
             }

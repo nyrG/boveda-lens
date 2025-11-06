@@ -6,7 +6,7 @@ import { RecordStateService } from '../../../../shared/services/record-state.ser
 import { HeaderStateService } from '../../../../layout/services/header-state.service';
 import { CommonModule, DatePipe, Location } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormArray, FormGroup, Validators } from '@angular/forms';
-import { ToastService } from '../../../../shared/services/toast.service';
+import { ToastService } from '../../../../shared/services/toast.service'; // prettier-ignore
 import { Patient } from '../../../../modules/patients/models/patient';
 
 type PatientEditTab = 'info' | 'summary' | 'consultations' | 'labs' | 'radiology' | 'sponsor';
@@ -57,61 +57,41 @@ export class PatientEdit implements OnDestroy {
 
   // Define the form structure to match the patient data model
   patientForm = this.fb.group({
-    patient_info: this.fb.group({
-      full_name: this.fb.group({
-        first_name: ['', Validators.required],
-        last_name: ['', Validators.required],
-        middle_initial: [''],
-      }),
-      patient_record_number: [''],
-      category: [''],
-      date_of_birth: ['', Validators.required],
-      documented_age: [null as number | null],
-      sex: ['', Validators.required],
-      address: this.fb.group({
-        house_no_street: [''],
-        city_municipality: [''],
-        province: [''],
-        zip_code: [''],
-      }),
-      rank: [''],
-      afpsn: [''],
-      branch_of_service: [''],
-      unit_assignment: [''],
-    }),
+    // Top-level patient fields
+    first_name: ['', Validators.required],
+    last_name: ['', Validators.required],
+    middle_initial: [''],
+    patient_record_number: [''],
+    category_id: [null as number | null],
+    date_of_birth: ['', Validators.required],
+    documented_age: [null as number | null],
+    sex: ['', Validators.required],
+    rank: [''],
+    afpsn: [''],
+    branch_of_service: [''],
+    unit_assignment: [''],
+
+    // Nested FormArrays for related entities
+    addresses: this.fb.array([]), // We'll manage the first address
     summary: this.fb.group({
-      final_diagnosis: [''],
+      diagnoses: [''],
       primary_complaint: [''],
       key_findings: [''],
-      medications_taken: [''],
+      medications_prescribed: [''],
       allergies: [''],
     }),
-    medical_encounters: this.fb.group({
-      consultations: this.fb.array([]),
-      lab_results: this.fb.array([]),
-      radiology_reports: this.fb.array([]),
-    }),
-    sponsor_info: this.fb.group({
-      sponsor_name: this.fb.group({
-        rank: [''],
-        first_name: [''],
-        middle_initial: [''],
-        last_name: [''],
-      }),
-      sex: [''],
-      afpsn: [''],
-      branch_of_service: [''],
-      unit_assignment: [''],
-    }),
+    consultations: this.fb.array([]),
+    lab_reports: this.fb.array([]),
+    radiology_reports: this.fb.array([]),
+    sponsors: this.fb.array([]),
   });
 
   constructor() {
     this.headerState.setShowFilterButton(false);
 
     // Read the 'tab' from router state (passed from detail view) or fall back to query params
-    const initialTab = (history.state?.tab || this.route.snapshot.queryParamMap.get('tab')) as
-      | PatientEditTab
-      | null;
+    const initialTab = (history.state?.tab ||
+      this.route.snapshot.queryParamMap.get('tab')) as PatientEditTab | null;
     const isValidTab = this.tabs.some(t => t.id === initialTab);
     if (initialTab && isValidTab) {
       this.activeTab.set(initialTab);
@@ -123,42 +103,38 @@ export class PatientEdit implements OnDestroy {
       if (patient) {
         this.headerState.setBreadcrumbs([
           { text: 'Records', link: '/records' },
-          { text: `${patient.id}`, link: `/records/${patient.id}` },
+          { text: `${patient.record.name}`, link: `/records/${patient.id}` },
           { text: 'Edit' },
         ]);
 
         // Determine if sponsor form should be shown initially
-        const sponsorExists = patient.sponsor_info && (patient.sponsor_info.afpsn || patient.sponsor_info.sponsor_name?.last_name);
+        const sponsorExists = patient.sponsors && patient.sponsors.length > 0;
         this.showSponsorForm.set(!!sponsorExists);
 
         // Create a deep copy to avoid mutating the original signal data.
-        // Ensure nested objects expected by FormGroups are not null.
         const formValue = JSON.parse(JSON.stringify(patient));
-        if (!formValue.patient_info.full_name) {
-          formValue.patient_info.full_name = {};
-        }
-        if (!formValue.patient_info.address) {
-          formValue.patient_info.address = {};
-        }
         if (formValue.summary) {
           // Convert array fields to comma-separated strings for form inputs
-          formValue.summary.final_diagnosis = (formValue.summary.final_diagnosis || []).join(', ');
-          formValue.summary.medications_taken = (formValue.summary.medications_taken || []).join(', ');
+          formValue.summary.diagnoses = (formValue.summary.diagnoses || []).join(', ');
+          formValue.summary.medications_prescribed = (formValue.summary.medications_prescribed || []).join(', ');
           formValue.summary.allergies = (formValue.summary.allergies || []).join(', ');
         } else {
           // Ensure summary object exists for patching
           formValue.summary = {};
         }
-        if (!formValue.sponsor_info) {
-          formValue.sponsor_info = {};
+
+        // --- Repopulate FormArrays ---
+        this.addresses.clear();
+        if (formValue.addresses && formValue.addresses.length > 0) {
+          this.addresses.push(this.createAddressGroup(formValue.addresses[0]));
+        } else {
+          this.addresses.push(this.createAddressGroup()); // Add an empty one if none exist
         }
-        if (!formValue.sponsor_info.sponsor_name) {
-          formValue.sponsor_info.sponsor_name = {};
-        }
+
         // Clear and repopulate the consultations FormArray
         this.consultations.clear();
-        if (formValue.medical_encounters?.consultations) {
-          formValue.medical_encounters.consultations.forEach((consultation: any) => {
+        if (formValue.consultations) {
+          formValue.consultations.forEach((consultation: any) => {
             // Format date before patching
             if (consultation.consultation_date) {
               consultation.consultation_date = this.datePipe.transform(consultation.consultation_date, 'yyyy-MM-dd');
@@ -169,8 +145,8 @@ export class PatientEdit implements OnDestroy {
 
         // Clear and repopulate the lab_results FormArray
         this.labResults.clear();
-        if (formValue.medical_encounters?.lab_results) {
-          formValue.medical_encounters.lab_results.forEach((lab: any) => {
+        if (formValue.lab_reports) {
+          formValue.lab_reports.forEach((lab: any) => {
             if (lab.date_performed) {
               lab.date_performed = this.datePipe.transform(lab.date_performed, 'yyyy-MM-dd');
             }
@@ -180,13 +156,23 @@ export class PatientEdit implements OnDestroy {
 
         // Clear and repopulate the radiology_reports FormArray
         this.radiologyReports.clear();
-        if (formValue.medical_encounters?.radiology_reports) {
-          formValue.medical_encounters.radiology_reports.forEach((report: any) => {
+        if (formValue.radiology_reports) {
+          formValue.radiology_reports.forEach((report: any) => {
             if (report.date_performed) {
               report.date_performed = this.datePipe.transform(report.date_performed, 'yyyy-MM-dd');
             }
             this.radiologyReports.push(this.createRadiologyReportGroup(report));
           });
+        }
+
+        // Clear and repopulate the sponsors FormArray
+        this.sponsors.clear();
+        if (formValue.sponsors && formValue.sponsors.length > 0) {
+          formValue.sponsors.forEach((sponsor: any) => {
+            this.sponsors.push(this.createSponsorGroup(sponsor));
+          });
+        } else if (this.showSponsorForm()) {
+          this.addSponsor(); // Add an empty sponsor form if toggled on
         }
 
         // Populate the form with the fetched patient data
@@ -218,8 +204,8 @@ export class PatientEdit implements OnDestroy {
     if (payload.summary) {
       // The form has these as strings, but the Patient model expects string arrays.
       // We cast to `any` to perform the transformation before sending.
-      payload.summary.final_diagnosis = ((payload.summary as any).final_diagnosis || '').split(',').map((s: string) => s.trim()).filter(Boolean);
-      payload.summary.medications_taken = ((payload.summary as any).medications_taken || '').split(',').map((s: string) => s.trim()).filter(Boolean);
+      payload.summary.diagnoses = ((payload.summary as any).diagnoses || '').split(',').map((s: string) => s.trim()).filter(Boolean);
+      payload.summary.medications_prescribed = ((payload.summary as any).medications_prescribed || '').split(',').map((s: string) => s.trim()).filter(Boolean);
       payload.summary.allergies = ((payload.summary as any).allergies || '').split(',').map((s: string) => s.trim()).filter(Boolean);
     }
 
@@ -248,22 +234,33 @@ export class PatientEdit implements OnDestroy {
 
   // Getter for easy access to the consultations FormArray in the template
   get consultations() {
-    return this.patientForm.get('medical_encounters.consultations') as FormArray;
+    return this.patientForm.get('consultations') as FormArray;
   }
 
   // Getter for easy access to the lab_results FormArray
   get labResults() {
-    return this.patientForm.get('medical_encounters.lab_results') as FormArray;
+    return this.patientForm.get('lab_reports') as FormArray;
   }
 
   // Getter for easy access to the radiology_reports FormArray
   get radiologyReports() {
-    return this.patientForm.get('medical_encounters.radiology_reports') as FormArray;
+    return this.patientForm.get('radiology_reports') as FormArray;
+  }
+
+  // Getter for easy access to the sponsors FormArray
+  get sponsors() {
+    return this.patientForm.get('sponsors') as FormArray;
+  }
+
+  // Getter for easy access to the addresses FormArray
+  get addresses() {
+    return this.patientForm.get('addresses') as FormArray;
   }
 
   // Creates a FormGroup for a single consultation
   private createConsultationGroup(consultation: any = {}): FormGroup {
     return this.fb.group({
+      id: [consultation.id || null],
       consultation_date: [consultation.consultation_date || ''],
       vitals: this.fb.group({
         height_cm: [consultation.vitals?.height_cm || null],
@@ -294,6 +291,7 @@ export class PatientEdit implements OnDestroy {
   private createLabResultGroup(labResult: any = {}): FormGroup {
     const testRows = (labResult.results || []).map((test: any) => this.createTestRowGroup(test));
     return this.fb.group({
+      id: [labResult.id || null],
       date_performed: [labResult.date_performed || ''],
       test_type: [labResult.test_type || ''],
       results: this.fb.array(testRows),
@@ -330,10 +328,45 @@ export class PatientEdit implements OnDestroy {
   // Creates a FormGroup for a single radiology report
   private createRadiologyReportGroup(report: any = {}): FormGroup {
     return this.fb.group({
+      id: [report.id || null],
       date_performed: [report.date_performed || ''],
       examination: [report.examination || ''],
       findings: [report.findings || ''],
       impression: [report.impression || ''],
+    });
+  }
+
+  // --- Sponsor Methods ---
+  private createSponsorGroup(sponsor: any = {}): FormGroup {
+    return this.fb.group({
+      id: [sponsor.id || null],
+      first_name: [sponsor.first_name || ''],
+      last_name: [sponsor.last_name || ''],
+      middle_initial: [sponsor.middle_initial || ''],
+      sex: [sponsor.sex || ''],
+      rank: [sponsor.rank || ''],
+      afpsn: [sponsor.afpsn || ''],
+      branch_of_service: [sponsor.branch_of_service || ''],
+      unit_assignment: [sponsor.unit_assignment || ''],
+    });
+  }
+
+  addSponsor(): void {
+    this.sponsors.push(this.createSponsorGroup());
+  }
+
+  removeSponsor(index: number): void {
+    this.sponsors.removeAt(index);
+  }
+
+  // --- Address Methods ---
+  private createAddressGroup(address: any = {}): FormGroup {
+    return this.fb.group({
+      id: [address.id || null],
+      house_no_street: [address.house_no_street || ''],
+      city_municipality: [address.city_municipality || ''],
+      province: [address.province || ''],
+      zip_code: [address.zip_code || ''],
     });
   }
 

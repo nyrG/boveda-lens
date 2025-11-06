@@ -3,7 +3,7 @@
     <div class="space-y-6">
       <!-- Page Header -->
       <div class="flex items-center justify-between">
-        <h2 class="text-2xl font-bold text-slate-800">{{ patient.name }}</h2>
+        <h2 class="text-2xl font-bold text-slate-800">{{ patient.record.name }}</h2>
         <!-- Action Buttons -->
         <div class="flex gap-2">
           <button
@@ -69,31 +69,28 @@
       <div class="mt-6">
         @switch (activeTab()) {
           @case ('info') {
-            <app-patient-info [info]="patient.patient_info" class="tab-content-enter" />
+            <app-patient-info [patient]="patient" class="tab-content-enter" />
           }
           @case ('summary') {
             <app-patient-summary [summary]="patient.summary" class="tab-content-enter" />
           }
           @case ('consultations') {
             <app-patient-consultations
-              [consultations]="patient.medical_encounters?.consultations"
+              [consultations]="patient.consultations"
               class="tab-content-enter"
             />
           }
           @case ('labs') {
-            <app-patient-labs
-              [labResults]="patient.medical_encounters?.lab_results"
-              class="tab-content-enter"
-            />
+            <app-patient-labs [labResults]="patient.lab_reports" class="tab-content-enter" />
           }
           @case ('radiology') {
             <app-patient-radiology
-              [radiologyReports]="patient.medical_encounters?.radiology_reports"
+              [radiologyReports]="patient.radiology_reports"
               class="tab-content-enter"
             />
           }
           @case ('sponsor') {
-            <app-patient-sponsor [sponsorInfo]="patient.sponsor_info" class="tab-content-enter" />
+            <app-patient-sponsor [sponsors]="patient.sponsors" class="tab-content-enter" />
           }
         }
       </div>

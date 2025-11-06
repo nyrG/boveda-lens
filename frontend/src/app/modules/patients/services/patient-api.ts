@@ -5,6 +5,15 @@ import { Patient } from '../models/patient';
 import { PaginatedResponse } from '../../../shared/models/api';
 import { PatientStats } from '../models/patient';
 
+export interface PatientQuery {
+  page: number;
+  limit: number;
+  search?: string;
+  sortBy?: string;
+  sortOrder?: 'ASC' | 'DESC';
+  category?: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -12,23 +21,11 @@ export class PatientApi {
   private http = inject(HttpClient);
   private apiUrl = '/api/patients';
 
-  getPatients(
-    page: number,
-    limit: number,
-    search?: string,
-    sortBy: string = 'created_at',
-    sortOrder: 'ASC' | 'DESC' = 'DESC'
-  ): Observable<PaginatedResponse<Patient>> {
-    let params = new HttpParams()
-      .set('page', page.toString())
-      .set('limit', limit.toString())
-      .set('sortBy', sortBy)
-      .set('sortOrder', sortOrder);
+  getPatients(query: PatientQuery): Observable<PaginatedResponse<Patient>> {
+    let params = new HttpParams({ fromObject: { ...query } });
 
-    if (search) {
-      params = params.set('search', search);
-    }
-
+    // Clean up params to remove any undefined/null values if necessary
+    // Although fromObject handles this fairly well.
     return this.http.get<PaginatedResponse<Patient>>(this.apiUrl, { params });
   }
 
@@ -36,11 +33,10 @@ export class PatientApi {
     return this.http.get<PatientStats>(`${this.apiUrl}/stats`);
   }
 
-  getCategories(): Observable<string[]> {
-    // Assuming a new endpoint for categories.
-    // If the endpoint is different, please adjust the URL.
-    return this.http.get<string[]>(`${this.apiUrl}/categories`);
-  }
+  // The `getCategories` method has been removed as there is no corresponding
+  // `/api/patients/categories` endpoint on the backend. Category information
+  // is available via the `getStats` endpoint or by filtering the `getPatients` list.
+  // If a dedicated endpoint for categories is created later, this method can be re-added.
 
   deletePatients(ids: number[]): Observable<void> {
     return this.http.delete<void>(this.apiUrl, { body: { ids } });

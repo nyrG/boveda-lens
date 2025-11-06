@@ -120,7 +120,7 @@ export class PatientDetail implements OnDestroy {
     this.dialogService
       .open({
         title: 'Delete Record',
-        message: `Are you sure you want to delete the record for ${patient.name}? This action cannot be undone.`,
+        message: `Are you sure you want to delete the record for ${patient.record.name}? This action cannot be undone.`,
         confirmText: 'Delete',
       })
       .subscribe(confirmed => {

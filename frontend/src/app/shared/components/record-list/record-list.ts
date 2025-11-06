@@ -56,11 +56,11 @@ export class RecordList {
     this.recordState.toggleSelectRow(id, isChecked, isShiftPressed);
   }
 
-  getFinalDiagnosis(record: Patient): string {
-    if (Array.isArray(record.summary?.final_diagnosis)) {
-      return record.summary.final_diagnosis.join(', ');
+  getDiagnoses(record: Patient): string {
+    if (Array.isArray(record.summary?.diagnoses)) {
+      return record.summary.diagnoses.join(', ');
     }
-    return record.summary?.final_diagnosis || 'N/A';
+    return (record.summary?.diagnoses as any) || 'N/A';
   }
 
   getPaginationSummary(): string {

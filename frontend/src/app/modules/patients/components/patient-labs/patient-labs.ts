@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { LabResult } from '../../models/patient';
+import { LabReport } from '../../models/patient';
 
 @Component({
   selector: 'app-patient-labs',
@@ -13,5 +13,5 @@ import { LabResult } from '../../models/patient';
   },
 })
 export class PatientLabs {
-  @Input({ required: true }) labResults: LabResult[] | undefined = [];
+  @Input({ required: true }) labResults: LabReport[] | undefined = [];
 }

@@ -8,8 +8,8 @@
       (change)="onFilterCategoryChange($event)"
     >
       <option value="">All Categories</option>
-      @for (category of recordState.categories(); track category) {
-        <option [value]="category">{{ category }}</option>
+      @for (cat of recordState.categories(); track cat.category) {
+        <option [value]="cat.category">{{ cat.category }} ({{ cat.count }})</option>
       }
     </select>
   </div>

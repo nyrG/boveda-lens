@@ -73,7 +73,7 @@ export class PatientUploadService {
           this.backgroundTaskService.completeTask(taskId, newPatient); // Pass the actual patient object
           this.toastService.show({
             type: 'action',
-            message: `Record created for ${newPatient.name}.`,
+            message: `Record created for ${newPatient.record.name}.`,
             duration: 20000, // Give user more time to click
             action: {
               label: 'Review',

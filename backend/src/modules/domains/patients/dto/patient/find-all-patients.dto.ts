@@ -1,6 +1,6 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsEnum, IsInt, IsOptional, IsString, Max, Min } from 'class-validator';
+import { IsEnum, IsIn, IsInt, IsOptional, IsString, Max, Min } from 'class-validator';
 
 export class FindAllPatientsDto {
   @ApiPropertyOptional({ description: 'Page number for pagination.', default: 1, minimum: 1 })
@@ -30,18 +30,12 @@ export class FindAllPatientsDto {
 
   @ApiPropertyOptional({
     description: 'Field to sort by.',
-    enum: [
-      'name',
-      'patient_record_number',
-      'final_diagnosis',
-      'category',
-      'created_at',
-      'updated_at',
-    ],
+    enum: ['name', 'patient_record_number', 'diagnoses', 'category', 'created_at', 'updated_at'],
     default: 'updated_at',
   })
   @IsOptional()
   @IsString()
+  @IsIn(['name', 'patient_record_number', 'diagnoses', 'category', 'created_at', 'updated_at'])
   sortBy: string = 'updated_at';
 
   @ApiPropertyOptional({ description: 'Sort order.', enum: ['ASC', 'DESC'], default: 'DESC' })

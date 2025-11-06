@@ -3,7 +3,7 @@
     <form [formGroup]="patientForm" (ngSubmit)="saveChanges()" class="space-y-6 pb-12">
       <!-- Page Header -->
       <div class="flex items-center justify-between">
-        <h2 class="text-xl font-bold text-slate-800">Editing: {{ patient.name }}</h2>
+        <h2 class="text-xl font-bold text-slate-800">Editing: {{ patient.record.name }}</h2>
         <!-- Action Buttons -->
         <div class="flex gap-2">
           <button
@@ -50,7 +50,7 @@
           @case ('info') {
             <!-- Patient Info Form Card -->
             <div class="rounded-lg border border-slate-200 bg-white shadow-sm tab-content-enter">
-              <div class="p-6" formGroupName="patient_info">
+              <div class="p-6">
                 <h3 class="text-lg font-semibold text-slate-800">Patient Information</h3>
                 <p class="mt-1 text-sm text-slate-500">
                   Update the patient's demographic and contact details.
@@ -60,7 +60,7 @@
                 <div class="mt-6 border-t border-slate-200 pt-6">
                   <h4 class="text-base font-semibold text-slate-700">Personal Information</h4>
                   <div class="mt-4 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
-                    <div class="sm:col-span-6" formGroupName="full_name">
+                    <div class="sm:col-span-6">
                       <div class="grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
                         <div class="sm:col-span-2">
                           <label for="first-name" class="form-label">First name</label>
@@ -71,15 +71,13 @@
                             class="form-input"
                             [ngClass]="{
                               'form-input-error':
-                                patientForm.get('patient_info.full_name.first_name')?.invalid &&
-                                patientForm.get('patient_info.full_name.first_name')?.touched,
+                                patientForm.get('first_name')?.invalid &&
+                                patientForm.get('first_name')?.touched,
                             }"
                           />
                           @if (
-                            patientForm
-                              .get('patient_info.full_name.first_name')
-                              ?.hasError('required') &&
-                            patientForm.get('patient_info.full_name.first_name')?.touched
+                            patientForm.get('first_name')?.hasError('required') &&
+                            patientForm.get('first_name')?.touched
                           ) {
                             <p class="form-error-text">First name is required.</p>
                           }
@@ -93,15 +91,13 @@
                             class="form-input"
                             [ngClass]="{
                               'form-input-error':
-                                patientForm.get('patient_info.full_name.last_name')?.invalid &&
-                                patientForm.get('patient_info.full_name.last_name')?.touched,
+                                patientForm.get('last_name')?.invalid &&
+                                patientForm.get('last_name')?.touched,
                             }"
                           />
                           @if (
-                            patientForm
-                              .get('patient_info.full_name.last_name')
-                              ?.hasError('required') &&
-                            patientForm.get('patient_info.full_name.last_name')?.touched
+                            patientForm.get('last_name')?.hasError('required') &&
+                            patientForm.get('last_name')?.touched
                           ) {
                             <p class="form-error-text">Last name is required.</p>
                           }
@@ -126,13 +122,13 @@
                         class="form-input"
                         [ngClass]="{
                           'form-input-error':
-                            patientForm.get('patient_info.date_of_birth')?.invalid &&
-                            patientForm.get('patient_info.date_of_birth')?.touched,
+                            patientForm.get('date_of_birth')?.invalid &&
+                            patientForm.get('date_of_birth')?.touched,
                         }"
                       />
                       @if (
-                        patientForm.get('patient_info.date_of_birth')?.hasError('required') &&
-                        patientForm.get('patient_info.date_of_birth')?.touched
+                        patientForm.get('date_of_birth')?.hasError('required') &&
+                        patientForm.get('date_of_birth')?.touched
                       ) {
                         <p class="form-error-text">Date of birth is required.</p>
                       }
@@ -154,16 +150,15 @@
                         class="form-input"
                         [ngClass]="{
                           'form-input-error':
-                            patientForm.get('patient_info.sex')?.invalid &&
-                            patientForm.get('patient_info.sex')?.touched,
+                            patientForm.get('sex')?.invalid && patientForm.get('sex')?.touched,
                         }"
                       >
                         <option value="M">Male</option>
                         <option value="F">Female</option>
                       </select>
                       @if (
-                        patientForm.get('patient_info.sex')?.hasError('required') &&
-                        patientForm.get('patient_info.sex')?.touched
+                        patientForm.get('sex')?.hasError('required') &&
+                        patientForm.get('sex')?.touched
                       ) {
                         <p class="form-error-text">Sex is required.</p>
                       }
@@ -190,7 +185,7 @@
                         type="text"
                         id="category"
                         class="form-input"
-                        formControlName="category"
+                        formControlName="category_id"
                       />
                     </div>
                   </div>
@@ -247,7 +242,9 @@
                   <h4 class="text-base font-semibold text-slate-700">Address</h4>
                   <div
                     class="mt-4 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6"
-                    formGroupName="address"
+                    formArrayName="addresses"
+                    *ngIf="addresses.controls.length > 0"
+                    [formGroupName]="0"
                   >
                     <div class="col-span-full">
                       <label for="address" class="form-label">Street address</label>
@@ -319,12 +316,12 @@
                   </div>
 
                   <div>
-                    <label for="final-diagnosis" class="form-label">Final Diagnosis</label>
+                    <label for="final-diagnosis" class="form-label">Diagnoses</label>
                     <input
                       type="text"
                       id="final-diagnosis"
                       class="form-input"
-                      formControlName="final_diagnosis"
+                      formControlName="diagnoses"
                     />
                     <p class="mt-2 text-xs text-slate-500">
                       Enter multiple diagnoses separated by commas.
@@ -337,7 +334,7 @@
                       type="text"
                       id="medications-taken"
                       class="form-input"
-                      formControlName="medications_taken"
+                      formControlName="medications_prescribed"
                     />
                     <p class="mt-2 text-xs text-slate-500">
                       Enter multiple medications separated by commas.
@@ -362,7 +359,7 @@
           }
           @case ('consultations') {
             <!-- Consultations Form Card -->
-            <div class="tab-content-enter" formGroupName="medical_encounters">
+            <div class="tab-content-enter">
               <div class="space-y-6" formArrayName="consultations">
                 <!-- Header with Add Button -->
                 <div class="flex items-center justify-between">
@@ -507,8 +504,8 @@
           }
           @case ('labs') {
             <!-- Lab Results Form Card -->
-            <div class="tab-content-enter" formGroupName="medical_encounters">
-              <div class="space-y-6" formArrayName="lab_results">
+            <div class="tab-content-enter">
+              <div class="space-y-6" formArrayName="lab_reports">
                 <!-- Header with Add Button -->
                 <div class="flex items-center justify-between">
                   <h3 class="text-lg font-semibold text-slate-800">Laboratory Results</h3>
@@ -661,7 +658,7 @@
           }
           @case ('radiology') {
             <!-- Radiology Form Card -->
-            <div class="tab-content-enter" formGroupName="medical_encounters">
+            <div class="tab-content-enter">
               <div class="space-y-6" formArrayName="radiology_reports">
                 <!-- Header with Add Button -->
                 <div class="flex items-center justify-between">
@@ -752,105 +749,104 @@
           @case ('sponsor') {
             @if (showSponsorForm()) {
               <!-- Sponsor Form Card -->
-              <div
-                class="rounded-lg border border-slate-200 bg-white shadow-sm tab-content-enter"
-                formGroupName="sponsor_info"
-              >
-                <div class="p-6">
-                  <h3 class="text-lg font-semibold text-slate-800">Sponsor Information</h3>
-                  <p class="mt-1 text-sm text-slate-500">
-                    Update the sponsor's personal and service details.
-                  </p>
+              <div class="tab-content-enter space-y-6" formArrayName="sponsors">
+                @for (sponsorGroup of sponsors.controls; track $index) {
+                  <div
+                    class="rounded-lg border border-slate-200 bg-white shadow-sm"
+                    [formGroupName]="$index"
+                  >
+                    <h3 class="text-lg font-semibold text-slate-800">Sponsor Information</h3>
+                    <p class="mt-1 text-sm text-slate-500">
+                      Update the sponsor's personal and service details.
+                    </p>
 
-                  <!-- Personal Information -->
-                  <div class="mt-6 border-t border-slate-200 pt-6">
-                    <h4 class="text-base font-semibold text-slate-700">Personal Information</h4>
-                    <div
-                      class="mt-4 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6"
-                      formGroupName="sponsor_name"
-                    >
-                      <div class="sm:col-span-2">
-                        <label for="sponsor-first-name" class="form-label">First name</label>
-                        <input
-                          type="text"
-                          id="sponsor-first-name"
-                          class="form-input"
-                          formControlName="first_name"
-                        />
+                    <!-- Personal Information -->
+                    <div class="mt-6 border-t border-slate-200 pt-6">
+                      <h4 class="text-base font-semibold text-slate-700">Personal Information</h4>
+                      <div class="mt-4 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
+                        <div class="sm:col-span-2">
+                          <label for="sponsor-first-name" class="form-label">First name</label>
+                          <input
+                            type="text"
+                            id="sponsor-first-name"
+                            class="form-input"
+                            formControlName="first_name"
+                          />
+                        </div>
+                        <div class="sm:col-span-2">
+                          <label for="sponsor-last-name" class="form-label">Last name</label>
+                          <input
+                            type="text"
+                            id="sponsor-last-name"
+                            class="form-input"
+                            formControlName="last_name"
+                          />
+                        </div>
+                        <div class="sm:col-span-2">
+                          <label for="sponsor-middle-initial" class="form-label"
+                            >Middle Initial</label
+                          >
+                          <input
+                            type="text"
+                            id="sponsor-middle-initial"
+                            class="form-input"
+                            formControlName="middle_initial"
+                          />
+                        </div>
                       </div>
-                      <div class="sm:col-span-2">
-                        <label for="sponsor-last-name" class="form-label">Last name</label>
-                        <input
-                          type="text"
-                          id="sponsor-last-name"
-                          class="form-input"
-                          formControlName="last_name"
-                        />
-                      </div>
-                      <div class="sm:col-span-2">
-                        <label for="sponsor-middle-initial" class="form-label"
-                          >Middle Initial</label
-                        >
-                        <input
-                          type="text"
-                          id="sponsor-middle-initial"
-                          class="form-input"
-                          formControlName="middle_initial"
-                        />
+                      <div class="mt-8 sm:col-span-2">
+                        <label for="sponsor-sex" class="form-label">Sex</label>
+                        <select id="sponsor-sex" class="form-input max-w-xs" formControlName="sex">
+                          <option value="M">Male</option>
+                          <option value="F">Female</option>
+                        </select>
                       </div>
                     </div>
-                    <div class="mt-8 sm:col-span-2">
-                      <label for="sponsor-sex" class="form-label">Sex</label>
-                      <select id="sponsor-sex" class="form-input max-w-xs" formControlName="sex">
-                        <option value="M">Male</option>
-                        <option value="F">Female</option>
-                      </select>
+
+                    <!-- Service Information -->
+                    <div class="mt-8 border-t border-slate-200 pt-6">
+                      <h4 class="text-base font-semibold text-slate-700">Service Information</h4>
+                      <div class="mt-4 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-2">
+                        <div>
+                          <label for="sponsor-rank" class="form-label">Rank</label
+                          ><input
+                            type="text"
+                            id="sponsor-rank"
+                            class="form-input"
+                            formControlName="rank"
+                          />
+                        </div>
+                        <div>
+                          <label for="sponsor-afpsn" class="form-label">AFPSN</label
+                          ><input
+                            type="text"
+                            id="sponsor-afpsn"
+                            class="form-input"
+                            formControlName="afpsn"
+                          />
+                        </div>
+                        <div>
+                          <label for="sponsor-branch" class="form-label">Branch of Service</label
+                          ><input
+                            type="text"
+                            id="sponsor-branch"
+                            class="form-input"
+                            formControlName="branch_of_service"
+                          />
+                        </div>
+                        <div>
+                          <label for="sponsor-unit" class="form-label">Unit Assignment</label
+                          ><input
+                            type="text"
+                            id="sponsor-unit"
+                            class="form-input"
+                            formControlName="unit_assignment"
+                          />
+                        </div>
+                      </div>
                     </div>
                   </div>
-
-                  <!-- Service Information -->
-                  <div class="mt-8 border-t border-slate-200 pt-6">
-                    <h4 class="text-base font-semibold text-slate-700">Service Information</h4>
-                    <div class="mt-4 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-2">
-                      <div formGroupName="sponsor_name">
-                        <label for="sponsor-rank" class="form-label">Rank</label
-                        ><input
-                          type="text"
-                          id="sponsor-rank"
-                          class="form-input"
-                          formControlName="rank"
-                        />
-                      </div>
-                      <div>
-                        <label for="sponsor-afpsn" class="form-label">AFPSN</label
-                        ><input
-                          type="text"
-                          id="sponsor-afpsn"
-                          class="form-input"
-                          formControlName="afpsn"
-                        />
-                      </div>
-                      <div>
-                        <label for="sponsor-branch" class="form-label">Branch of Service</label
-                        ><input
-                          type="text"
-                          id="sponsor-branch"
-                          class="form-input"
-                          formControlName="branch_of_service"
-                        />
-                      </div>
-                      <div>
-                        <label for="sponsor-unit" class="form-label">Unit Assignment</label
-                        ><input
-                          type="text"
-                          id="sponsor-unit"
-                          class="form-input"
-                          formControlName="unit_assignment"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                }
               </div>
             } @else {
               <div

@@ -9,21 +9,18 @@ import { RecordStateService } from '../../services/record-state.service';
   templateUrl: './record-list-controls.html',
   styleUrl: './record-list-controls.css'
 })
-export class RecordListControls implements OnInit {
+export class RecordListControls {
   recordState = inject(RecordStateService);
 
   // Map of sort values to their display text
   readonly sortOptions = new Map([
     ['name', 'Patient Name'],
-    ['patient_info.patient_record_number', 'Record #'],
-    ['patient_info.date_of_birth', 'Date of Birth'],
+    ['patient_record_number', 'Record #'],
+    ['diagnoses', 'Diagnoses'],
     ['created_at', 'Date Created'],
     ['updated_at', 'Last Modified'],
+    ['category', 'Category'],
   ]);
-
-  ngOnInit(): void {
-    this.recordState.fetchCategories();
-  }
 
   onSortByChange(event: Event): void {
     const select = event.target as HTMLSelectElement;

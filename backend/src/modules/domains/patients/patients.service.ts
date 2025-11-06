@@ -145,6 +145,7 @@ export class PatientsService {
         'radiology_reports',
         'sponsors',
         'category',
+        'addresses',
       ],
     });
     if (!patient) {
@@ -160,17 +161,25 @@ export class PatientsService {
 
     const queryBuilder = this.patientsRepository
       .createQueryBuilder('patient')
-      .leftJoinAndSelect('patient.category', 'category')
       .leftJoinAndSelect('patient.record', 'record');
 
-    if (search) {
-      queryBuilder.where("CONCAT(patient.first_name, ' ', patient.last_name) ILIKE :search", {
+    // Conditionally join and filter the category.
+    // This is the correct way to filter on a LEFT JOIN without converting it to an INNER JOIN.
+    queryBuilder.leftJoinAndSelect(
+      'patient.category',
+      'category',
+      category ? 'category.name = :category' : '1=1',
+      { category },
+    );
+
+    // Start with a condition that's always true to allow for easy `andWhere` chaining
+    queryBuilder.where('1=1');
+
+    // Only apply the search filter if the search string is not null, undefined, or empty.
+    if (search && search.trim() !== '') {
+      queryBuilder.andWhere("CONCAT(patient.first_name, ' ', patient.last_name) ILIKE :search", {
         search: `%${search}%`,
       });
-    }
-
-    if (category) {
-      queryBuilder.andWhere('category.name = :category', { category });
     }
 
     // Map API sort fields to database columns/expressions to prevent SQL injection
@@ -178,11 +187,11 @@ export class PatientsService {
     const sortMap: { [key: string]: string } = {
       name: "CONCAT(patient.first_name, ' ', patient.last_name)",
       patient_record_number: 'patient.patient_record_number',
-      // Assuming final_diagnosis is a top-level field in the summary JSON
-      final_diagnosis: "patient.summary ->> 'final_diagnosis'",
+      // Assuming diagnoses is a top-level field in the summary JSON
+      diagnoses: "patient.summary ->> 'diagnoses'",
       category: 'category.name',
-      created_at: 'patient.created_at',
-      updated_at: 'patient.updated_at',
+      created_at: 'record.created_at',
+      updated_at: 'record.updated_at',
     };
 
     const sortColumn = sortMap[sortBy];
@@ -302,9 +311,9 @@ export class PatientsService {
         .orderBy('count', 'DESC')
         .getRawMany<CategoryStat>(),
       this.patientsRepository.query<DiagnosisStat[]>(`
-          SELECT diagnosis, COUNT(diagnosis) as count
-          FROM patients, jsonb_array_elements_text(summary->'final_diagnosis') AS diagnosis
-          WHERE jsonb_typeof(summary->'final_diagnosis') = 'array' AND deleted_at IS NULL
+          SELECT diagnosis, COUNT(diagnosis) as count FROM patients,
+          jsonb_array_elements_text(summary->'diagnoses') AS diagnosis
+          WHERE jsonb_typeof(summary->'diagnoses') = 'array' AND deleted_at IS NULL
           GROUP BY diagnosis
           ORDER BY count DESC
           LIMIT 5;
