@@ -18,11 +18,13 @@ const clearDatabase = async (dataSource: DataSource): Promise<void> => {
     return;
   }
 
-  console.log(`🗑️  Preparing to truncate the following tables: ${tableNames}`);
+  console.log(`🗑️  Preparing to DROP the following tables: ${tableNames}`);
 
-  // Using `TRUNCATE ... RESTART IDENTITY CASCADE` is a PostgreSQL-specific command.
-  // It efficiently deletes all rows, resets auto-incrementing counters, and cascades to dependent tables.
-  await dataSource.query(`TRUNCATE TABLE ${tableNames} RESTART IDENTITY CASCADE;`);
+  // Temporarily disable foreign key checks to allow dropping tables in any order.
+  await dataSource.query(`SET session_replication_role = 'replica';`);
+  await dataSource.query(`DROP TABLE IF EXISTS ${tableNames} CASCADE;`);
+  // Re-enable foreign key checks.
+  await dataSource.query(`SET session_replication_role = 'origin';`);
 
   console.log('✅  All tables have been successfully cleared.');
 };

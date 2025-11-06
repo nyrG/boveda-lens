@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, MoreThan, DataSource } from 'typeorm';
 import { Patient } from './entities/patient.entity';
@@ -18,6 +18,8 @@ import { CreateSponsorDto } from './dto/sponsor/create-sponsor.dto';
 
 @Injectable()
 export class PatientsService {
+  private readonly logger = new Logger(PatientsService.name);
+
   constructor(
     @InjectRepository(Patient)
     private patientsRepository: Repository<Patient>,
@@ -33,6 +35,7 @@ export class PatientsService {
     private radiologyReportRepository: Repository<RadiologyReport>,
     @InjectRepository(Sponsor)
     private sponsorRepository: Repository<Sponsor>,
+    //Data Source for transactions
     private dataSource: DataSource,
   ) {}
 
@@ -49,16 +52,19 @@ export class PatientsService {
       let recordType = await transactionalEntityManager.findOne(RecordType, {
         where: { name: recordTypeName },
       });
+      this.logger.debug(`1. Found recordType: ${JSON.stringify(recordType)}`);
 
       if (!recordType) {
+        this.logger.debug('--> RecordType not found, creating a new one.');
         recordType = transactionalEntityManager.create(RecordType, {
           name: recordTypeName,
           description: 'A record for a patient in the medical system.',
         });
-        await transactionalEntityManager.save(recordType);
+        recordType = await transactionalEntityManager.save(recordType);
+        this.logger.debug(`--> Saved new recordType: ${JSON.stringify(recordType)}`);
       }
 
-      // Step 2: Create the parent Record
+      // Step 2: Build the full entity graph
       const fullName = [
         createPatientDto.first_name,
         createPatientDto.middle_initial,
@@ -66,20 +72,22 @@ export class PatientsService {
       ]
         .filter(Boolean)
         .join(' ');
-      const record = transactionalEntityManager.create(Record, {
-        name: fullName,
-        record_type_id: recordType.id,
-      });
-      await transactionalEntityManager.save(record);
 
-      // Step 3: Create and save the Patient, linking it to the new Record
+      // Step 2: Create the patient entity with its nested record.
+      // TypeORM will handle the insertion order because of `cascade: true`.
       const patientEntity = transactionalEntityManager.create(Patient, {
         ...createPatientDto,
-        record: record, // Link the patient to the record
+        record: {
+          name: fullName,
+          record_type: recordType,
+          record_type_id: recordType.id,
+        },
       });
+      this.logger.debug(`2. Patient entity to be saved: ${JSON.stringify(patientEntity)}`);
+
       const savedPatient = await transactionalEntityManager.save(patientEntity);
 
-      // Step 4: Iterate through consultations, create and save each one
+      // Step 4: Iterate through related patient entities
       if (createPatientDto.consultations && createPatientDto.consultations.length > 0) {
         const consultationEntities = createPatientDto.consultations.map(
           (consultationDto: CreateConsultationDto) => {
@@ -90,9 +98,9 @@ export class PatientsService {
           },
         );
         await transactionalEntityManager.save(consultationEntities);
+        this.logger.debug('--> Saved consultations.');
       }
 
-      // Step 5: Repeat for lab_reports, radiology_reports, and sponsors
       if (createPatientDto.lab_reports && createPatientDto.lab_reports.length > 0) {
         const labReportEntities = createPatientDto.lab_reports.map(
           (labReportDto: CreateLabReportDto) => {
@@ -103,6 +111,7 @@ export class PatientsService {
           },
         );
         await transactionalEntityManager.save(labReportEntities);
+        this.logger.debug('--> Saved lab reports.');
       }
 
       if (createPatientDto.radiology_reports && createPatientDto.radiology_reports.length > 0) {
@@ -115,6 +124,7 @@ export class PatientsService {
           },
         );
         await transactionalEntityManager.save(radiologyReportEntities);
+        this.logger.debug('--> Saved radiology reports.');
       }
 
       if (createPatientDto.sponsors && createPatientDto.sponsors.length > 0) {
@@ -125,11 +135,30 @@ export class PatientsService {
           });
         });
         await transactionalEntityManager.save(sponsorEntities);
+        this.logger.debug('--> Saved sponsors.');
       }
 
       // Return the patient, which now has its ID and relations populated
       return savedPatient;
     });
+  }
+
+  async findOne(id: number): Promise<Patient> {
+    const patient = await this.patientsRepository.findOne({
+      where: { id },
+      relations: [
+        'record',
+        'consultations',
+        'lab_reports',
+        'radiology_reports',
+        'sponsors',
+        'category',
+      ],
+    });
+    if (!patient) {
+      throw new NotFoundException(`Patient with ID ${id} not found`);
+    }
+    return patient;
   }
 
   /* async findAll(
@@ -178,14 +207,6 @@ export class PatientsService {
     const [data, total] = await queryBuilder.skip(skip).take(limit).getManyAndCount();
 
     return { data, total };
-  }
-
-  async findOne(id: number): Promise<Patient> {
-    const patient = await this.patientsRepository.findOneBy({ id });
-    if (!patient) {
-      throw new NotFoundException(`Patient with ID ${id} not found`);
-    }
-    return patient;
   }
 
   async getStats() {
