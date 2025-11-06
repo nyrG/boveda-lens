@@ -1,40 +1,47 @@
-import { IsString, IsOptional, IsNumber, IsNotEmpty, Length, IsIn } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { IsString, IsNotEmpty, IsOptional, IsEnum, MaxLength } from 'class-validator';
 
 export class CreateSponsorDto {
-  @IsNumber()
+  @ApiProperty({ example: 'John', description: "Sponsor's first name" })
+  @IsString()
   @IsNotEmpty()
-  patient_id: number;
+  first_name: string;
 
-  @IsOptional()
+  @ApiPropertyOptional({ example: 'M', description: "Sponsor's middle initial", maxLength: 1 })
   @IsString()
-  first_name?: string;
-
   @IsOptional()
-  @IsString()
-  @Length(1, 1, { message: 'Middle initial must be a single character' })
+  @MaxLength(1)
   middle_initial?: string;
 
-  @IsOptional()
+  @ApiProperty({ example: 'Doe', description: "Sponsor's last name" })
   @IsString()
-  last_name?: string;
+  @IsNotEmpty()
+  last_name: string;
 
-  @IsOptional()
+  @ApiProperty({ example: 'Spouse', description: 'Relationship to the patient' })
   @IsString()
-  rank?: string;
+  @IsNotEmpty()
+  relationship: string;
 
-  @IsOptional()
+  @ApiProperty({ enum: ['M', 'F'], example: 'M', description: 'Sex of the sponsor' })
+  @IsEnum(['M', 'F'])
+  sex: 'M' | 'F';
+
+  @ApiPropertyOptional({
+    example: '7654321',
+    description: 'Armed Forces of the Philippines Serial Number of the sponsor',
+  })
   @IsString()
+  @IsOptional()
   afpsn?: string;
 
-  @IsOptional()
+  @ApiPropertyOptional({ example: 'PA', description: 'Branch of Service of the sponsor' })
   @IsString()
+  @IsOptional()
   branch_of_service?: string;
 
-  @IsOptional()
+  @ApiPropertyOptional({ example: '520th ABW', description: 'Unit assignment of the sponsor' })
   @IsString()
-  unit_assignment?: string;
-
   @IsOptional()
-  @IsIn(['M', 'F'])
-  sex?: 'M' | 'F';
+  unit_assignment?: string;
 }

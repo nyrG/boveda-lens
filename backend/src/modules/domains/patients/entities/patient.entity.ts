@@ -37,6 +37,9 @@ export class Patient {
   @Column({ name: 'patient_record_number', unique: true })
   patient_record_number: string;
 
+  @Column({ nullable: true })
+  afpsn: string;
+
   @Column({ type: 'date', name: 'date_of_birth' })
   date_of_birth: string;
 
@@ -49,9 +52,6 @@ export class Patient {
   })
   sex: 'M' | 'F';
 
-  @Column({ nullable: true })
-  afpsn: string;
-
   @Column({ name: 'branch_of_service', nullable: true })
   branch_of_service: string;
 
@@ -61,10 +61,20 @@ export class Patient {
   @Column({ name: 'unit_assignment', nullable: true })
   unit_assignment: string;
 
-  @Column('jsonb', { nullable: true })
-  summary: Summary | null;
+  @ManyToOne(() => PatientCategory, (category) => category.patients, {
+    nullable: true,
+    eager: true, // Automatically load the category with the patient
+  })
+  @JoinColumn({ name: 'category_id' })
+  category: PatientCategory;
 
-  @OneToOne(() => Record, (record) => record.patient)
+  @Column({ nullable: true })
+  category_id: number;
+
+  @OneToOne(() => Record, (record) => record.patient, {
+    cascade: ['insert', 'update'],
+  })
+  @JoinColumn({ name: 'record_id' })
   record: Record;
 
   @OneToMany(() => Consultation, (consultation) => consultation.patient)
@@ -85,16 +95,8 @@ export class Patient {
   })
   addresses: Address[];
 
-  @ManyToOne(() => PatientCategory, (category) => category.patients, {
-    nullable: true,
-    eager: true, // Automatically load the category with the patient
-  })
-  @JoinColumn({ name: 'category_id' })
-  category: PatientCategory;
-
-  // This column will store the foreign key for the category
-  @Column({ nullable: true })
-  category_id: number;
+  @Column('jsonb', { nullable: true })
+  summary: Summary | null;
 
   @CreateDateColumn()
   created_at: Date;

@@ -18,16 +18,14 @@ export class Record {
   id: number;
 
   @Column()
-  name: string; // Display name for the record, e.g., patient's name
+  name: string;
 
-  @Column({ name: 'record_type_id' })
-  recordTypeId: number;
+  @ManyToOne(() => RecordType, (recordType) => recordType.records)
+  @JoinColumn({ name: 'record_type_id' }) // This links this relation to the DB column
+  record_type: RecordType;
 
-  @ManyToOne(() => RecordType, (recordType) => recordType.records, {
-    eager: true, // Automatically load the record type
-  })
-  @JoinColumn({ name: 'record_type_id' })
-  recordType: RecordType;
+  @Column()
+  record_type_id: number;
 
   @OneToOne(() => Patient, (patient) => patient.record)
   patient: Patient;

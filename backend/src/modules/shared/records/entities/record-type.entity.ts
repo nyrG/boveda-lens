@@ -21,7 +21,7 @@ export class RecordType {
   @Column({ nullable: true })
   description: string;
 
-  @OneToMany(() => Record, (record) => record.recordType)
+  @OneToMany(() => Record, (record) => record.record_type)
   records: Record[];
 
   @CreateDateColumn({ name: 'created_at' })
