@@ -43,8 +43,10 @@ export class Patient {
   @Column({ type: 'date', name: 'date_of_birth' })
   date_of_birth: string;
 
-  @Column({ name: 'documented_age', type: 'int', nullable: true })
-  documented_age: number;
+  // This 'age' column represents the age listed during the patient's visit on the record.
+  // It will be populated by the extraction feature or calculated once from date_of_birth if not provided.
+  @Column({ name: 'age', type: 'int', nullable: true })
+  age: number | null;
 
   @Column({
     type: 'enum',

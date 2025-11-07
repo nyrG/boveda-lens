@@ -42,10 +42,19 @@ const createRandomPatient = (
   patient.last_name = lastName;
   patient.patient_record_number = faker.string.numeric(6);
   patient.afpsn = faker.string.numeric(7);
-  patient.date_of_birth = faker.date
-    .birthdate({ min: 18, max: 65, mode: 'age' })
-    .toISOString()
-    .split('T')[0];
+  const dob = faker.date.birthdate({ min: 18, max: 65, mode: 'age' }).toISOString().split('T')[0];
+  patient.date_of_birth = dob;
+
+  // Calculate age at the time of seeding, mirroring the service logic.
+  const birthDate = new Date(dob);
+  const today = new Date();
+  let calculatedAge = today.getFullYear() - birthDate.getFullYear();
+  const monthDiff = today.getMonth() - birthDate.getMonth();
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+    calculatedAge--;
+  }
+  patient.age = calculatedAge;
+
   patient.sex = sex;
   patient.branch_of_service = faker.helpers.arrayElement(['PA', 'PN', 'PAF']);
   patient.rank = faker.helpers.arrayElement(['PVT', 'CPL', 'SGT', 'LTO']);
