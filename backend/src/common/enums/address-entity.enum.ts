@@ -1,5 +1,5 @@
 export enum AddressEntityType {
-  PATIENT = 'Patient',
-  USER = 'User',
-  EMPLOYEE = 'Employee',
+  Patient = 'Patient',
+  // Add other entity types here as needed, e.g.,
+  // User = 'User',
 }

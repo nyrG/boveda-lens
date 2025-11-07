@@ -6,6 +6,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { AddressEntityType } from '../../../../common/enums/address-entity.enum';
+import { Patient } from '../../../domains/patients/entities/patient.entity';
 
 export enum AddressType {
   RESIDENCE = 'RESIDENCE',
@@ -29,6 +30,10 @@ export class Address {
     enum: AddressEntityType,
   })
   entityType: AddressEntityType;
+
+  // This property is for type-hinting and is not a database relation.
+  // The @ManyToOne decorator is removed to fix the metadata error.
+  entity: Patient;
 
   @Column({
     name: 'address_type',
