@@ -90,9 +90,7 @@ export class Patient {
   sponsors: Sponsor[];
 
   // Polymorphic relationship with Address
-  @OneToMany(() => Address, (address) => address.entityId, {
-    cascade: true,
-  })
+  @OneToMany(() => Address, (address) => address.entity, { cascade: true })
   addresses: Address[];
 
   @Column('jsonb', { nullable: true })

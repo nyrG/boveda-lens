@@ -17,6 +17,7 @@ import { CreateConsultationDto } from '../consultation/create-consultation.dto';
 import { CreateLabReportDto } from '../lab-report/create-lab-report.dto';
 import { CreateRadiologyReportDto } from '../radiology-report/create-radiology-report.dto';
 import { CreateSponsorDto } from '../sponsor/create-sponsor.dto';
+import { PatientAddressDto } from '../../../../shared/addresses/dto/patient-address.dto';
 
 export class CreatePatientDto {
   @ApiProperty({ example: 'John', description: "Patient's first name" })
@@ -125,6 +126,16 @@ export class CreatePatientDto {
   @ValidateNested({ each: true })
   @Type(() => CreateSponsorDto)
   sponsors?: CreateSponsorDto[];
+
+  @ApiPropertyOptional({
+    type: () => [PatientAddressDto],
+    description: 'List of addresses for the patient',
+  })
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => PatientAddressDto)
+  addresses?: PatientAddressDto[];
 }
 
 export class IdsDto {
