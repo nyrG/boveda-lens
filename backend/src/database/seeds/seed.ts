@@ -11,11 +11,13 @@ import { RadiologyReport } from '../../modules/domains/patients/entities/radiolo
 import { LabReport } from '../../modules/domains/patients/entities/lab-report.entity';
 import { RecordType } from '../../modules/shared/records/entities/record-type.entity';
 import { AppDataSource } from '../data-source';
-import { Address, AddressType } from '../../modules/shared/addresses/entities/address.entity';
-import { AddressEntityType } from '../../common/enums/address-entity.enum';
+import {
+  PatientAddress,
+  AddressType,
+} from '../../modules/domains/patients/entities/patient-address.entity';
 import { allCategories } from '../../modules/domains/extraction/extraction.constants'; // This is likely just an array of strings now
 
-const NUM_PATIENTS_TO_SEED = 20;
+const NUM_PATIENTS_TO_SEED = 50;
 
 /**
  * Creates a single, fully-populated random patient object.
@@ -131,7 +133,7 @@ const createRandomPatient = (
       ],
     }),
   ];
-
+  // Create and assign the summary object
   patient.summary = {
     diagnoses: [faker.helpers.arrayElement(diagnoses)],
     primary_complaint: faker.helpers.arrayElement(complaints),
@@ -142,8 +144,19 @@ const createRandomPatient = (
     medications_prescribed: faker.helpers.arrayElement(medications),
     allergies: faker.helpers.arrayElement(allergies),
   };
+  // Create and assign new PatientAddress entities
+  patient.addresses = Array.from({ length: faker.number.int({ min: 1, max: 2 }) }, () => {
+    const address = new PatientAddress();
+    address.houseNoStreet = faker.location.streetAddress();
+    address.barangay = faker.location.county();
+    address.cityMunicipality = faker.location.city();
+    address.province = faker.location.state();
+    address.zipCode = faker.location.zipCode();
+    address.country = faker.location.country();
+    address.addressType = faker.helpers.arrayElement(Object.values(AddressType));
+    return address;
+  });
 
-  // Addresses will be created and assigned after the patient is saved in the seeding logic
   return patient;
 };
 
@@ -151,7 +164,6 @@ const seedPatients = async (dataSource: DataSource) => {
   const patientRepository = dataSource.getRepository(Patient);
   const categoryRepository = dataSource.getRepository(PatientCategory);
   const recordTypeRepository = dataSource.getRepository(RecordType);
-  const addressRepository = dataSource.getRepository(Address);
 
   console.log('🌱 Seeding patient categories...');
   const categoryEntities = allCategories.map((name) => {
@@ -234,29 +246,10 @@ const seedPatients = async (dataSource: DataSource) => {
     );
   }
 
-  // Save all patient records first to get their IDs
-  const savedPatients = await patientRepository.save(patients, { chunk: 10 });
-
-  console.log('🌱 Seeding patient addresses...');
-  const allAddresses: Address[] = [];
-  for (const patient of savedPatients) {
-    const numAddresses = faker.number.int({ min: 1, max: 2 });
-    for (let i = 0; i < numAddresses; i++) {
-      const address = new Address();
-      address.houseNoStreet = faker.location.streetAddress();
-      address.barangay = faker.location.county();
-      address.cityMunicipality = faker.location.city();
-      address.province = faker.location.state();
-      address.zipCode = faker.location.zipCode();
-      address.country = faker.location.country();
-      address.addressType = faker.helpers.arrayElement(Object.values(AddressType));
-      address.entityId = patient.id; // Set the polymorphic foreign key
-      address.entityType = AddressEntityType.Patient; // Set the polymorphic entity type
-      allAddresses.push(address);
-    }
-  }
-  await addressRepository.save(allAddresses, { chunk: 10 });
-  console.log('✅ Addresses seeded!');
+  // Save all patient records. Due to `cascade: ['insert']` on the Patient entity's relations,
+  // this single save operation will also insert all related records, sponsors, consultations, reports, and addresses.
+  await patientRepository.save(patients, { chunk: 10 });
+  console.log('✅ Patients and all related entities seeded!');
 
   console.log('✅ Seeding complete!');
 };

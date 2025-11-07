@@ -1,12 +1,4 @@
-import {
-  Column,
-  CreateDateColumn,
-  Entity,
-  PrimaryGeneratedColumn,
-  UpdateDateColumn,
-} from 'typeorm';
-import { AddressEntityType } from '../../../../common/enums/address-entity.enum';
-import { Patient } from '../../../domains/patients/entities/patient.entity';
+import { Column, CreateDateColumn, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 
 export enum AddressType {
   RESIDENCE = 'RESIDENCE',
@@ -14,26 +6,13 @@ export enum AddressType {
   EMERGENCY = 'EMERGENCY',
 }
 
-@Entity({ name: 'addresses' })
-export class Address {
+/**
+ * An abstract base class for address entities. It is not a table itself
+ * but provides the common columns for other address tables to inherit.
+ */
+export abstract class Address {
   @PrimaryGeneratedColumn()
   id: number;
-
-  // ID of the owner entity
-  @Column({ name: 'entity_id' })
-  entityId: number;
-
-  //Type of the owner entity (e.g., 'Patient', 'User')
-  @Column({
-    name: 'entity_type',
-    type: 'varchar',
-    enum: AddressEntityType,
-  })
-  entityType: AddressEntityType;
-
-  // This property is for type-hinting and is not a database relation.
-  // The @ManyToOne decorator is removed to fix the metadata error.
-  entity: Patient;
 
   @Column({
     name: 'address_type',

@@ -9,7 +9,7 @@ import { Consultation } from './entities/consultation.entity';
 import { LabReport } from './entities/lab-report.entity';
 import { RadiologyReport } from './entities/radiology-report.entity';
 import { Sponsor } from './entities/sponsor.entity';
-import { Address } from 'src/modules/shared/addresses/entities/address.entity';
+import { PatientAddress } from './entities/patient-address.entity';
 
 @Module({
   imports: [
@@ -21,7 +21,7 @@ import { Address } from 'src/modules/shared/addresses/entities/address.entity';
       LabReport,
       RadiologyReport,
       Sponsor,
-      Address,
+      PatientAddress,
     ]),
   ],
   controllers: [PatientsController],

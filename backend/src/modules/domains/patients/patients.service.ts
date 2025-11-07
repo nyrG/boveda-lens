@@ -12,12 +12,11 @@ import { LabReport } from './entities/lab-report.entity';
 import { CreateLabReportDto } from './dto/lab-report/create-lab-report.dto';
 import { RadiologyReport } from './entities/radiology-report.entity';
 import { CreateRadiologyReportDto } from './dto/radiology-report/create-radiology-report.dto';
+import { PatientAddress } from './entities/patient-address.entity';
 import { Sponsor } from './entities/sponsor.entity';
 import { FindAllPatientsDto } from './dto/patient/find-all-patients.dto';
-import { Address } from '../../shared/addresses/entities/address.entity';
-import { AddressEntityType } from '../../../common/enums/address-entity.enum';
 import { CreateSponsorDto } from './dto/sponsor/create-sponsor.dto';
-import { PatientAddressDto } from '../../shared/addresses/dto/patient-address.dto';
+import { PatientAddressDto } from './dto/patient-address/patient-address.dto';
 
 @Injectable()
 export class PatientsService {
@@ -38,8 +37,8 @@ export class PatientsService {
     private radiologyReportRepository: Repository<RadiologyReport>,
     @InjectRepository(Sponsor)
     private sponsorRepository: Repository<Sponsor>,
-    @InjectRepository(Address)
-    private addressRepository: Repository<Address>,
+    @InjectRepository(PatientAddress)
+    private patientAddressRepository: Repository<PatientAddress>,
     //Data Source for transactions
     private dataSource: DataSource,
   ) {}
@@ -75,8 +74,8 @@ export class PatientsService {
         .filter(Boolean)
         .join(' ');
 
-      // Step 2: Create the patient entity with its nested record.
-      // TypeORM will handle the insertion order because of `cascade: true`.
+      // Step 2: Create the patient entity with its nested relations.
+      // TypeORM will handle the insertion order for all cascaded relations.
       const patientEntity = transactionalEntityManager.create(Patient, {
         ...createPatientDto,
         record: {
@@ -84,22 +83,11 @@ export class PatientsService {
           record_type: recordType,
           record_type_id: recordType.id,
         },
+        // Addresses are created directly on the patient due to cascade settings
+        addresses: createPatientDto.addresses || [],
       });
 
       const savedPatient = await transactionalEntityManager.save(patientEntity);
-
-      // Step 3: Handle Addresses
-      if (createPatientDto.addresses && createPatientDto.addresses.length > 0) {
-        const addressEntities = createPatientDto.addresses.map((addressDto) => {
-          return transactionalEntityManager.create(Address, {
-            ...addressDto,
-            // Set the polymorphic foreign key and entity type
-            entityId: savedPatient.id,
-            entityType: AddressEntityType.Patient,
-          });
-        });
-        await transactionalEntityManager.save(addressEntities);
-      }
 
       // Step 4: Iterate through related patient entities
       if (createPatientDto.consultations && createPatientDto.consultations.length > 0) {
@@ -154,13 +142,12 @@ export class PatientsService {
   }
 
   async findOne(id: number): Promise<Patient> {
-    // Step 1: Fetch the patient and its standard, non-polymorphic relations.
-    // We deliberately exclude 'addresses' here because it's a polymorphic relation
-    // that needs special handling to filter by entityType.
+    // Fetch the patient and all its direct relations, including addresses.
     const patient = await this.patientsRepository.findOne({
       where: { id },
       relations: [
         'record',
+        'addresses', // Now a direct relation, can be loaded here.
         'consultations',
         'lab_reports',
         'radiology_reports',
@@ -168,19 +155,9 @@ export class PatientsService {
         'category',
       ],
     });
-
     if (!patient) {
       throw new NotFoundException(`Patient with ID ${id} not found`);
     }
-
-    // Step 2: Use a separate, targeted query to fetch the polymorphic 'addresses' relation.
-    // This correctly filters by both entityId and entityType.
-    patient.addresses = await this.addressRepository.findBy({
-      entityId: id,
-      entityType: AddressEntityType.Patient,
-    });
-
-    // Step 3: Return the complete patient object with addresses attached.
     return patient;
   }
 
@@ -239,7 +216,7 @@ export class PatientsService {
       // Use the transactional entity manager to find the patient
       let patient = await transactionalEntityManager.findOne(Patient, {
         where: { id },
-        relations: ['record'],
+        relations: ['record', 'addresses'], // Load existing addresses
       });
 
       if (!patient) {
@@ -271,50 +248,43 @@ export class PatientsService {
           incomingAddresses.filter((addr) => addr.id).map((addr) => addr.id),
         );
 
-        // 1. Delete addresses that are no longer present in the DTO
+        // 1. Identify and remove addresses that are no longer in the DTO
         const addressesToDelete = existingAddresses.filter(
           (existingAddr) => !addressesToKeepIds.has(existingAddr.id),
         );
         if (addressesToDelete.length > 0) {
-          // You might want to softDelete instead of remove, depending on business logic
-          await transactionalEntityManager.remove(Address, addressesToDelete);
+          await transactionalEntityManager.remove(PatientAddress, addressesToDelete);
         }
 
-        const updatedOrNewAddresses: Address[] = [];
+        // 2. Update existing addresses or create new ones
+        const updatedOrNewAddresses: PatientAddress[] = [];
         for (const incomingAddrDto of incomingAddresses) {
           if (incomingAddrDto.id) {
             // Update existing address
             const existingAddr = existingAddresses.find((addr) => addr.id === incomingAddrDto.id);
             if (existingAddr) {
-              transactionalEntityManager.merge(Address, existingAddr, incomingAddrDto);
+              transactionalEntityManager.merge(PatientAddress, existingAddr, incomingAddrDto);
               updatedOrNewAddresses.push(existingAddr);
-            } else {
-              // If an ID is provided but no matching existing address is found, treat as new.
-              // A more robust solution might throw an error or verify ownership.
-              const newAddress = transactionalEntityManager.create(Address, {
-                ...incomingAddrDto,
-                entityId: patient.id,
-                entityType: AddressEntityType.Patient,
-              });
-              updatedOrNewAddresses.push(newAddress);
             }
+            // Note: We are ignoring cases where an ID is provided but doesn't exist.
+            // This could be an error, but for now, we just skip it.
           } else {
             // Create new address
-            const newAddress = transactionalEntityManager.create(Address, {
+            const newAddress = transactionalEntityManager.create(PatientAddress, {
               ...incomingAddrDto,
-              entityId: patient.id,
-              entityType: AddressEntityType.Patient,
+              patient: patient, // Link to the patient
             });
             updatedOrNewAddresses.push(newAddress);
           }
         }
-        if (updatedOrNewAddresses.length > 0) {
-          await transactionalEntityManager.save(updatedOrNewAddresses);
-        }
+
+        // 3. Assign the final list of addresses to the patient entity
+        patient.addresses = updatedOrNewAddresses;
       }
       // --- End Handle Addresses ---
 
-      // Save the patient (this will also update any merged address entities due to cascade)
+      // Save the patient. TypeORM will handle inserts, updates, and removals
+      // for the addresses collection due to the cascade settings.
       patient = await transactionalEntityManager.save(Patient, patient);
 
       // Re-fetch the patient with updated addresses to ensure the returned object is complete and not null
