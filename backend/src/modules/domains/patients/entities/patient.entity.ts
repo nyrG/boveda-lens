@@ -18,7 +18,7 @@ import { LabReport } from './lab-report.entity';
 import { RadiologyReport } from './radiology-report.entity';
 import { Sponsor } from './sponsor.entity';
 import { PatientCategory } from './patient-category.entity';
-import { Address } from '../../../shared/addresses/entities/address.entity';
+import { PatientAddress } from './patient-address.entity';
 
 @Entity('patients')
 export class Patient {
@@ -97,9 +97,11 @@ export class Patient {
   })
   sponsors: Sponsor[];
 
-  // Polymorphic relationship with Address
-  @OneToMany(() => Address, (address) => address.entity, { cascade: true })
-  addresses: Address[];
+  // Direct one-to-many relationship with PatientAddress
+  @OneToMany(() => PatientAddress, (address) => address.patient, {
+    cascade: ['insert', 'update', 'remove'],
+  })
+  addresses: PatientAddress[];
 
   @Column('jsonb', { nullable: true })
   summary: Summary | null;

@@ -1,16 +1,7 @@
-import { IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, MaxLength } from 'class-validator';
-import { AddressEntityType } from '../../../../common/enums/address-entity.enum';
+import { IsEnum, IsNotEmpty, IsOptional, IsString, MaxLength } from 'class-validator';
 import { AddressType } from '../entities/address.entity';
 
-export class CreateAddressDto {
-  @IsNumber()
-  @IsNotEmpty()
-  entityId: number;
-
-  @IsEnum(AddressEntityType)
-  @IsNotEmpty()
-  entityType: AddressEntityType;
-
+export class AddressDto {
   @IsEnum(AddressType)
   @IsNotEmpty()
   addressType: AddressType;
