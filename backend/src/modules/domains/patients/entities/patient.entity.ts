@@ -77,16 +77,24 @@ export class Patient {
   @JoinColumn({ name: 'record_id' })
   record: Record;
 
-  @OneToMany(() => Consultation, (consultation) => consultation.patient)
+  @OneToMany(() => Consultation, (consultation) => consultation.patient, {
+    cascade: ['insert', 'update', 'remove'],
+  })
   consultations: Consultation[];
 
-  @OneToMany(() => LabReport, (labReport) => labReport.patient)
+  @OneToMany(() => LabReport, (labReport) => labReport.patient, {
+    cascade: ['insert', 'update', 'remove'],
+  })
   lab_reports: LabReport[];
 
-  @OneToMany(() => RadiologyReport, (radiologyReport) => radiologyReport.patient)
+  @OneToMany(() => RadiologyReport, (radiologyReport) => radiologyReport.patient, {
+    cascade: ['insert', 'update', 'remove'],
+  })
   radiology_reports: RadiologyReport[];
 
-  @OneToMany(() => Sponsor, (sponsor) => sponsor.patient)
+  @OneToMany(() => Sponsor, (sponsor) => sponsor.patient, {
+    cascade: ['insert', 'update', 'remove'],
+  })
   sponsors: Sponsor[];
 
   // Polymorphic relationship with Address

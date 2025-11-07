@@ -184,17 +184,15 @@ export class PatientsService {
     return patient;
   }
 
-  async findAll(queryDto: FindAllPatientsDto) {
+  async findAll(queryDto: FindAllPatientsDto): Promise<{ data: Patient[]; total: number }> {
     const { page, limit, search, sortBy, sortOrder, category } = queryDto;
 
-    const skip = (page - 1) * limit;
-
+    // Initialize query builder and join the required 'record' relation.
     const queryBuilder = this.patientsRepository
       .createQueryBuilder('patient')
       .leftJoinAndSelect('patient.record', 'record');
 
-    // Conditionally join and filter the category.
-    // This is the correct way to filter on a LEFT JOIN without converting it to an INNER JOIN.
+    // Conditionally filter by category. The condition is in the join to preserve the LEFT JOIN.
     queryBuilder.leftJoinAndSelect(
       'patient.category',
       'category',
@@ -202,39 +200,35 @@ export class PatientsService {
       { category },
     );
 
-    // Start with a condition that's always true to allow for easy `andWhere` chaining
-    queryBuilder.where('1=1');
-
-    // Only apply the search filter if the search string is not null, undefined, or empty.
+    // Apply search filter for patient's full name if provided.
     if (search && search.trim() !== '') {
       queryBuilder.andWhere("CONCAT(patient.first_name, ' ', patient.last_name) ILIKE :search", {
         search: `%${search}%`,
       });
     }
 
-    // Map API sort fields to database columns/expressions to prevent SQL injection
-    // and provide a clear, maintainable mapping.
+    // Safely map API sort fields to database columns to prevent SQL injection.
     const sortMap: { [key: string]: string } = {
       name: "CONCAT(patient.first_name, ' ', patient.last_name)",
       patient_record_number: 'patient.patient_record_number',
-      // Assuming diagnoses is a top-level field in the summary JSON
-      diagnoses: "patient.summary ->> 'diagnoses'",
+      diagnoses: "patient.summary ->> 'diagnoses'", // Sorts by a JSONB field
       category: 'category.name',
       created_at: 'record.created_at',
       updated_at: 'record.updated_at',
     };
 
     const sortColumn = sortMap[sortBy];
-
     if (sortColumn) {
-      // If a valid sort column is found in the map, apply it.
-      // The JSONB access syntax `->>` is included in the map value.
       queryBuilder.orderBy(sortColumn, sortOrder);
     } else {
-      // Default to a safe sort order if the provided sortBy is not in our map.
+      // Default to a safe sort order if the provided sortBy is invalid.
       queryBuilder.orderBy('patient.updated_at', 'DESC');
     }
 
+    // Apply pagination.
+    const skip = (page - 1) * limit;
+
+    // Execute query to get paginated data and total count.
     const [data, total] = await queryBuilder.skip(skip).take(limit).getManyAndCount();
 
     return { data, total };
