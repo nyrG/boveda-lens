@@ -10,8 +10,7 @@ export interface PatientInfo {
     last_name?: string;
   };
   date_of_birth?: string;
-  age?: number | null; // Calculated field
-  documented_age?: number | null;
+  age?: number | null; // Age listed during the patient's visit on the record
   sex?: 'M' | 'F' | null;
   address?: {
     house_no_street?: string;

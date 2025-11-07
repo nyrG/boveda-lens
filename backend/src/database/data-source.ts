@@ -12,7 +12,10 @@ const isProduction = process.env.NODE_ENV === 'production';
 const baseOptions: Omit<PostgresConnectionOptions, 'type'> = {
   // This robust pattern works for both development (ts-node) and production (node dist/main.js)
   // It points to .ts files in dev and .js files in prod automatically.
-  entities: [join(__dirname, '..', '**', '*.entity.{ts,js}')],
+  entities: [
+    join(__dirname, '..', '**', '*.entity.{ts,js}'),
+    join(__dirname, '..', '**', '*.view.{ts,js}'), // Automatically discover view entities
+  ],
 
   // It's good practice to also make migrations path dynamic
   migrations: [join(__dirname, 'migrations', '*.{ts,js}')],

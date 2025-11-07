@@ -87,6 +87,22 @@ export class PatientsService {
         addresses: createPatientDto.addresses || [],
       });
 
+      // If age is not provided, calculate it from the date of birth.
+      // This sets the age at the time of creation.
+      if (
+        (patientEntity.age === undefined || patientEntity.age === null) &&
+        patientEntity.date_of_birth
+      ) {
+        const birthDate = new Date(patientEntity.date_of_birth);
+        const today = new Date();
+        let calculatedAge = today.getFullYear() - birthDate.getFullYear();
+        const monthDiff = today.getMonth() - birthDate.getMonth();
+        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+          calculatedAge--;
+        }
+        patientEntity.age = calculatedAge;
+      }
+
       const savedPatient = await transactionalEntityManager.save(patientEntity);
 
       // Step 4: Iterate through related patient entities
@@ -226,6 +242,19 @@ export class PatientsService {
       // Merge the DTO into the patient entity. This applies the partial update.
       transactionalEntityManager.merge(Patient, patient, updatePatientDto);
 
+      // If age is not provided in the update and is currently null,
+      // calculate it from the date of birth.
+      if ((patient.age === undefined || patient.age === null) && patient.date_of_birth) {
+        const birthDate = new Date(patient.date_of_birth);
+        const today = new Date();
+        let calculatedAge = today.getFullYear() - birthDate.getFullYear();
+        const monthDiff = today.getMonth() - birthDate.getMonth();
+        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+          calculatedAge--;
+        }
+        patient.age = calculatedAge;
+      }
+
       // If name fields are being updated, also update the associated record's name.
       if (
         updatePatientDto.first_name ||
@@ -345,7 +374,7 @@ export class PatientsService {
       count: string;
     }
     interface AvgAgeResult {
-      avgAge: string | null;
+      avgAge: number | null; // AVG returns a number when used with query builder
     }
 
     const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
@@ -355,7 +384,7 @@ export class PatientsService {
       number,
       CategoryStat[],
       DiagnosisStat[],
-      AvgAgeResult[],
+      AvgAgeResult | undefined,
     ] = await Promise.all([
       this.patientsRepository.count(),
       this.patientsRepository.count({ where: { updated_at: MoreThan(oneDayAgo) } }),
@@ -375,14 +404,15 @@ export class PatientsService {
           ORDER BY count DESC
           LIMIT 5;
       `),
-      this.patientsRepository.query<AvgAgeResult[]>(
-        `SELECT AVG(EXTRACT(YEAR FROM AGE(NOW(), date_of_birth))) as "avgAge" FROM patients WHERE deleted_at IS NULL`,
-      ),
+      // Use query builder to safely calculate the average of the 'age' column.
+      // The AVG function in SQL automatically ignores NULL values.
+      this.patientsRepository
+        .createQueryBuilder('patient')
+        .select('AVG(patient.age)', 'avgAge')
+        .getRawOne<AvgAgeResult>(),
     ]);
 
-    const averageAge = avgAgeResult[0]?.avgAge
-      ? parseFloat(avgAgeResult[0].avgAge).toFixed(1)
-      : null;
+    const averageAge = avgAgeResult?.avgAge ? Number(avgAgeResult.avgAge).toFixed(1) : null;
 
     return { totalPatients, recentlyUpdated, categories, topDiagnoses, averageAge };
   }
