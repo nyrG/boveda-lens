@@ -1,5 +1,6 @@
 import { ViewEntity, ViewColumn, DataSource } from 'typeorm';
 import { Patient } from '../entities/patient.entity';
+import { PatientCategory } from '../entities/patient-category.entity';
 import { Summary } from '../types/patient.types';
 
 /**
@@ -26,11 +27,15 @@ import { Summary } from '../types/patient.types';
       .addSelect('p.branch_of_service', 'branch_of_service')
       .addSelect('p.rank', 'rank')
       .addSelect('p.unit_assignment', 'unit_assignment')
-      .addSelect('p.category_id', 'category_id')
       .addSelect('p.summary', 'summary')
       .addSelect('p.created_at', 'created_at')
       .addSelect('p.updated_at', 'updated_at')
       .addSelect('p.deleted_at', 'deleted_at')
+      // Join with PatientCategory to get category details
+      .leftJoin(PatientCategory, 'c', 'c.id = p.category_id')
+      .addSelect('c.id', 'category_id')
+      .addSelect('c.name', 'category_name')
+      .addSelect('c.description', 'category_description')
       .from(Patient, 'p')
       .where('p.deleted_at IS NULL'), // Only include non-soft-deleted patients
 })
@@ -76,6 +81,12 @@ export class PatientView {
 
   @ViewColumn()
   category_id: number;
+
+  @ViewColumn()
+  category_name: string;
+
+  @ViewColumn()
+  category_description: string;
 
   @ViewColumn()
   summary: Summary | null;

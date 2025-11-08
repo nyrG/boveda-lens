@@ -18,6 +18,7 @@ import { CreateLabReportDto } from '../lab-report/create-lab-report.dto';
 import { CreateRadiologyReportDto } from '../radiology-report/create-radiology-report.dto';
 import { CreateSponsorDto } from '../sponsor/create-sponsor.dto';
 import { CreatePatientAddressDto } from '../patient-address/create-patient-address.dto';
+import { PatientCategoryDto } from '../patient-category/patient-category.dto';
 
 export class CreatePatientDto {
   @ApiProperty({ example: 'John', description: "Patient's first name" })
@@ -82,10 +83,14 @@ export class CreatePatientDto {
   @IsOptional()
   summary?: object;
 
-  @ApiPropertyOptional({ example: 1, description: 'ID of the patient category' })
-  @IsInt()
+  @ApiPropertyOptional({
+    description: 'The category of the patient. Can be an existing category or a new one.',
+    type: () => PatientCategoryDto,
+  })
   @IsOptional()
-  category_id?: number;
+  @ValidateNested()
+  @Type(() => PatientCategoryDto)
+  category?: PatientCategoryDto;
 
   @ApiPropertyOptional({
     type: () => [CreateConsultationDto],

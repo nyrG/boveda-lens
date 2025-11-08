@@ -62,7 +62,6 @@ const createRandomPatient = (
 
   // Assign the pre-fetched category
   patient.category = category;
-  patient.category_id = category.id;
 
   // Create and assign the new Record entity
   const record = new Record();
