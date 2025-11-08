@@ -17,13 +17,13 @@ import {
 } from '../../modules/domains/patients/entities/patient-address.entity';
 import { allCategories } from '../../modules/domains/extraction/extraction.constants'; // This is likely just an array of strings now
 
-const NUM_PATIENTS_TO_SEED = 50;
+const NUM_PATIENTS_TO_SEED = 20;
 
 /**
  * Creates a single, fully-populated random patient object.
  */
 const createRandomPatient = (
-  category: PatientCategory,
+  category: PatientCategory | null,
   diagnoses: string[],
   complaints: string[],
   findings: string[],
@@ -33,7 +33,7 @@ const createRandomPatient = (
 ): Patient => {
   const firstName = faker.person.firstName();
   const lastName = faker.person.lastName();
-  const sex = faker.helpers.arrayElement(['M', 'F'] as const);
+  const sex = faker.helpers.arrayElement([null, 'M', 'F'] as const);
   const patient = new Patient();
 
   // Populate direct properties of the Patient entity
@@ -69,78 +69,81 @@ const createRandomPatient = (
   record.record_type = recordType;
   patient.record = record;
 
-  // Create and assign the new Sponsor entity
-  const sponsor = new Sponsor();
-  sponsor.first_name = faker.person.firstName();
-  sponsor.last_name = lastName;
-  sponsor.sex = faker.helpers.arrayElement(['M', 'F'] as const);
-  sponsor.afpsn = faker.string.numeric(7);
-  sponsor.branch_of_service = 'N/A';
-  sponsor.unit_assignment = 'N/A';
-  patient.sponsors = [sponsor];
+  // Randomly decide whether to include optional relations
+  if (faker.datatype.boolean()) {
+    const sponsor = new Sponsor();
+    sponsor.first_name = faker.person.firstName();
+    sponsor.last_name = lastName;
+    sponsor.sex = faker.helpers.arrayElement(['M', 'F', null] as const);
+    sponsor.afpsn = faker.string.numeric(7);
+    sponsor.branch_of_service = 'N/A';
+    sponsor.unit_assignment = 'N/A';
+    patient.sponsor = sponsor;
+  }
 
-  // Create and assign new Consultation entities
-  patient.consultations = Array.from({ length: 3 }, () => {
-    const consultation = new Consultation();
-    consultation.consultation_date = faker.date.recent({ days: 365 }).toISOString().split('T')[0];
-    consultation.chief_complaint = faker.lorem.sentence();
-    consultation.diagnosis = faker.lorem.words(3);
-    consultation.notes = faker.lorem.paragraphs(2, '\n\n');
-    consultation.attending_physician = `Dr. ${faker.person.lastName()}`;
-    consultation.treatment_plan = `Prescribed ${faker.commerce.productName()}`;
-    consultation.height_cm = faker.number.int({ min: 150, max: 190 });
-    consultation.weight_kg = faker.number.int({ min: 50, max: 100 });
-    consultation.temperature_c = parseFloat(
-      faker.number.float({ min: 36.5, max: 37.5 }).toFixed(1),
-    );
-    return consultation;
-  });
+  if (faker.datatype.boolean()) {
+    patient.consultations = Array.from({ length: faker.number.int({ min: 1, max: 3 }) }, () => {
+      const consultation = new Consultation();
+      consultation.consultation_date = faker.date.recent({ days: 365 }).toISOString().split('T')[0];
+      consultation.chief_complaint = faker.lorem.sentence();
+      consultation.diagnosis = faker.lorem.words(3);
+      consultation.notes = faker.lorem.paragraphs(2, '\n\n');
+      consultation.attending_physician = `Dr. ${faker.person.lastName()}`;
+      consultation.treatment_plan = `Prescribed ${faker.commerce.productName()}`;
+      consultation.height_cm = faker.number.int({ min: 150, max: 190 });
+      consultation.weight_kg = faker.number.int({ min: 50, max: 100 });
+      consultation.temperature_c = parseFloat(
+        faker.number.float({ min: 36.5, max: 37.5 }).toFixed(1),
+      );
 
-  // Create and assign new RadiologyReport entities
-  patient.radiology_reports = [
-    Object.assign(new RadiologyReport(), {
-      examination: 'Chest X-Ray',
-      date_performed: faker.date.recent({ days: 30 }).toISOString().split('T')[0],
-      findings: `Lungs are clear. No signs of pneumonia or other acute disease.\nCardiomediastinal silhouette is within normal limits.`,
-      impression: `No acute cardiopulmonary process.`,
-      radiologist: `Dr. ${faker.person.lastName()}`,
-    }),
-    Object.assign(new RadiologyReport(), {
-      examination: 'Abdominal Ultrasound',
-      date_performed: faker.date.recent({ days: 90 }).toISOString().split('T')[0],
-      findings: `The liver, gallbladder, and spleen appear normal in size and echotexture.\nNo evidence of gallstones or biliary ductal dilatation.\nThe pancreas is unremarkable.`,
-      impression: `Normal ultrasound of the abdomen.`,
-      radiologist: `Dr. ${faker.person.lastName()}`,
-    }),
-  ];
+      // Manually calculate age_at_visit for seeding, as it's a computed property now
+      const consultationDate = new Date(consultation.consultation_date);
+      let ageAtVisit = consultationDate.getFullYear() - birthDate.getFullYear();
+      const m = consultationDate.getMonth() - birthDate.getMonth();
+      if (m < 0 || (m === 0 && consultationDate.getDate() < birthDate.getDate())) {
+        ageAtVisit--;
+      }
+      consultation.age_at_visit = ageAtVisit;
 
-  // Create and assign new LabReport entities
-  patient.lab_reports = [
-    Object.assign(new LabReport(), {
-      test_type: 'Complete Blood Count (CBC)',
-      date_performed: faker.date.recent({ days: 180 }).toISOString().split('T')[0],
-      results: [
-        {
-          test_name: 'White Blood Cell (WBC)',
-          value: faker.number.float({ min: 4.5, max: 11.0, fractionDigits: 1 }).toString(),
-          reference_range: '4.5-11.0',
-          unit: 'x10^9/L',
-        },
-        {
-          test_name: 'Red Blood Cell (RBC)',
-          value: faker.number.float({ min: 4.2, max: 5.9, fractionDigits: 2 }).toString(),
-          reference_range: '4.2-5.9',
-          unit: 'x10^12/L',
-        },
-        {
-          test_name: 'Hemoglobin (Hgb)',
-          value: faker.number.int({ min: 120, max: 175 }).toString(),
-          reference_range: '120-175',
-          unit: 'g/L',
-        },
-      ],
-    }),
-  ];
+      return consultation;
+    });
+  }
+
+  if (faker.datatype.boolean()) {
+    patient.radiology_reports = [
+      Object.assign(new RadiologyReport(), {
+        examination: 'Chest X-Ray',
+        date_performed: faker.date.recent({ days: 30 }).toISOString().split('T')[0],
+        findings: `Lungs are clear. No signs of pneumonia or other acute disease.\nCardiomediastinal silhouette is within normal limits.`,
+        impression: `No acute cardiopulmonary process.`,
+        radiologist: `Dr. ${faker.person.lastName()}`,
+      }),
+    ];
+  }
+
+  if (faker.datatype.boolean()) {
+    patient.lab_reports = [
+      Object.assign(new LabReport(), {
+        test_type: 'Complete Blood Count (CBC)',
+        date_performed: faker.date.recent({ days: 180 }).toISOString().split('T')[0],
+        results: [
+          {
+            test_name: 'White Blood Cell (WBC)',
+            value: faker.number.float({ min: 4.5, max: 11.0, fractionDigits: 1 }).toString(),
+            reference_range: '4.5-11.0',
+            unit: 'x10^9/L',
+          },
+          {
+            test_name: 'Red Blood Cell (RBC)',
+            value: faker.number.float({ min: 4.2, max: 5.9, fractionDigits: 2 }).toString(),
+            reference_range: '4.2-5.9',
+            unit: 'x10^12/L',
+          },
+        ],
+      }),
+    ];
+  }
+
   // Create and assign the summary object
   patient.summary = {
     diagnoses: [faker.helpers.arrayElement(diagnoses)],
@@ -152,18 +155,20 @@ const createRandomPatient = (
     medications_prescribed: faker.helpers.arrayElement(medications),
     allergies: faker.helpers.arrayElement(allergies),
   };
-  // Create and assign new PatientAddress entities
-  patient.addresses = Array.from({ length: faker.number.int({ min: 1, max: 2 }) }, () => {
-    const address = new PatientAddress();
-    address.houseNoStreet = faker.location.streetAddress();
-    address.barangay = faker.location.county();
-    address.cityMunicipality = faker.location.city();
-    address.province = faker.location.state();
-    address.zipCode = faker.location.zipCode();
-    address.country = faker.location.country();
-    address.addressType = faker.helpers.arrayElement(Object.values(AddressType));
-    return address;
-  });
+
+  if (faker.datatype.boolean()) {
+    patient.addresses = Array.from({ length: faker.number.int({ min: 1, max: 2 }) }, () => {
+      const address = new PatientAddress();
+      address.houseNoStreet = faker.location.streetAddress();
+      address.barangay = faker.location.county();
+      address.cityMunicipality = faker.location.city();
+      address.province = faker.location.state();
+      address.zipCode = faker.location.zipCode();
+      address.country = faker.location.country();
+      address.addressType = faker.helpers.arrayElement(Object.values(AddressType));
+      return address;
+    });
+  }
 
   return patient;
 };
@@ -240,7 +245,7 @@ const seedPatients = async (dataSource: DataSource) => {
 
   const patients: Patient[] = [];
   for (let i = 0; i < NUM_PATIENTS_TO_SEED; i++) {
-    const randomCategory = faker.helpers.arrayElement(savedCategories);
+    const randomCategory = faker.helpers.arrayElement([...savedCategories, null]);
     patients.push(
       createRandomPatient(
         randomCategory,

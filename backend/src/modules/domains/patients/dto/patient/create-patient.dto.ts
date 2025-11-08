@@ -51,9 +51,15 @@ export class CreatePatientDto {
   @IsOptional()
   documented_age?: number;
 
-  @ApiProperty({ enum: ['M', 'F'], example: 'M', description: 'Sex of the patient' })
+  @ApiPropertyOptional({
+    enum: ['M', 'F'],
+    example: 'M',
+    description: 'Sex of the patient',
+    nullable: true,
+  })
   @IsEnum(['M', 'F'])
-  sex: 'M' | 'F';
+  @IsOptional()
+  sex?: 'M' | 'F' | null;
 
   @ApiPropertyOptional({
     example: '1234567',
@@ -123,14 +129,13 @@ export class CreatePatientDto {
   radiology_reports?: CreateRadiologyReportDto[];
 
   @ApiPropertyOptional({
-    type: () => [CreateSponsorDto],
-    description: 'List of sponsors for the patient',
+    type: () => CreateSponsorDto,
+    description: 'The sponsor for the patient',
   })
   @IsOptional()
-  @IsArray()
-  @ValidateNested({ each: true })
+  @ValidateNested()
   @Type(() => CreateSponsorDto)
-  sponsors?: CreateSponsorDto[];
+  sponsor?: CreateSponsorDto;
 
   @ApiPropertyOptional({
     type: () => [CreatePatientAddressDto],

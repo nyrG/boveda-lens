@@ -1,11 +1,11 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsString, IsNotEmpty, IsOptional, IsEnum, MaxLength } from 'class-validator';
+import { ApiPropertyOptional } from '@nestjs/swagger';
+import { IsString, IsOptional, IsEnum, MaxLength } from 'class-validator';
 
 export class CreateSponsorDto {
-  @ApiProperty({ example: 'John', description: "Sponsor's first name" })
+  @ApiPropertyOptional({ example: 'John', description: "Sponsor's first name" })
   @IsString()
-  @IsNotEmpty()
-  first_name: string;
+  @IsOptional()
+  first_name?: string;
 
   @ApiPropertyOptional({ example: 'M', description: "Sponsor's middle initial", maxLength: 1 })
   @IsString()
@@ -13,19 +13,25 @@ export class CreateSponsorDto {
   @MaxLength(1)
   middle_initial?: string;
 
-  @ApiProperty({ example: 'Doe', description: "Sponsor's last name" })
+  @ApiPropertyOptional({ example: 'Doe', description: "Sponsor's last name" })
   @IsString()
-  @IsNotEmpty()
-  last_name: string;
+  @IsOptional()
+  last_name?: string;
 
-  @ApiProperty({ example: 'Spouse', description: 'Relationship to the patient' })
+  @ApiPropertyOptional({ example: 'SGT', description: 'Military rank of the sponsor' })
   @IsString()
-  @IsNotEmpty()
-  relationship: string;
+  @IsOptional()
+  rank?: string;
 
-  @ApiProperty({ enum: ['M', 'F'], example: 'M', description: 'Sex of the sponsor' })
+  @ApiPropertyOptional({
+    enum: ['M', 'F'],
+    example: 'M',
+    description: 'Sex of the sponsor',
+    nullable: true,
+  })
   @IsEnum(['M', 'F'])
-  sex: 'M' | 'F';
+  @IsOptional()
+  sex?: 'M' | 'F' | null;
 
   @ApiPropertyOptional({
     example: '7654321',

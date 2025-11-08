@@ -1,6 +1,7 @@
 import { Column, CreateDateColumn, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 
 export enum AddressType {
+  HOME = 'HOME',
   RESIDENCE = 'RESIDENCE',
   MAILING = 'MAILING',
   EMERGENCY = 'EMERGENCY',
@@ -27,23 +28,23 @@ export abstract class Address {
   @Column({ name: 'deactivated_at', type: 'timestamp', nullable: true })
   deactivatedAt: Date | null;
 
-  @Column({ name: 'house_no_street' })
-  houseNoStreet: string;
+  @Column({ type: 'varchar', name: 'house_no_street', nullable: true })
+  houseNoStreet: string | null;
 
-  @Column()
-  barangay: string;
+  @Column({ type: 'varchar', nullable: true })
+  barangay: string | null;
 
-  @Column({ name: 'city_municipality' })
-  cityMunicipality: string;
+  @Column({ type: 'varchar', name: 'city_municipality', nullable: true })
+  cityMunicipality: string | null;
 
-  @Column()
-  province: string;
+  @Column({ type: 'varchar', nullable: true })
+  province: string | null;
 
-  @Column({ name: 'zip_code' })
-  zipCode: string;
+  @Column({ type: 'varchar', name: 'zip_code', nullable: true })
+  zipCode: string | null;
 
-  @Column()
-  country: string;
+  @Column({ type: 'varchar', nullable: true })
+  country: string | null;
 
   @CreateDateColumn({
     name: 'created_at',

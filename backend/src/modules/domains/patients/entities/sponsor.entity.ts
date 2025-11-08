@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 import { Patient } from './patient.entity';
 
 @Entity('sponsors')
@@ -6,20 +6,16 @@ export class Sponsor {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => Patient, (patient) => patient.sponsors, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'patient_id' })
-  patient: Patient;
+  @OneToMany(() => Patient, (patient) => patient.sponsor)
+  patients: Patient[];
 
-  @Column()
-  patient_id: number;
-
-  @Column({ nullable: true })
+  @Column({ nullable: true }) // Already nullable, which is good
   first_name: string;
 
   @Column({ length: 1, nullable: true })
   middle_initial: string;
 
-  @Column({ nullable: true })
+  @Column({ nullable: true }) // Already nullable
   last_name: string;
 
   @Column({ nullable: true })
