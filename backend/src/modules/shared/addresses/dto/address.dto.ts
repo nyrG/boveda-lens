@@ -7,32 +7,32 @@ export class AddressDto {
   addressType: AddressType;
 
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   @MaxLength(255)
-  houseNoStreet: string;
+  houseNoStreet?: string;
 
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   @MaxLength(100)
-  barangay: string;
+  barangay?: string;
 
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   @MaxLength(100)
-  cityMunicipality: string;
+  cityMunicipality?: string;
 
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   @MaxLength(100)
-  province: string;
+  province?: string;
 
   @IsString()
   @IsOptional()
   @MaxLength(20)
-  zipCode: string;
+  zipCode?: string;
 
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   @MaxLength(100)
-  country: string;
+  country?: string;
 }

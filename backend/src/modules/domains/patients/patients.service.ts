@@ -9,13 +9,10 @@ import { RecordType } from '../../shared/records/entities/record-type.entity';
 import { Consultation } from './entities/consultation.entity';
 import { CreateConsultationDto } from './dto/consultation/create-consultation.dto';
 import { LabReport } from './entities/lab-report.entity';
-import { CreateLabReportDto } from './dto/lab-report/create-lab-report.dto';
 import { RadiologyReport } from './entities/radiology-report.entity';
-import { CreateRadiologyReportDto } from './dto/radiology-report/create-radiology-report.dto';
 import { PatientAddress } from './entities/patient-address.entity';
 import { Sponsor } from './entities/sponsor.entity';
 import { FindAllPatientsDto } from './dto/patient/find-all-patients.dto';
-import { CreateSponsorDto } from './dto/sponsor/create-sponsor.dto';
 import { PatientAddressDto } from './dto/patient-address/patient-address.dto';
 import { PatientCategory } from './entities/patient-category.entity';
 
@@ -45,6 +42,21 @@ export class PatientsService {
     //Data Source for transactions
     private dataSource: DataSource,
   ) {}
+
+  /**
+   * Calculates the age based on a birth date and a reference "now" date.
+   * @param birthDate The date of birth.
+   * @param nowDate The date to calculate the age against.
+   * @returns The calculated age in years.
+   */
+  private calculateAge(birthDate: Date, nowDate: Date): number {
+    let age = nowDate.getFullYear() - birthDate.getFullYear();
+    const monthDiff = nowDate.getMonth() - birthDate.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && nowDate.getDate() < birthDate.getDate())) {
+      age--;
+    }
+    return age;
+  }
 
   async create(createPatientDto: CreatePatientDto): Promise<Patient> {
     if (!createPatientDto.first_name || !createPatientDto.last_name) {
@@ -104,6 +116,27 @@ export class PatientsService {
         .join(' ');
 
       // Step 3: Create the patient entity with its nested relations.
+      // First, prepare related entities that require special logic, like age calculation.
+      let consultationEntities: Consultation[] | undefined;
+      if (createPatientDto.consultations && createPatientDto.consultations.length > 0) {
+        consultationEntities = createPatientDto.consultations.map(
+          (consultationDto: CreateConsultationDto) => {
+            const consultationEntity = transactionalEntityManager.create(
+              Consultation,
+              consultationDto,
+            );
+
+            // Calculate age_at_visit if consultation_date and patient's date_of_birth are available
+            if (consultationEntity.consultation_date && createPatientDto.date_of_birth) {
+              const consultationDate = new Date(consultationEntity.consultation_date);
+              const birthDate = new Date(createPatientDto.date_of_birth);
+              consultationEntity.age_at_visit = this.calculateAge(birthDate, consultationDate);
+            }
+            return consultationEntity;
+          },
+        );
+      }
+
       // TypeORM will handle the insertion order for all cascaded relations.
       const patientEntity = transactionalEntityManager.create(Patient, {
         ...createPatientDto,
@@ -114,6 +147,7 @@ export class PatientsService {
           record_type_id: recordType.id,
         },
         // Addresses are created directly on the patient due to cascade settings
+        consultations: consultationEntities, // Assign pre-processed consultations
         addresses: createPatientDto.addresses || [],
       });
 
@@ -135,52 +169,10 @@ export class PatientsService {
 
       const savedPatient = await transactionalEntityManager.save(patientEntity);
 
-      // Step 4: Iterate through related patient entities
-      if (createPatientDto.consultations && createPatientDto.consultations.length > 0) {
-        const consultationEntities = createPatientDto.consultations.map(
-          (consultationDto: CreateConsultationDto) => {
-            return transactionalEntityManager.create(Consultation, {
-              ...consultationDto,
-              patient: savedPatient,
-            });
-          },
-        );
-        await transactionalEntityManager.save(consultationEntities);
-      }
-
-      if (createPatientDto.lab_reports && createPatientDto.lab_reports.length > 0) {
-        const labReportEntities = createPatientDto.lab_reports.map(
-          (labReportDto: CreateLabReportDto) => {
-            return transactionalEntityManager.create(LabReport, {
-              ...labReportDto,
-              patient: savedPatient,
-            });
-          },
-        );
-        await transactionalEntityManager.save(labReportEntities);
-      }
-
-      if (createPatientDto.radiology_reports && createPatientDto.radiology_reports.length > 0) {
-        const radiologyReportEntities = createPatientDto.radiology_reports.map(
-          (radiologyReportDto: CreateRadiologyReportDto) => {
-            return transactionalEntityManager.create(RadiologyReport, {
-              ...radiologyReportDto,
-              patient: savedPatient,
-            });
-          },
-        );
-        await transactionalEntityManager.save(radiologyReportEntities);
-      }
-
-      if (createPatientDto.sponsors && createPatientDto.sponsors.length > 0) {
-        const sponsorEntities = createPatientDto.sponsors.map((sponsorDto: CreateSponsorDto) => {
-          return transactionalEntityManager.create(Sponsor, {
-            ...sponsorDto,
-            patient: savedPatient,
-          });
-        });
-        await transactionalEntityManager.save(sponsorEntities);
-      }
+      // Note: The explicit saving of related entities like consultations, lab_reports, etc.,
+      // is no longer needed here. TypeORM's cascade on the patientEntity save will handle it.
+      // We just need to ensure they are part of the object passed to `create`.
+      // The spread `...createPatientDto` already includes lab_reports and radiology_reports.
 
       // Return the patient, which now has its ID and relations populated
       return savedPatient;
@@ -197,7 +189,7 @@ export class PatientsService {
         'consultations',
         'lab_reports',
         'radiology_reports',
-        'sponsors',
+        'sponsor',
         'category',
       ],
     });
