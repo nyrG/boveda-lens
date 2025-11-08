@@ -1,29 +1,29 @@
+import { PatientAddressDto } from '../dto/patient-address/patient-address.dto';
+
 /**
- * Represents the structure of the `patient_info` JSONB column.
- * Used by both the entity and DTOs.
+ * Represents the core patient data structure, mirroring the Patient entity.
+ * This is primarily used as the shape for data extracted by the AI service.
  */
 export interface PatientInfo {
+  // Personal Information
+  first_name?: string;
+  middle_initial?: string;
+  last_name?: string;
   patient_record_number?: string;
-  full_name?: {
-    first_name?: string;
-    middle_initial?: string;
-    last_name?: string;
-  };
   date_of_birth?: string;
   age?: number | null; // Age listed during the patient's visit on the record
   sex?: 'M' | 'F' | null;
-  address?: {
-    house_no_street?: string;
-    barangay?: string;
-    city_municipality?: string;
-    province?: string;
-    zip_code?: string;
-  };
+
+  // Service-related Information
   rank?: string;
   afpsn?: string;
   branch_of_service?: string;
   unit_assignment?: string;
   category?: string;
+
+  // Address Information
+  // The AI might extract multiple addresses, so we expect an array.
+  addresses?: PatientAddressDto[];
 }
 
 /**

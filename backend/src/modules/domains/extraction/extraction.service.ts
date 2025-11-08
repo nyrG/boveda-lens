@@ -32,7 +32,7 @@ export class ExtractionService {
       }
     };
 
-    formatMiddleInitial(cleanedData.patient_info?.full_name);
+    formatMiddleInitial(cleanedData.patient_info);
     formatMiddleInitial(cleanedData.sponsor_info?.sponsor_name);
 
     const standardizeSex = (infoObject: { sex?: string | null } | undefined) => {
