@@ -17,6 +17,7 @@ import { Sponsor } from './entities/sponsor.entity';
 import { FindAllPatientsDto } from './dto/patient/find-all-patients.dto';
 import { CreateSponsorDto } from './dto/sponsor/create-sponsor.dto';
 import { PatientAddressDto } from './dto/patient-address/patient-address.dto';
+import { PatientCategory } from './entities/patient-category.entity';
 
 @Injectable()
 export class PatientsService {
@@ -39,6 +40,8 @@ export class PatientsService {
     private sponsorRepository: Repository<Sponsor>,
     @InjectRepository(PatientAddress)
     private patientAddressRepository: Repository<PatientAddress>,
+    @InjectRepository(PatientCategory)
+    private patientCategoryRepository: Repository<PatientCategory>,
     //Data Source for transactions
     private dataSource: DataSource,
   ) {}
@@ -65,6 +68,32 @@ export class PatientsService {
         recordType = await transactionalEntityManager.save(recordType);
       }
 
+      // Step 2: Handle the patient category
+      let categoryEntity: PatientCategory | undefined;
+      if (createPatientDto.category) {
+        const { id, name } = createPatientDto.category;
+        if (id) {
+          // If an ID is provided, try to find the existing category
+          const foundCategory = await transactionalEntityManager.findOneBy(PatientCategory, { id });
+          if (foundCategory) {
+            categoryEntity = foundCategory;
+          }
+        } else if (name) {
+          // If no ID but a name is provided, find or create the category by name
+          const foundCategoryByName = await transactionalEntityManager.findOne(PatientCategory, {
+            where: { name },
+          });
+          if (foundCategoryByName) {
+            categoryEntity = foundCategoryByName;
+          } else {
+            categoryEntity = transactionalEntityManager.create(
+              PatientCategory,
+              createPatientDto.category,
+            );
+          }
+        }
+      }
+
       // Step 2: Build the full entity graph
       const fullName = [
         createPatientDto.first_name,
@@ -74,10 +103,11 @@ export class PatientsService {
         .filter(Boolean)
         .join(' ');
 
-      // Step 2: Create the patient entity with its nested relations.
+      // Step 3: Create the patient entity with its nested relations.
       // TypeORM will handle the insertion order for all cascaded relations.
       const patientEntity = transactionalEntityManager.create(Patient, {
         ...createPatientDto,
+        category: categoryEntity, // Assign the resolved category entity
         record: {
           name: fullName,
           record_type: recordType,
@@ -312,6 +342,47 @@ export class PatientsService {
       }
       // --- End Handle Addresses ---
 
+      // --- Handle Category ---
+      // The DTO can provide a category object, null to remove it, or undefined to leave it unchanged.
+      if (updatePatientDto.category !== undefined) {
+        if (updatePatientDto.category === null) {
+          // If null is explicitly passed, disassociate the category.
+          patient.category = null;
+        } else if (updatePatientDto.category) {
+          // If a category object is provided, find or create it.
+          const { id, name } = updatePatientDto.category;
+          let categoryEntity: PatientCategory | null = null;
+
+          if (id) {
+            const foundCategory = await transactionalEntityManager.findOneBy(PatientCategory, {
+              id,
+            });
+            if (foundCategory) {
+              categoryEntity = foundCategory;
+            }
+            // If an ID is provided but not found, we could throw an error or ignore.
+            // For now, we'll just not update the category if the ID is invalid.
+          } else if (name) {
+            const foundCategoryByName = await transactionalEntityManager.findOne(PatientCategory, {
+              where: { name },
+            });
+            if (foundCategoryByName) {
+              categoryEntity = foundCategoryByName;
+            } else {
+              // Create a new category if it doesn't exist by name.
+              categoryEntity = transactionalEntityManager.create(
+                PatientCategory,
+                updatePatientDto.category,
+              );
+            }
+          }
+
+          if (categoryEntity) {
+            patient.category = categoryEntity;
+          }
+        }
+      }
+
       // Save the patient. TypeORM will handle inserts, updates, and removals
       // for the addresses collection due to the cascade settings.
       patient = await transactionalEntityManager.save(Patient, patient);
@@ -319,7 +390,7 @@ export class PatientsService {
       // Re-fetch the patient with updated addresses to ensure the returned object is complete and not null
       const updatedPatient = await transactionalEntityManager.findOne(Patient, {
         where: { id: patient.id },
-        relations: ['record', 'addresses'],
+        relations: ['record', 'addresses', 'category'],
       });
       if (!updatedPatient) {
         throw new NotFoundException(`Patient with ID ${id} could not be refetched after update.`);

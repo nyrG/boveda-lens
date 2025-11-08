@@ -10,40 +10,11 @@ import { AppDataSource } from './data-source';
  * @param dataSource The TypeORM DataSource instance.
  */
 const clearDatabase = async (dataSource: DataSource): Promise<void> => {
-  // Separate entities into tables and views
-  const entities = dataSource.entityMetadatas;
-  const tableNames: string[] = [];
-  const viewNames: string[] = [];
-
-  entities.forEach((entity) => {
-    if (entity.tableType === 'view') {
-      viewNames.push(`"${entity.tableName}"`);
-    } else {
-      tableNames.push(`"${entity.tableName}"`);
-    }
-  });
-
-  if (tableNames.length === 0 && viewNames.length === 0) {
-    console.log('No tables or views found to clear.');
-    return;
-  }
-
-  // Temporarily disable foreign key checks to allow dropping in any order.
-  await dataSource.query(`SET session_replication_role = 'replica';`);
-
-  if (viewNames.length > 0) {
-    console.log(`🗑️  Preparing to DROP the following views: ${viewNames.join(', ')}`);
-    await dataSource.query(`DROP VIEW IF EXISTS ${viewNames.join(', ')} CASCADE;`);
-  }
-  if (tableNames.length > 0) {
-    console.log(`🗑️  Preparing to DROP the following tables: ${tableNames.join(', ')}`);
-    await dataSource.query(`DROP TABLE IF EXISTS ${tableNames.join(', ')} CASCADE;`);
-  }
-
-  // Re-enable foreign key checks.
-  await dataSource.query(`SET session_replication_role = 'origin';`);
-
-  console.log('✅  All tables and views have been successfully cleared.');
+  console.log('🗑️  Dropping database schema...');
+  // The `true` argument in synchronize will drop the schema before creating it.
+  // This is the safest and most idiomatic way to clear the database for development.
+  await dataSource.synchronize(true);
+  console.log('✅  Database has been successfully cleared and synchronized.');
 };
 
 void (async () => {

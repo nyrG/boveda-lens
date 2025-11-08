@@ -68,10 +68,7 @@ export class Patient {
     eager: true, // Automatically load the category with the patient
   })
   @JoinColumn({ name: 'category_id' })
-  category: PatientCategory;
-
-  @Column({ nullable: true })
-  category_id: number;
+  category: PatientCategory | null;
 
   @OneToOne(() => Record, (record) => record.patient, {
     cascade: ['insert', 'update'],

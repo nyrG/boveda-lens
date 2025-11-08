@@ -16,6 +16,7 @@
     "seed": "ts-node src/database/seeds/seed.ts",
     "clear:db": "ts-node src/database/clear-db.ts",
     "reset:db": "npm run clear:db && npm run seed",
+    "db:fresh": "npm run clear:db && npm run migration:run",
     "typeorm": "typeorm-ts-node-commonjs -d ./src/database/data-source.ts",
     "migration:create": "typeorm-ts-node-commonjs migration:create",
     "migration:generate": "npm run typeorm -- migration:generate",
