@@ -1,1 +1,80 @@
-<p>patient-radiology-form works!</p>
+<div class="tab-content-enter">
+  <div class="space-y-6" formArrayName="radiology_reports">
+    <!-- Header with Add Button -->
+    <div class="flex items-center justify-between">
+      <h3 class="text-lg font-semibold text-slate-800">Radiology Reports</h3>
+      <button
+        type="button"
+        (click)="addReport.emit()"
+        class="inline-flex items-center gap-2 rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50"
+      >
+        <i class="fa-solid fa-plus"></i>
+        <span>Add Report</span>
+      </button>
+    </div>
+
+    @for (reportGroup of radiologyReports.controls; track $index) {
+      <div class="rounded-lg border border-slate-200 bg-white shadow-sm" [formGroupName]="$index">
+        <!-- Card Header -->
+        <div class="flex items-center justify-between border-b border-slate-200 bg-slate-50 p-4">
+          <div class="flex items-center gap-2">
+            <i class="fa-solid fa-calendar-alt text-slate-400"></i>
+            <label for="radiology-date-{{ $index }}" class="form-label !m-0">Date Performed</label>
+            <input
+              type="date"
+              id="radiology-date-{{ $index }}"
+              class="form-input !mt-0 w-40"
+              formControlName="date_performed"
+            />
+          </div>
+          <button
+            type="button"
+            (click)="removeReport.emit($index)"
+            class="text-slate-400 hover:text-red-500"
+            title="Remove this report"
+          >
+            <i class="fa-solid fa-trash-can"></i>
+          </button>
+        </div>
+
+        <!-- Card Body -->
+        <div class="p-6 space-y-6">
+          <div>
+            <label for="examination-{{ $index }}" class="form-label">Examination</label
+            ><input
+              type="text"
+              id="examination-{{ $index }}"
+              class="form-input"
+              formControlName="examination"
+              placeholder="e.g., Chest X-Ray PA View"
+            />
+          </div>
+          <div>
+            <label for="findings-{{ $index }}" class="form-label">Findings</label
+            ><textarea
+              id="findings-{{ $index }}"
+              class="form-input"
+              rows="5"
+              formControlName="findings"
+            ></textarea>
+          </div>
+          <div>
+            <label for="impression-{{ $index }}" class="form-label">Impression</label
+            ><textarea
+              id="impression-{{ $index }}"
+              class="form-input"
+              rows="3"
+              formControlName="impression"
+            ></textarea>
+          </div>
+        </div>
+      </div>
+    } @empty {
+      <div class="text-center py-12 text-slate-400 rounded-lg border-2 border-dashed">
+        <i class="fa-solid fa-radiation fa-3x mb-3"></i>
+        <p class="font-medium">No Radiology Reports</p>
+        <p class="text-sm">Click "Add Report" to create the first one.</p>
+      </div>
+    }
+  </div>
+</div>

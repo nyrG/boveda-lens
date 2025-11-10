@@ -1,11 +1,17 @@
-import { Component } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+import { ControlContainer, FormGroupDirective } from '@angular/forms';
 
 @Component({
   selector: 'app-patient-sponsor-form',
-  imports: [],
+  standalone: true,
+  imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './patient-sponsor-form.html',
-  styleUrl: './patient-sponsor-form.css'
+  styleUrl: './patient-sponsor-form.css',
+  viewProviders: [{ provide: ControlContainer, useExisting: FormGroupDirective }],
 })
 export class PatientSponsorForm {
-
+  @Input({ required: true }) showForm!: boolean;
+  @Output() register = new EventEmitter<void>();
 }

@@ -1,1 +1,208 @@
-<p>patient-info-form works!</p>
+<!-- Patient Info Form Card -->
+<div class="rounded-lg border border-slate-200 bg-white shadow-sm tab-content-enter">
+  <div class="p-6">
+    <h3 class="text-lg font-semibold text-slate-800">Patient Information</h3>
+    <p class="mt-1 text-sm text-slate-500">Update the patient's demographic and contact details.</p>
+
+    <!-- Personal Information -->
+    <div class="mt-6 border-t border-slate-200 pt-6">
+      <h4 class="text-base font-semibold text-slate-700">Personal Information</h4>
+      <div class="mt-4 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
+        <div class="sm:col-span-6">
+          <div class="grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
+            <div class="sm:col-span-2">
+              <label for="first-name" class="form-label">First name</label>
+              <input
+                type="text"
+                id="first-name"
+                formControlName="first_name"
+                class="form-input"
+                [ngClass]="{
+                  'form-input-error':
+                    controlContainer.control?.get('first_name')?.invalid &&
+                    controlContainer.control?.get('first_name')?.touched,
+                }"
+              />
+              @if (
+                controlContainer.control?.get('first_name')?.hasError('required') &&
+                controlContainer.control?.get('first_name')?.touched
+              ) {
+                <p class="form-error-text">First name is required.</p>
+              }
+            </div>
+            <div class="sm:col-span-2">
+              <label for="last-name" class="form-label">Last name</label>
+              <input
+                type="text"
+                id="last-name"
+                formControlName="last_name"
+                class="form-input"
+                [ngClass]="{
+                  'form-input-error':
+                    controlContainer.control?.get('last_name')?.invalid &&
+                    controlContainer.control?.get('last_name')?.touched,
+                }"
+              />
+              @if (
+                controlContainer.control?.get('last_name')?.hasError('required') &&
+                controlContainer.control?.get('last_name')?.touched
+              ) {
+                <p class="form-error-text">Last name is required.</p>
+              }
+            </div>
+            <div class="sm:col-span-2">
+              <label for="middle-initial" class="form-label">Middle Initial</label>
+              <input
+                type="text"
+                id="middle-initial"
+                formControlName="middle_initial"
+                class="form-input"
+              />
+            </div>
+          </div>
+        </div>
+        <div class="sm:col-span-2">
+          <label for="dob" class="form-label">Date of Birth</label>
+          <input
+            type="date"
+            id="dob"
+            formControlName="date_of_birth"
+            class="form-input"
+            [ngClass]="{
+              'form-input-error':
+                controlContainer.control?.get('date_of_birth')?.invalid &&
+                controlContainer.control?.get('date_of_birth')?.touched,
+            }"
+          />
+          @if (
+            controlContainer.control?.get('date_of_birth')?.hasError('required') &&
+            controlContainer.control?.get('date_of_birth')?.touched
+          ) {
+            <p class="form-error-text">Date of birth is required.</p>
+          }
+        </div>
+        <div class="sm:col-span-2">
+          <label for="age" class="form-label">Documented Age</label>
+          <input type="number" id="age" class="form-input" formControlName="age" />
+        </div>
+        <div class="sm:col-span-2">
+          <label for="sex" class="form-label">Sex</label>
+          <select
+            id="sex"
+            formControlName="sex"
+            class="form-input"
+            [ngClass]="{
+              'form-input-error':
+                controlContainer.control?.get('sex')?.invalid &&
+                controlContainer.control?.get('sex')?.touched,
+            }"
+          >
+            <option value="M">Male</option>
+            <option value="F">Female</option>
+          </select>
+          @if (
+            controlContainer.control?.get('sex')?.hasError('required') &&
+            controlContainer.control?.get('sex')?.touched
+          ) {
+            <p class="form-error-text">Sex is required.</p>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- Record Details -->
+    <div class="mt-8 border-t border-slate-200 pt-6">
+      <h4 class="text-base font-semibold text-slate-700">Record Details</h4>
+      <div class="mt-4 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-2">
+        <div>
+          <label for="record-number" class="form-label">Record Number</label>
+          <input
+            type="text"
+            id="record-number"
+            formControlName="patient_record_number"
+            class="form-input"
+          />
+        </div>
+        <div>
+          <label for="category" class="form-label">Category</label>
+          <input type="text" id="category" class="form-input" formControlName="category_id" />
+        </div>
+      </div>
+    </div>
+
+    <!-- Service Information -->
+    <div class="mt-8 border-t border-slate-200 pt-6">
+      <h4 class="text-base font-semibold text-slate-700">Service Information</h4>
+      <p class="mt-1 text-sm text-slate-500">
+        Fill this section out only if the patient is the service member.
+      </p>
+      <div class="mt-4 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-2">
+        <div>
+          <label for="patient-rank" class="form-label">Rank</label
+          ><input type="text" id="patient-rank" class="form-input" formControlName="rank" />
+        </div>
+        <div>
+          <label for="patient-afpsn" class="form-label">AFPSN</label
+          ><input type="text" id="patient-afpsn" class="form-input" formControlName="afpsn" />
+        </div>
+        <div>
+          <label for="patient-branch" class="form-label">Branch of Service</label
+          ><input
+            type="text"
+            id="patient-branch"
+            class="form-input"
+            formControlName="branch_of_service"
+          />
+        </div>
+        <div>
+          <label for="patient-unit" class="form-label">Unit Assignment</label
+          ><input
+            type="text"
+            id="patient-unit"
+            class="form-input"
+            formControlName="unit_assignment"
+          />
+        </div>
+      </div>
+    </div>
+
+    <!-- Address -->
+    <div class="mt-8 border-t border-slate-200 pt-6">
+      <h4 class="text-base font-semibold text-slate-700">Address</h4>
+      <div
+        class="mt-4 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6"
+        formArrayName="addresses"
+        *ngIf="addresses.controls.length > 0"
+        [formGroupName]="0"
+      >
+        <div class="sm:col-span-2">
+          <label for="address-type" class="form-label">Address Type</label>
+          <select id="address-type" class="form-input" formControlName="addressType">
+            <option value="RESIDENCE">Residence</option>
+            <option value="MAILING">Mailing</option>
+            <option value="EMERGENCY">Emergency</option>
+          </select>
+        </div>
+
+        <div class="col-span-full sm:col-span-4">
+          <div class="col-span-full">
+            <label for="address" class="form-label">Street address</label>
+            <input type="text" id="address" class="form-input" formControlName="house_no_street" />
+          </div>
+          <div class="sm:col-span-2">
+            <label for="city" class="form-label">City / Municipality</label>
+            <input type="text" id="city" class="form-input" formControlName="city_municipality" />
+          </div>
+          <div class="sm:col-span-2">
+            <label for="province" class="form-label">Province</label>
+            <input type="text" id="province" class="form-input" formControlName="province" />
+          </div>
+          <div class="sm:col-span-2">
+            <label for="zip" class="form-label">ZIP / Postal code</label>
+            <input type="text" id="zip" class="form-input" formControlName="zip_code" />
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
