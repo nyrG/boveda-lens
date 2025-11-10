@@ -13,7 +13,6 @@ import { RadiologyReport } from './entities/radiology-report.entity';
 import { PatientAddress } from './entities/patient-address.entity';
 import { Sponsor } from './entities/sponsor.entity';
 import { FindAllPatientsDto } from './dto/patient/find-all-patients.dto';
-import { PatientAddressDto } from './dto/patient-address/patient-address.dto';
 import { PatientCategory } from './entities/patient-category.entity';
 
 @Injectable()
@@ -252,17 +251,24 @@ export class PatientsService {
   async update(id: number, updatePatientDto: UpdatePatientDto): Promise<Patient> {
     return this.dataSource.transaction(async (transactionalEntityManager) => {
       // Use the transactional entity manager to find the patient
-      let patient = await transactionalEntityManager.findOne(Patient, {
+      const patient = await transactionalEntityManager.findOne(Patient, {
         where: { id },
-        relations: ['record', 'addresses'], // Load existing addresses
+        relations: [
+          'record',
+          'addresses',
+          'consultations',
+          'lab_reports',
+          'radiology_reports',
+          'sponsor',
+          'category',
+        ],
       });
 
       if (!patient) {
         throw new NotFoundException(`Patient with ID ${id} not found`);
       }
 
-      // Merge the DTO into the patient entity. This applies the partial update.
-      transactionalEntityManager.merge(Patient, patient, updatePatientDto);
+      // --- Prepare related entities that require special logic before merging ---
 
       // If age is not provided in the update and is currently null,
       // calculate it from the date of birth.
@@ -277,6 +283,26 @@ export class PatientsService {
         patient.age = calculatedAge;
       }
 
+      // Process consultations to calculate age_at_visit
+      let consultationEntities: Consultation[] | undefined;
+      if (updatePatientDto.consultations) {
+        consultationEntities = updatePatientDto.consultations.map((dto) => {
+          const entity = transactionalEntityManager.create(Consultation, dto);
+          if (entity.consultation_date && patient.date_of_birth) {
+            const consultationDate = new Date(entity.consultation_date);
+            const birthDate = new Date(patient.date_of_birth);
+            entity.age_at_visit = this.calculateAge(birthDate, consultationDate);
+          }
+          return entity;
+        });
+      }
+
+      // Create a payload for merging that includes the processed relations
+      const mergePayload = {
+        ...updatePatientDto,
+        consultations: consultationEntities,
+      };
+
       // If name fields are being updated, also update the associated record's name.
       if (
         updatePatientDto.first_name ||
@@ -289,50 +315,6 @@ export class PatientsService {
         patient.record.name = newFullName;
         await transactionalEntityManager.save(Record, patient.record);
       }
-
-      // --- Handle Addresses ---
-      if (updatePatientDto.addresses !== undefined) {
-        const existingAddresses = patient.addresses || [];
-        const incomingAddresses: PatientAddressDto[] = updatePatientDto.addresses || [];
-
-        const addressesToKeepIds = new Set(
-          incomingAddresses.filter((addr) => addr.id).map((addr) => addr.id),
-        );
-
-        // 1. Identify and remove addresses that are no longer in the DTO
-        const addressesToDelete = existingAddresses.filter(
-          (existingAddr) => !addressesToKeepIds.has(existingAddr.id),
-        );
-        if (addressesToDelete.length > 0) {
-          await transactionalEntityManager.remove(PatientAddress, addressesToDelete);
-        }
-
-        // 2. Update existing addresses or create new ones
-        const updatedOrNewAddresses: PatientAddress[] = [];
-        for (const incomingAddrDto of incomingAddresses) {
-          if (incomingAddrDto.id) {
-            // Update existing address
-            const existingAddr = existingAddresses.find((addr) => addr.id === incomingAddrDto.id);
-            if (existingAddr) {
-              transactionalEntityManager.merge(PatientAddress, existingAddr, incomingAddrDto);
-              updatedOrNewAddresses.push(existingAddr);
-            }
-            // Note: We are ignoring cases where an ID is provided but doesn't exist.
-            // This could be an error, but for now, we just skip it.
-          } else {
-            // Create new address
-            const newAddress = transactionalEntityManager.create(PatientAddress, {
-              ...incomingAddrDto,
-              patient: patient, // Link to the patient
-            });
-            updatedOrNewAddresses.push(newAddress);
-          }
-        }
-
-        // 3. Assign the final list of addresses to the patient entity
-        patient.addresses = updatedOrNewAddresses;
-      }
-      // --- End Handle Addresses ---
 
       // --- Handle Category ---
       // The DTO can provide a category object, null to remove it, or undefined to leave it unchanged.
@@ -369,17 +351,23 @@ export class PatientsService {
             }
           }
 
-          if (categoryEntity) {
-            patient.category = categoryEntity;
-          }
+          // Directly assign the resolved entity (or null) to the patient object.
+          // This avoids type conflicts with the mergePayload which expects a DTO.
+          patient.category = categoryEntity;
         }
       }
 
+      // Merge the DTO into the patient entity. This applies the partial update.
+      // TypeORM's merge is smart enough to handle deep updates on relations.
+      // For collections (like addresses), it will replace the entire collection.
+      // The cascade settings on the entity will then handle inserts/updates/deletes.
+      transactionalEntityManager.merge(Patient, patient, mergePayload);
+
       // Save the patient. TypeORM will handle inserts, updates, and removals
       // for the addresses collection due to the cascade settings.
-      patient = await transactionalEntityManager.save(Patient, patient);
+      await transactionalEntityManager.save(Patient, patient);
 
-      // Re-fetch the patient with updated addresses to ensure the returned object is complete and not null
+      // Re-fetch the patient with all relations to ensure the returned object is complete.
       const updatedPatient = await transactionalEntityManager.findOne(Patient, {
         where: { id: patient.id },
         relations: ['record', 'addresses', 'category'],
