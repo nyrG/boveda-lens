@@ -5,12 +5,12 @@ import { switchMap } from 'rxjs';
 import { RecordStateService } from '../../../../shared/services/record-state.service';
 import { HeaderStateService } from '../../../../layout/services/header-state.service';
 import { CommonModule } from '@angular/common';
-import { PatientInfo } from '../patient-info/patient-info';
-import { PatientSummary } from '../patient-summary/patient-summary';
-import { PatientConsultations } from '../patient-consultations/patient-consultations';
-import { PatientLabs } from '../patient-labs/patient-labs';
-import { PatientRadiology } from '../patient-radiology/patient-radiology';
-import { PatientSponsor } from '../patient-sponsor/patient-sponsor';
+import { PatientInfo } from './patient-info/patient-info';
+import { PatientSummary } from './patient-summary/patient-summary';
+import { PatientConsultations } from './patient-consultations/patient-consultations';
+import { PatientLabs } from './patient-labs/patient-labs';
+import { PatientRadiology } from './patient-radiology/patient-radiology';
+import { PatientSponsor } from './patient-sponsor/patient-sponsor';
 import { DialogService } from '../../../../shared/services/dialog.service';
 
 type PatientTab = 'info' | 'summary' | 'consultations' | 'labs' | 'radiology' | 'sponsor';

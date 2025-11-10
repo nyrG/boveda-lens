@@ -1,7 +1,7 @@
 import { Component, Input, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Sponsor } from '../../models/patient';
-import { DetailItem } from '../../../../shared/components/detail-item/detail-item';
+import { Sponsor } from '../../../models/patient';
+import { DetailItem } from '../../../../../shared/components/detail-item/detail-item';
 
 @Component({
   selector: 'app-patient-sponsor',

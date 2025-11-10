@@ -1,7 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RadiologyReport } from '../../models/patient';
-import { DetailItem } from '../../../../shared/components/detail-item/detail-item';
+import { RadiologyReport } from '../../../models/patient';
+import { DetailItem } from '../../../../../shared/components/detail-item/detail-item';
 
 @Component({
   selector: 'app-patient-radiology',

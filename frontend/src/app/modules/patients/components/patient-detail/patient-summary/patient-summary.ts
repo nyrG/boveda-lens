@@ -1,7 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Summary } from '../../models/patient';
-import { DetailItem } from '../../../../shared/components/detail-item/detail-item';
+import { Summary } from '../../../models/patient';
+import { DetailItem } from '../../../../../shared/components/detail-item/detail-item';
 
 @Component({
   selector: 'app-patient-summary',
