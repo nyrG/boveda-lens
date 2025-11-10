@@ -1,7 +1,7 @@
 import { Component, Input, computed } from '@angular/core';
-import { AddressType, Patient } from '../../models/patient';
+import { AddressType, Patient } from '../../../models/patient';
 import { CommonModule } from '@angular/common';
-import { DetailItem } from '../../../../shared/components/detail-item/detail-item';
+import { DetailItem } from '../../../../../shared/components/detail-item/detail-item';
 
 @Component({
   selector: 'app-patient-info',
@@ -38,6 +38,16 @@ export class PatientInfo {
   // Computed signal to display the patient's current age based on their date of birth.
   currentAge = computed(() => {
     return this.calculateCurrentAge(this.patient?.date_of_birth);
+  });
+
+  fullName = computed(() => {
+    if (!this.patient) {
+      return 'N/A';
+    }
+    const { first_name, middle_initial, last_name } = this.patient;
+    return [first_name, middle_initial ? `${middle_initial}.` : '', last_name]
+      .filter(Boolean)
+      .join(' ');
   });
 
   fullAddress = computed(() => {
