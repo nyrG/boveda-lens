@@ -12,7 +12,7 @@
       <div>
         <p class="text-sm text-slate-500">Age</p>
         <p class="text-lg font-bold text-slate-800">
-          {{ patient.documented_age ? patient.documented_age + ' yrs' : 'N/A' }}
+          {{ patient.age ? patient.age + ' yrs' : 'N/A' }}
         </p>
       </div>
       <i class="fa-solid fa-user-clock text-3xl text-slate-300"></i>
@@ -47,12 +47,7 @@
         label="Date of Birth"
         [value]="patient.date_of_birth | date: 'longDate'"
       />
-      <app-detail-item
-        icon="fa-id-badge"
-        label="Documented Age"
-        [value]="patient.documented_age"
-        unit="yrs"
-      />
+      <app-detail-item icon="fa-id-badge" label="Current Age" [value]="currentAge()" unit="yrs" />
       <app-detail-item icon="fa-location-dot" label="Address" [value]="fullAddress()" />
     </div>
   </div>

@@ -1,5 +1,5 @@
 import { Component, Input, computed } from '@angular/core';
-import { Patient, Address } from '../../models/patient';
+import { AddressType, Patient } from '../../models/patient';
 import { CommonModule } from '@angular/common';
 import { DetailItem } from '../../../../shared/components/detail-item/detail-item';
 
@@ -16,41 +16,55 @@ import { DetailItem } from '../../../../shared/components/detail-item/detail-ite
 export class PatientInfo {
   @Input({ required: true }) patient!: Patient;
 
-  // Computed signal to safely access the first address
-  primaryAddress = computed(() => {
-    if (this.patient?.addresses && this.patient.addresses.length > 0) {
-      return this.patient.addresses[0];
+  /**
+   * Calculates the current age based on the date of birth.
+   * @param birthDateString The date of birth as a string.
+   * @returns The calculated age in years, or null if the birth date is invalid.
+   */
+  private calculateCurrentAge(birthDateString: string | null | undefined): number | null {
+    if (!birthDateString) {
+      return null;
     }
-    return null;
+    const birthDate = new Date(birthDateString);
+    const today = new Date();
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+    return age;
+  }
+
+  // Computed signal to display the patient's current age based on their date of birth.
+  currentAge = computed(() => {
+    return this.calculateCurrentAge(this.patient?.date_of_birth);
   });
 
   fullAddress = computed(() => {
-    return this.getFullAddress(this.primaryAddress());
-  });
+    const addresses = this.patient?.addresses;
+    if (!addresses || addresses.length === 0) {
+      return null;
+    }
 
-  /**
-   * Constructs a full address string from an Address object.
-   * Filters out empty parts and joins them in a standard format.
-   * @param address The address object.
-   * @returns A formatted address string or null if the address is empty.
-   */
-  private getFullAddress(address: Address | null | undefined): string | null {
-    if (!address) {
+    // Prioritize the 'RESIDENCE' address, otherwise fall back to the first one.
+    const primaryAddress = addresses.find(addr => addr.addressType === AddressType.RESIDENCE) || addresses[0];
+
+    if (!primaryAddress) {
       return null;
     }
 
     const addressParts = [
-      address.house_no_street,
-      address.barangay,
-      address.city_municipality,
-      address.province,
+      primaryAddress.houseNoStreet,
+      primaryAddress.barangay,
+      primaryAddress.cityMunicipality,
+      primaryAddress.province,
     ].filter(Boolean); // filter(Boolean) removes any null, undefined, or empty strings
 
-    if (addressParts.length === 0 && !address.zip_code) {
+    if (addressParts.length === 0 && !primaryAddress.zipCode) {
       return null;
     }
 
     let fullAddress = addressParts.join(', ');
-    return fullAddress + (address.zip_code ? ` ${address.zip_code}` : '');
-  }
+    return fullAddress + (primaryAddress.zipCode ? ` ${primaryAddress.zipCode}` : '');
+  });
 }
