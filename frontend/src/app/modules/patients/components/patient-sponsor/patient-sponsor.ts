@@ -14,24 +14,19 @@ import { DetailItem } from '../../../../shared/components/detail-item/detail-ite
   },
 })
 export class PatientSponsor {
-  @Input({ required: true }) sponsors: Sponsor[] | null | undefined;
-
-  // Computed signal to safely get the first sponsor from the array
-  primarySponsor = computed(() => {
-    if (this.sponsors && this.sponsors.length > 0) {
-      return this.sponsors[0];
-    }
-    return null;
-  });
+  // The component now accepts a single sponsor object or null.
+  @Input({ required: true }) sponsor: Sponsor | null | undefined;
 
   fullName = computed(() => {
-    const sponsor = this.primarySponsor();
+    const sponsor = this.sponsor;
     if (!sponsor) return 'N/A';
-    return [sponsor.first_name, sponsor.middle_initial ? `${sponsor.middle_initial}.` : '', sponsor.last_name].filter(Boolean).join(' ');
+    return [sponsor.first_name, sponsor.middle_initial ? `${sponsor.middle_initial}.` : '', sponsor.last_name]
+      .filter(Boolean)
+      .join(' ');
   });
 
   sex = computed(() => {
-    const sex = this.primarySponsor()?.sex;
+    const sex = this.sponsor?.sex;
     if (sex === 'M') {
       return 'Male';
     }

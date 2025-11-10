@@ -1,7 +1,6 @@
 import { Column, CreateDateColumn, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 
 export enum AddressType {
-  HOME = 'HOME',
   RESIDENCE = 'RESIDENCE',
   MAILING = 'MAILING',
   EMERGENCY = 'EMERGENCY',

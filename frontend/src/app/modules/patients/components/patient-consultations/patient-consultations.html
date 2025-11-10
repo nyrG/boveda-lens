@@ -24,8 +24,8 @@
             <div>
               <p class="text-sm text-slate-500">Height</p>
               <p class="text-lg font-bold text-slate-800">
-                @if (item.vitals?.height_cm) {
-                  {{ item.vitals?.height_cm }}
+                @if (item.height_cm) {
+                  {{ item.height_cm }}
                   <span class="text-base font-medium text-slate-500">cm</span>
                 } @else {
                   N/A
@@ -39,8 +39,8 @@
             <div>
               <p class="text-sm text-slate-500">Weight</p>
               <p class="text-lg font-bold text-slate-800">
-                @if (item.vitals?.weight_kg) {
-                  {{ item.vitals?.weight_kg }}
+                @if (item.weight_kg) {
+                  {{ item.weight_kg }}
                   <span class="text-base font-medium text-slate-500">kg</span>
                 } @else {
                   N/A
@@ -54,8 +54,8 @@
             <div>
               <p class="text-sm text-slate-500">Temp</p>
               <p class="text-lg font-bold text-slate-800">
-                @if (item.vitals?.temperature_c) {
-                  {{ item.vitals?.temperature_c }}
+                @if (item.temperature_c) {
+                  {{ item.temperature_c }}
                   <span class="text-base font-medium text-slate-500">°C</span>
                 } @else {
                   N/A

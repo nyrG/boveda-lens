@@ -10,18 +10,17 @@ export interface Patient {
     patient_record_number: string;
     afpsn: string | null;
     date_of_birth: string;
-    documented_age: number | null;
-    sex: 'M' | 'F';
+    age: number | null;
+    sex: 'M' | 'F' | null;
     branch_of_service: string | null;
     rank: string | null;
     unit_assignment: string | null;
     category: PatientCategory | null;
-    category_id: number | null;
     record: Record;
     consultations: Consultation[];
     lab_reports: LabReport[];
     radiology_reports: RadiologyReport[];
-    sponsors: Sponsor[];
+    sponsor: Sponsor | null;
     addresses: Address[];
     summary: Summary | null;
     created_at: Date;
@@ -58,19 +57,15 @@ export interface Summary {
 export interface Consultation {
     id: number;
     consultation_date: string | null;
-    age_at_visit: number | null; // This is calculated on the backend
-    vitals?: Vitals;
+    age_at_visit: number | null;
+    height_cm?: number | null;
+    weight_kg?: number | null;
+    temperature_c?: number | null;
     chief_complaint?: string;
     diagnosis?: string;
     notes?: string;
     treatment_plan?: string;
     attending_physician?: string;
-}
-
-export interface Vitals {
-    height_cm?: number | null;
-    weight_kg?: number | null;
-    temperature_c?: number | null;
 }
 
 export interface LabReport {
@@ -99,13 +94,20 @@ export interface RadiologyReport {
     radiologist?: string;
 }
 
+export enum AddressType {
+    RESIDENCE = 'RESIDENCE',
+    MAILING = 'MAILING',
+    EMERGENCY = 'EMERGENCY',
+}
+
 export interface Address {
     id: number;
-    house_no_street?: string;
+    houseNoStreet?: string;
     barangay?: string;
-    city_municipality?: string;
+    cityMunicipality?: string;
     province?: string;
-    zip_code?: string;
+    zipCode?: string;
+    addressType?: AddressType;
 }
 
 export interface PatientStats {

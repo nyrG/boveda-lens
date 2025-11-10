@@ -135,12 +135,7 @@
                     </div>
                     <div class="sm:col-span-2">
                       <label for="age" class="form-label">Documented Age</label>
-                      <input
-                        type="number"
-                        id="age"
-                        class="form-input"
-                        formControlName="documented_age"
-                      />
+                      <input type="number" id="age" class="form-input" formControlName="age" />
                     </div>
                     <div class="sm:col-span-2">
                       <label for="sex" class="form-label">Sex</label>
@@ -246,36 +241,47 @@
                     *ngIf="addresses.controls.length > 0"
                     [formGroupName]="0"
                   >
-                    <div class="col-span-full">
-                      <label for="address" class="form-label">Street address</label>
-                      <input
-                        type="text"
-                        id="address"
-                        class="form-input"
-                        formControlName="house_no_street"
-                      />
-                    </div>
                     <div class="sm:col-span-2">
-                      <label for="city" class="form-label">City / Municipality</label>
-                      <input
-                        type="text"
-                        id="city"
-                        class="form-input"
-                        formControlName="city_municipality"
-                      />
+                      <label for="address-type" class="form-label">Address Type</label>
+                      <select id="address-type" class="form-input" formControlName="addressType">
+                        <option value="RESIDENCE">Residence</option>
+                        <option value="MAILING">Mailing</option>
+                        <option value="EMERGENCY">Emergency</option>
+                      </select>
                     </div>
-                    <div class="sm:col-span-2">
-                      <label for="province" class="form-label">Province</label>
-                      <input
-                        type="text"
-                        id="province"
-                        class="form-input"
-                        formControlName="province"
-                      />
-                    </div>
-                    <div class="sm:col-span-2">
-                      <label for="zip" class="form-label">ZIP / Postal code</label>
-                      <input type="text" id="zip" class="form-input" formControlName="zip_code" />
+
+                    <div class="col-span-full sm:col-span-4">
+                      <div class="col-span-full">
+                        <label for="address" class="form-label">Street address</label>
+                        <input
+                          type="text"
+                          id="address"
+                          class="form-input"
+                          formControlName="house_no_street"
+                        />
+                      </div>
+                      <div class="sm:col-span-2">
+                        <label for="city" class="form-label">City / Municipality</label>
+                        <input
+                          type="text"
+                          id="city"
+                          class="form-input"
+                          formControlName="city_municipality"
+                        />
+                      </div>
+                      <div class="sm:col-span-2">
+                        <label for="province" class="form-label">Province</label>
+                        <input
+                          type="text"
+                          id="province"
+                          class="form-input"
+                          formControlName="province"
+                        />
+                      </div>
+                      <div class="sm:col-span-2">
+                        <label for="zip" class="form-label">ZIP / Postal code</label>
+                        <input type="text" id="zip" class="form-input" formControlName="zip_code" />
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -749,12 +755,10 @@
           @case ('sponsor') {
             @if (showSponsorForm()) {
               <!-- Sponsor Form Card -->
-              <div class="tab-content-enter space-y-6" formArrayName="sponsors">
-                @for (sponsorGroup of sponsors.controls; track $index) {
-                  <div
-                    class="rounded-lg border border-slate-200 bg-white shadow-sm"
-                    [formGroupName]="$index"
-                  >
+              <div class="tab-content-enter space-y-6" formGroupName="sponsor">
+                <div class="rounded-lg border border-slate-200 bg-white shadow-sm">
+                  <!-- Card Body -->
+                  <div class="p-6">
                     <h3 class="text-lg font-semibold text-slate-800">Sponsor Information</h3>
                     <p class="mt-1 text-sm text-slate-500">
                       Update the sponsor's personal and service details.
@@ -846,7 +850,7 @@
                       </div>
                     </div>
                   </div>
-                }
+                </div>
               </div>
             } @else {
               <div

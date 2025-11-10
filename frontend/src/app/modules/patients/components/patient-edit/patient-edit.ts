@@ -65,7 +65,7 @@ export class PatientEdit implements OnDestroy {
     category_id: [null as number | null],
     date_of_birth: ['', Validators.required],
     documented_age: [null as number | null],
-    sex: ['', Validators.required],
+    sex: [null as 'M' | 'F' | null, Validators.required],
     rank: [''],
     afpsn: [''],
     branch_of_service: [''],
@@ -83,7 +83,7 @@ export class PatientEdit implements OnDestroy {
     consultations: this.fb.array([]),
     lab_reports: this.fb.array([]),
     radiology_reports: this.fb.array([]),
-    sponsors: this.fb.array([]),
+    sponsor: this.createSponsorGroup(), // Use a FormGroup for the single sponsor
   });
 
   constructor() {
@@ -108,8 +108,8 @@ export class PatientEdit implements OnDestroy {
         ]);
 
         // Determine if sponsor form should be shown initially
-        const sponsorExists = patient.sponsors && patient.sponsors.length > 0;
-        this.showSponsorForm.set(!!sponsorExists);
+        const sponsorExists = !!patient.sponsor;
+        this.showSponsorForm.set(sponsorExists);
 
         // Create a deep copy to avoid mutating the original signal data.
         const formValue = JSON.parse(JSON.stringify(patient));
@@ -165,14 +165,11 @@ export class PatientEdit implements OnDestroy {
           });
         }
 
-        // Clear and repopulate the sponsors FormArray
-        this.sponsors.clear();
-        if (formValue.sponsors && formValue.sponsors.length > 0) {
-          formValue.sponsors.forEach((sponsor: any) => {
-            this.sponsors.push(this.createSponsorGroup(sponsor));
-          });
-        } else if (this.showSponsorForm()) {
-          this.addSponsor(); // Add an empty sponsor form if toggled on
+        // If a sponsor exists, patch its value into the sponsor FormGroup.
+        // Otherwise, the form group will remain with its default empty values.
+        if (formValue.sponsor) {
+          // The form structure now has `sponsor` as a group, not an array.
+          this.patientForm.get('sponsor')?.patchValue(formValue.sponsor);
         }
 
         // Populate the form with the fetched patient data
@@ -247,11 +244,6 @@ export class PatientEdit implements OnDestroy {
     return this.patientForm.get('radiology_reports') as FormArray;
   }
 
-  // Getter for easy access to the sponsors FormArray
-  get sponsors() {
-    return this.patientForm.get('sponsors') as FormArray;
-  }
-
   // Getter for easy access to the addresses FormArray
   get addresses() {
     return this.patientForm.get('addresses') as FormArray;
@@ -262,11 +254,9 @@ export class PatientEdit implements OnDestroy {
     return this.fb.group({
       id: [consultation.id || null],
       consultation_date: [consultation.consultation_date || ''],
-      vitals: this.fb.group({
-        height_cm: [consultation.vitals?.height_cm || null],
-        weight_kg: [consultation.vitals?.weight_kg || null],
-        temperature_c: [consultation.vitals?.temperature_c || null],
-      }),
+      height_cm: [consultation.height_cm || null],
+      weight_kg: [consultation.weight_kg || null],
+      temperature_c: [consultation.temperature_c || null],
       chief_complaint: [consultation.chief_complaint || ''],
       notes: [consultation.notes || ''],
       diagnosis: [consultation.diagnosis || ''],
@@ -351,18 +341,11 @@ export class PatientEdit implements OnDestroy {
     });
   }
 
-  addSponsor(): void {
-    this.sponsors.push(this.createSponsorGroup());
-  }
-
-  removeSponsor(index: number): void {
-    this.sponsors.removeAt(index);
-  }
-
   // --- Address Methods ---
   private createAddressGroup(address: any = {}): FormGroup {
     return this.fb.group({
       id: [address.id || null],
+      addressType: [address.addressType || 'RESIDENCE'], // Default to RESIDENCE
       house_no_street: [address.house_no_street || ''],
       city_municipality: [address.city_municipality || ''],
       province: [address.province || ''],
