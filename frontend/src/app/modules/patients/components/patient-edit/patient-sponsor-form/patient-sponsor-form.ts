@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { FormGroup, FormGroupName, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { ControlContainer, FormGroupDirective } from '@angular/forms';
 
@@ -9,7 +9,10 @@ import { ControlContainer, FormGroupDirective } from '@angular/forms';
   imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './patient-sponsor-form.html',
   styleUrl: './patient-sponsor-form.css',
-  viewProviders: [{ provide: ControlContainer, useExisting: FormGroupDirective }],
+  viewProviders: [
+    { provide: ControlContainer, useExisting: FormGroupDirective },
+    { provide: ControlContainer, useExisting: FormGroupName },
+  ],
 })
 export class PatientSponsorForm {
   @Input({ required: true }) showForm!: boolean;
