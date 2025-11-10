@@ -1,1 +1,97 @@
-<p>patient-sponsor-form works!</p>
+@if (showForm) {
+  <div class="rounded-lg border border-slate-200 bg-white shadow-sm tab-content-enter">
+    <!-- Card Body -->
+    <div class="p-6">
+      <h3 class="text-lg font-semibold text-slate-800">Sponsor Information</h3>
+      <p class="mt-1 text-sm text-slate-500">Update the sponsor's personal and service details.</p>
+
+      <!-- Personal Information -->
+      <div class="mt-6 border-t border-slate-200 pt-6">
+        <h4 class="text-base font-semibold text-slate-700">Personal Information</h4>
+        <div class="mt-4 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
+          <div class="sm:col-span-2">
+            <label for="sponsor-first-name" class="form-label">First name</label>
+            <input
+              type="text"
+              id="sponsor-first-name"
+              class="form-input"
+              formControlName="first_name"
+            />
+          </div>
+          <div class="sm:col-span-2">
+            <label for="sponsor-last-name" class="form-label">Last name</label>
+            <input
+              type="text"
+              id="sponsor-last-name"
+              class="form-input"
+              formControlName="last_name"
+            />
+          </div>
+          <div class="sm:col-span-2">
+            <label for="sponsor-middle-initial" class="form-label">Middle Initial</label>
+            <input
+              type="text"
+              id="sponsor-middle-initial"
+              class="form-input"
+              formControlName="middle_initial"
+            />
+          </div>
+        </div>
+        <div class="mt-8 sm:col-span-2">
+          <label for="sponsor-sex" class="form-label">Sex</label>
+          <select id="sponsor-sex" class="form-input max-w-xs" formControlName="sex">
+            <option value="M">Male</option>
+            <option value="F">Female</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Service Information -->
+      <div class="mt-8 border-t border-slate-200 pt-6">
+        <h4 class="text-base font-semibold text-slate-700">Service Information</h4>
+        <div class="mt-4 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-2">
+          <div>
+            <label for="sponsor-rank" class="form-label">Rank</label
+            ><input type="text" id="sponsor-rank" class="form-input" formControlName="rank" />
+          </div>
+          <div>
+            <label for="sponsor-afpsn" class="form-label">AFPSN</label
+            ><input type="text" id="sponsor-afpsn" class="form-input" formControlName="afpsn" />
+          </div>
+          <div>
+            <label for="sponsor-branch" class="form-label">Branch of Service</label
+            ><input
+              type="text"
+              id="sponsor-branch"
+              class="form-input"
+              formControlName="branch_of_service"
+            />
+          </div>
+          <div>
+            <label for="sponsor-unit" class="form-label">Unit Assignment</label
+            ><input
+              type="text"
+              id="sponsor-unit"
+              class="form-input"
+              formControlName="unit_assignment"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+} @else {
+  <div class="text-center py-12 text-slate-400 rounded-lg border-2 border-dashed tab-content-enter">
+    <i class="fa-solid fa-user-shield fa-3x mb-3"></i>
+    <p class="font-medium">No Sponsor Information</p>
+    <p class="text-sm mb-4">There is no sponsor on file for this patient.</p>
+    <button
+      type="button"
+      (click)="register.emit()"
+      class="inline-flex items-center gap-2 rounded-md border border-transparent bg-primary px-3 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-primary/90"
+    >
+      <i class="fa-solid fa-plus"></i>
+      <span>Register Sponsor</span>
+    </button>
+  </div>
+}

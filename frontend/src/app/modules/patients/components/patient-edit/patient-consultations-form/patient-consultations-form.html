@@ -1,1 +1,133 @@
-<p>patient-consultations-form works!</p>
+<div class="tab-content-enter">
+  <div class="space-y-6" formArrayName="consultations">
+    <!-- Header with Add Button -->
+    <div class="flex items-center justify-between">
+      <h3 class="text-lg font-semibold text-slate-800">Consultation Records</h3>
+      <button
+        type="button"
+        (click)="add.emit()"
+        class="inline-flex items-center gap-2 rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50"
+      >
+        <i class="fa-solid fa-plus"></i>
+        <span>Add Consultation</span>
+      </button>
+    </div>
+
+    @for (consultationGroup of consultations.controls; track $index) {
+      <div class="rounded-lg border border-slate-200 bg-white shadow-sm" [formGroupName]="$index">
+        <!-- Card Header -->
+        <div class="flex items-center justify-between border-b border-slate-200 bg-slate-50 p-4">
+          <div class="flex items-center gap-2">
+            <i class="fa-solid fa-calendar-alt text-slate-400"></i>
+            <label for="consultation-date-{{ $index }}" class="form-label !m-0"
+              >Consultation Date</label
+            >
+            <input
+              type="date"
+              id="consultation-date-{{ $index }}"
+              class="form-input !mt-0 w-40"
+              formControlName="consultation_date"
+            />
+          </div>
+          <button
+            type="button"
+            (click)="remove.emit($index)"
+            class="text-slate-400 hover:text-red-500"
+            title="Remove this consultation"
+          >
+            <i class="fa-solid fa-trash-can"></i>
+          </button>
+        </div>
+
+        <!-- Card Body -->
+        <div class="p-6 space-y-6">
+          <!-- Vitals -->
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+            <div>
+              <label for="height-{{ $index }}" class="form-label">Height (cm)</label>
+              <input
+                type="number"
+                id="height-{{ $index }}"
+                class="form-input"
+                formControlName="height_cm"
+              />
+            </div>
+            <div>
+              <label for="weight-{{ $index }}" class="form-label">Weight (kg)</label>
+              <input
+                type="number"
+                id="weight-{{ $index }}"
+                class="form-input"
+                formControlName="weight_kg"
+              />
+            </div>
+            <div>
+              <label for="temp-{{ $index }}" class="form-label">Temp (°C)</label>
+              <input
+                type="number"
+                id="temp-{{ $index }}"
+                class="form-input"
+                formControlName="temperature_c"
+              />
+            </div>
+          </div>
+
+          <!-- Encounter Details -->
+          <div class="space-y-4">
+            <div>
+              <label for="complaint-{{ $index }}" class="form-label">Chief Complaint</label
+              ><textarea
+                id="complaint-{{ $index }}"
+                class="form-input"
+                rows="2"
+                formControlName="chief_complaint"
+              ></textarea>
+            </div>
+            <div>
+              <label for="notes-{{ $index }}" class="form-label">Notes / HPI</label
+              ><textarea
+                id="notes-{{ $index }}"
+                class="form-input"
+                rows="4"
+                formControlName="notes"
+              ></textarea>
+            </div>
+            <div>
+              <label for="diagnosis-{{ $index }}" class="form-label">Diagnosis / Assessment</label
+              ><textarea
+                id="diagnosis-{{ $index }}"
+                class="form-input"
+                rows="2"
+                formControlName="diagnosis"
+              ></textarea>
+            </div>
+            <div>
+              <label for="treatment-{{ $index }}" class="form-label">Treatment Plan</label
+              ><textarea
+                id="treatment-{{ $index }}"
+                class="form-input"
+                rows="3"
+                formControlName="treatment_plan"
+              ></textarea>
+            </div>
+            <div>
+              <label for="physician-{{ $index }}" class="form-label">Attending Physician</label
+              ><input
+                type="text"
+                id="physician-{{ $index }}"
+                class="form-input"
+                formControlName="attending_physician"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    } @empty {
+      <div class="text-center py-12 text-slate-400 rounded-lg border-2 border-dashed">
+        <i class="fa-solid fa-file-circle-xmark fa-3x mb-3"></i>
+        <p class="font-medium">No Consultation Records</p>
+        <p class="text-sm">Click "Add Consultation" to create the first record.</p>
+      </div>
+    }
+  </div>
+</div>

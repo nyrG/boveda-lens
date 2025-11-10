@@ -1,1 +1,54 @@
-<p>patient-summary-form works!</p>
+<!-- Findings/Summary Form Card -->
+<div class="rounded-lg border border-slate-200 bg-white shadow-sm" [formGroup]="form">
+  <div class="p-6">
+    <h3 class="text-lg font-semibold text-slate-800">Clinical Findings</h3>
+    <p class="mt-1 text-sm text-slate-500">
+      Update the patient's key clinical summary information.
+    </p>
+
+    <div class="mt-6 space-y-6">
+      <div>
+        <label for="primary-complaint" class="form-label">Primary Complaint</label>
+        <textarea
+          id="primary-complaint"
+          class="form-input"
+          rows="3"
+          formControlName="primary_complaint"
+        ></textarea>
+      </div>
+
+      <div>
+        <label for="key-findings" class="form-label">Key Findings</label>
+        <textarea
+          id="key-findings"
+          class="form-input"
+          rows="4"
+          formControlName="key_findings"
+        ></textarea>
+      </div>
+
+      <div>
+        <label for="final-diagnosis" class="form-label">Diagnoses</label>
+        <input type="text" id="final-diagnosis" class="form-input" formControlName="diagnoses" />
+        <p class="mt-2 text-xs text-slate-500">Enter multiple diagnoses separated by commas.</p>
+      </div>
+
+      <div>
+        <label for="medications-taken" class="form-label">Medications Taken</label>
+        <input
+          type="text"
+          id="medications-taken"
+          class="form-input"
+          formControlName="medications_prescribed"
+        />
+        <p class="mt-2 text-xs text-slate-500">Enter multiple medications separated by commas.</p>
+      </div>
+
+      <div>
+        <label for="allergies" class="form-label">Allergies</label>
+        <input type="text" id="allergies" class="form-input" formControlName="allergies" />
+        <p class="mt-2 text-xs text-slate-500">Enter multiple allergies separated by commas.</p>
+      </div>
+    </div>
+  </div>
+</div>

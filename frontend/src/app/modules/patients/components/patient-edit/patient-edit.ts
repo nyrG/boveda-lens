@@ -8,13 +8,19 @@ import { CommonModule, DatePipe, Location } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormArray, FormGroup, Validators } from '@angular/forms';
 import { ToastService } from '../../../../shared/services/toast.service'; // prettier-ignore
 import { Patient } from '../../../../modules/patients/models/patient';
+import { PatientInfoForm } from './patient-info-form/patient-info-form';
+import { PatientSummaryForm } from './patient-summary-form/patient-summary-form';
+import { PatientConsultationsForm } from './patient-consultations-form/patient-consultations-form';
+import { PatientLabsForm } from './patient-labs-form/patient-labs-form';
+import { PatientRadiologyForm } from './patient-radiology-form/patient-radiology-form';
+import { PatientSponsorForm } from './patient-sponsor-form/patient-sponsor-form';
 
 type PatientEditTab = 'info' | 'summary' | 'consultations' | 'labs' | 'radiology' | 'sponsor';
 
 @Component({
   standalone: true,
   selector: 'app-patient-edit',
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, PatientInfoForm, PatientSummaryForm, PatientConsultationsForm, PatientLabsForm, PatientRadiologyForm, PatientSponsorForm],
   templateUrl: './patient-edit.html',
   styleUrl: './patient-edit.css',
   providers: [DatePipe], // Add DatePipe for formatting dates in the form
@@ -64,7 +70,7 @@ export class PatientEdit implements OnDestroy {
     patient_record_number: [''],
     category_id: [null as number | null],
     date_of_birth: ['', Validators.required],
-    documented_age: [null as number | null],
+    age: [null as number | null],
     sex: [null as 'M' | 'F' | null, Validators.required],
     rank: [''],
     afpsn: [''],
@@ -107,73 +113,71 @@ export class PatientEdit implements OnDestroy {
           { text: 'Edit' },
         ]);
 
-        // Determine if sponsor form should be shown initially
-        const sponsorExists = !!patient.sponsor;
-        this.showSponsorForm.set(sponsorExists);
+        // Use a timeout to ensure child form components are initialized before patching values.
+        setTimeout(() => {
+          // Determine if sponsor form should be shown initially
+          const sponsorExists = !!patient.sponsor;
+          this.showSponsorForm.set(sponsorExists);
 
-        // Create a deep copy to avoid mutating the original signal data.
-        const formValue = JSON.parse(JSON.stringify(patient));
-        if (formValue.summary) {
-          // Convert array fields to comma-separated strings for form inputs
-          formValue.summary.diagnoses = (formValue.summary.diagnoses || []).join(', ');
-          formValue.summary.medications_prescribed = (formValue.summary.medications_prescribed || []).join(', ');
-          formValue.summary.allergies = (formValue.summary.allergies || []).join(', ');
-        } else {
-          // Ensure summary object exists for patching
-          formValue.summary = {};
-        }
+          // Create a deep copy to avoid mutating the original signal data.
+          const formValue = JSON.parse(JSON.stringify(patient));
 
-        // --- Repopulate FormArrays ---
-        this.addresses.clear();
-        if (formValue.addresses && formValue.addresses.length > 0) {
-          this.addresses.push(this.createAddressGroup(formValue.addresses[0]));
-        } else {
-          this.addresses.push(this.createAddressGroup()); // Add an empty one if none exist
-        }
+          // Format date before patching
+          if (formValue.date_of_birth) {
+            formValue.date_of_birth = this.datePipe.transform(formValue.date_of_birth, 'yyyy-MM-dd');
+          }
+          if (formValue.summary) {
+            // Convert array fields to comma-separated strings for form inputs
+            formValue.summary.diagnoses = (formValue.summary.diagnoses || []).join(', ');
+            formValue.summary.medications_prescribed = (formValue.summary.medications_prescribed || []).join(', ');
+            formValue.summary.allergies = (formValue.summary.allergies || []).join(', ');
+          } else {
+            // Ensure summary object exists for patching
+            formValue.summary = {};
+          }
 
-        // Clear and repopulate the consultations FormArray
-        this.consultations.clear();
-        if (formValue.consultations) {
-          formValue.consultations.forEach((consultation: any) => {
-            // Format date before patching
-            if (consultation.consultation_date) {
-              consultation.consultation_date = this.datePipe.transform(consultation.consultation_date, 'yyyy-MM-dd');
-            }
-            this.consultations.push(this.createConsultationGroup(consultation));
-          });
-        }
+          // --- Repopulate FormArrays ---
+          this.addresses.clear();
+          if (formValue.addresses && formValue.addresses.length > 0) {
+            this.addresses.push(this.createAddressGroup(formValue.addresses[0]));
+          } else {
+            this.addresses.push(this.createAddressGroup()); // Add an empty one if none exist
+          }
 
-        // Clear and repopulate the lab_results FormArray
-        this.labResults.clear();
-        if (formValue.lab_reports) {
-          formValue.lab_reports.forEach((lab: any) => {
-            if (lab.date_performed) {
-              lab.date_performed = this.datePipe.transform(lab.date_performed, 'yyyy-MM-dd');
-            }
-            this.labResults.push(this.createLabResultGroup(lab));
-          });
-        }
+          // Clear and repopulate FormArrays
+          this.consultations.clear();
+          if (formValue.consultations) {
+            formValue.consultations.forEach((consultation: any) => {
+              this.consultations.push(this.createConsultationGroup(consultation));
+            });
+          }
 
-        // Clear and repopulate the radiology_reports FormArray
-        this.radiologyReports.clear();
-        if (formValue.radiology_reports) {
-          formValue.radiology_reports.forEach((report: any) => {
-            if (report.date_performed) {
-              report.date_performed = this.datePipe.transform(report.date_performed, 'yyyy-MM-dd');
-            }
-            this.radiologyReports.push(this.createRadiologyReportGroup(report));
-          });
-        }
+          this.labResults.clear();
+          if (formValue.lab_reports) {
+            formValue.lab_reports.forEach((lab: any) => {
+              this.labResults.push(this.createLabResultGroup(lab));
+            });
+          }
 
-        // If a sponsor exists, patch its value into the sponsor FormGroup.
-        // Otherwise, the form group will remain with its default empty values.
-        if (formValue.sponsor) {
-          // The form structure now has `sponsor` as a group, not an array.
-          this.patientForm.get('sponsor')?.patchValue(formValue.sponsor);
-        }
+          this.radiologyReports.clear();
+          if (formValue.radiology_reports) {
+            formValue.radiology_reports.forEach((report: any) => {
+              this.radiologyReports.push(this.createRadiologyReportGroup(report));
+            });
+          }
 
-        // Populate the form with the fetched patient data
-        this.patientForm.patchValue(formValue);
+          // If a sponsor exists, patch its value into the sponsor FormGroup.
+          if (formValue.sponsor) {
+            this.patientForm.get('sponsor')?.patchValue(formValue.sponsor);
+          }
+
+          // Populate the form with the fetched patient data
+          this.patientForm.patchValue(formValue);
+
+          // --- DEBUGGING ---
+          console.log('Parent form value after patch:', this.patientForm.value);
+          // --- END DEBUGGING ---
+        });
       }
     });
   }
@@ -229,39 +233,24 @@ export class PatientEdit implements OnDestroy {
     this.showSponsorForm.set(true);
   }
 
-  // Getter for easy access to the consultations FormArray in the template
-  get consultations() {
-    return this.patientForm.get('consultations') as FormArray;
-  }
-
-  // Getter for easy access to the lab_results FormArray
-  get labResults() {
-    return this.patientForm.get('lab_reports') as FormArray;
-  }
-
-  // Getter for easy access to the radiology_reports FormArray
-  get radiologyReports() {
-    return this.patientForm.get('radiology_reports') as FormArray;
-  }
-
-  // Getter for easy access to the addresses FormArray
-  get addresses() {
-    return this.patientForm.get('addresses') as FormArray;
-  }
-
   // Creates a FormGroup for a single consultation
   private createConsultationGroup(consultation: any = {}): FormGroup {
     return this.fb.group({
-      id: [consultation.id || null],
-      consultation_date: [consultation.consultation_date || ''],
       height_cm: [consultation.height_cm || null],
       weight_kg: [consultation.weight_kg || null],
       temperature_c: [consultation.temperature_c || null],
+      consultation_date: [
+        this.datePipe.transform(consultation.consultation_date, 'yyyy-MM-dd') || '',
+      ],
       chief_complaint: [consultation.chief_complaint || ''],
       notes: [consultation.notes || ''],
       diagnosis: [consultation.diagnosis || ''],
       treatment_plan: [consultation.treatment_plan || ''],
       attending_physician: [consultation.attending_physician || ''],
+      // Vitals are now nested under a 'vitals' FormGroup
+      vitals: this.fb.group({
+        // This can be expanded later if needed
+      }),
     });
   }
 
@@ -282,7 +271,9 @@ export class PatientEdit implements OnDestroy {
     const testRows = (labResult.results || []).map((test: any) => this.createTestRowGroup(test));
     return this.fb.group({
       id: [labResult.id || null],
-      date_performed: [labResult.date_performed || ''],
+      date_performed: [
+        this.datePipe.transform(labResult.date_performed, 'yyyy-MM-dd') || '',
+      ],
       test_type: [labResult.test_type || ''],
       results: this.fb.array(testRows),
     });
@@ -308,6 +299,16 @@ export class PatientEdit implements OnDestroy {
     this.labResults.removeAt(index);
   }
 
+  // Adds a new test row to a specific lab report
+  addTestRow(labIndex: number): void {
+    this.getTestRows(labIndex).push(this.createTestRowGroup());
+  }
+
+  // Removes a test row from a specific lab report
+  removeTestRow({ labIndex, rowIndex }: { labIndex: number; rowIndex: number }): void {
+    this.getTestRows(labIndex).removeAt(rowIndex);
+  }
+
   // Helper to get the nested 'results' FormArray from a specific lab report
   getTestRows(labResultIndex: number): FormArray {
     return this.labResults.at(labResultIndex).get('results') as FormArray;
@@ -319,7 +320,9 @@ export class PatientEdit implements OnDestroy {
   private createRadiologyReportGroup(report: any = {}): FormGroup {
     return this.fb.group({
       id: [report.id || null],
-      date_performed: [report.date_performed || ''],
+      date_performed: [
+        this.datePipe.transform(report.date_performed, 'yyyy-MM-dd') || '',
+      ],
       examination: [report.examination || ''],
       findings: [report.findings || ''],
       impression: [report.impression || ''],
@@ -361,6 +364,23 @@ export class PatientEdit implements OnDestroy {
   // Removes a radiology report FormGroup from the FormArray at a given index
   removeRadiologyReport(index: number): void {
     this.radiologyReports.removeAt(index);
+  }
+
+  // --- Getters for FormArrays used in the template ---
+  get consultations(): FormArray {
+    return this.patientForm.get('consultations') as FormArray;
+  }
+
+  get labResults(): FormArray {
+    return this.patientForm.get('lab_reports') as FormArray;
+  }
+
+  get radiologyReports(): FormArray {
+    return this.patientForm.get('radiology_reports') as FormArray;
+  }
+
+  get addresses(): FormArray {
+    return this.patientForm.get('addresses') as FormArray;
   }
 
   // Method to change the active tab
