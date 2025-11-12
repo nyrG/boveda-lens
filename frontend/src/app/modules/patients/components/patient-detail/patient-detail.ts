@@ -1,7 +1,7 @@
 import { Component, ElementRef, HostListener, OnDestroy, effect, inject, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { toSignal, toObservable } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { switchMap } from 'rxjs';
+import { Subject, switchMap, takeUntil } from 'rxjs';
 import { RecordStateService } from '../../../../shared/services/record-state.service';
 import { HeaderStateService } from '../../../../layout/services/header-state.service';
 import { CommonModule } from '@angular/common';
@@ -37,6 +37,7 @@ export class PatientDetail implements OnDestroy {
   private router = inject(Router);
   private dialogService = inject(DialogService);
   private elementRef = inject(ElementRef);
+  private destroy$ = new Subject<void>();
 
   // Signal to manage which tab is currently active
   activeTab = signal<PatientTab>('info');
@@ -71,12 +72,15 @@ export class PatientDetail implements OnDestroy {
     this.headerState.setBackButton(true, '/records', 'Back to Records');
 
     // Update the header title when the record data is loaded
-    effect(() => {
-      const patientId = this.record()?.id;
-      if (patientId !== undefined) {
-        this.headerState.setBreadcrumbs([{ text: 'Records', link: '/records' }, { text: `${patientId}` }]);
-      }
-    });
+    toObservable(this.record)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(patient => {
+        if (patient) {
+          this.headerState.setBreadcrumbs([
+            { text: 'Records', link: '/records' },
+            { text: `${patient.id}` }]);
+        }
+      });
   }
 
   // Close the dropdown menu if a click occurs outside of it
@@ -137,7 +141,8 @@ export class PatientDetail implements OnDestroy {
 
   ngOnDestroy(): void {
     // Reset the title when leaving the component. The Records page will set its own title.
-    this.headerState.setTitle('Records');
+    this.destroy$.next();
+    this.destroy$.complete();
     this.headerState.setBackButton(false);
   }
 }

@@ -1,5 +1,8 @@
 <!-- Patient Info Form Card -->
-<div class="rounded-lg border border-slate-200 bg-white shadow-sm tab-content-enter">
+<div
+  class="rounded-lg border border-slate-200 bg-white shadow-sm tab-content-enter"
+  [formGroup]="form"
+>
   <div class="p-6">
     <h3 class="text-lg font-semibold text-slate-800">Patient Information</h3>
     <p class="mt-1 text-sm text-slate-500">Update the patient's demographic and contact details.</p>
@@ -17,15 +20,12 @@
                 id="first-name"
                 formControlName="first_name"
                 class="form-input"
-                [ngClass]="{
-                  'form-input-error':
-                    controlContainer.control?.get('first_name')?.invalid &&
-                    controlContainer.control?.get('first_name')?.touched,
-                }"
+                [class.form-input-error]="
+                  form.get('first_name')?.invalid && form.get('first_name')?.touched
+                "
               />
               @if (
-                controlContainer.control?.get('first_name')?.hasError('required') &&
-                controlContainer.control?.get('first_name')?.touched
+                form.get('first_name')?.hasError('required') && form.get('first_name')?.touched
               ) {
                 <p class="form-error-text">First name is required.</p>
               }
@@ -37,16 +37,11 @@
                 id="last-name"
                 formControlName="last_name"
                 class="form-input"
-                [ngClass]="{
-                  'form-input-error':
-                    controlContainer.control?.get('last_name')?.invalid &&
-                    controlContainer.control?.get('last_name')?.touched,
-                }"
+                [class.form-input-error]="
+                  form.get('last_name')?.invalid && form.get('last_name')?.touched
+                "
               />
-              @if (
-                controlContainer.control?.get('last_name')?.hasError('required') &&
-                controlContainer.control?.get('last_name')?.touched
-              ) {
+              @if (form.get('last_name')?.hasError('required') && form.get('last_name')?.touched) {
                 <p class="form-error-text">Last name is required.</p>
               }
             </div>
@@ -68,15 +63,12 @@
             id="dob"
             formControlName="date_of_birth"
             class="form-input"
-            [ngClass]="{
-              'form-input-error':
-                controlContainer.control?.get('date_of_birth')?.invalid &&
-                controlContainer.control?.get('date_of_birth')?.touched,
-            }"
+            [class.form-input-error]="
+              form.get('date_of_birth')?.invalid && form.get('date_of_birth')?.touched
+            "
           />
           @if (
-            controlContainer.control?.get('date_of_birth')?.hasError('required') &&
-            controlContainer.control?.get('date_of_birth')?.touched
+            form.get('date_of_birth')?.hasError('required') && form.get('date_of_birth')?.touched
           ) {
             <p class="form-error-text">Date of birth is required.</p>
           }
@@ -91,19 +83,12 @@
             id="sex"
             formControlName="sex"
             class="form-input"
-            [ngClass]="{
-              'form-input-error':
-                controlContainer.control?.get('sex')?.invalid &&
-                controlContainer.control?.get('sex')?.touched,
-            }"
+            [class.form-input-error]="form.get('sex')?.invalid && form.get('sex')?.touched"
           >
             <option value="M">Male</option>
             <option value="F">Female</option>
           </select>
-          @if (
-            controlContainer.control?.get('sex')?.hasError('required') &&
-            controlContainer.control?.get('sex')?.touched
-          ) {
+          @if (form.get('sex')?.hasError('required') && form.get('sex')?.touched) {
             <p class="form-error-text">Sex is required.</p>
           }
         </div>
@@ -125,7 +110,7 @@
         </div>
         <div>
           <label for="category" class="form-label">Category</label>
-          <input type="text" id="category" class="form-input" formControlName="category_id" />
+          <input type="text" id="category" class="form-input" formControlName="category_name" />
         </div>
       </div>
     </div>
@@ -168,40 +153,98 @@
 
     <!-- Address -->
     <div class="mt-8 border-t border-slate-200 pt-6">
-      <h4 class="text-base font-semibold text-slate-700">Address</h4>
-      <div
-        class="mt-4 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6"
-        formArrayName="addresses"
-        *ngIf="addresses.controls.length > 0"
-        [formGroupName]="0"
-      >
-        <div class="sm:col-span-2">
-          <label for="address-type" class="form-label">Address Type</label>
-          <select id="address-type" class="form-input" formControlName="addressType">
-            <option value="RESIDENCE">Residence</option>
-            <option value="MAILING">Mailing</option>
-            <option value="EMERGENCY">Emergency</option>
-          </select>
-        </div>
+      <div class="flex items-center justify-between">
+        <h4 class="text-base font-semibold text-slate-700">Addresses</h4>
+        <button
+          type="button"
+          (click)="addAddress.emit()"
+          class="inline-flex items-center gap-2 rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50"
+        >
+          <i class="fa-solid fa-plus"></i>
+          <span>Add Address</span>
+        </button>
+      </div>
+      <div formArrayName="addresses">
+        @for (addressGroup of addresses.controls; track addressGroup; let i = $index) {
+          <div class="mt-4 rounded-md border border-slate-200 bg-slate-50 p-4" [formGroupName]="i">
+            <div class="mb-4 flex items-center justify-between">
+              <h5 class="font-semibold text-slate-600">Address #{{ i + 1 }}</h5>
+              <button
+                type="button"
+                (click)="removeAddress.emit(i)"
+                class="text-slate-400 hover:text-rose-500"
+              >
+                <i class="fa-solid fa-trash-can"></i>
+              </button>
+            </div>
+            <div class="grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
+              <div class="sm:col-span-2">
+                <label [for]="'address-type-' + i" class="form-label">Address Type</label>
+                <select [id]="'address-type-' + i" class="form-input" formControlName="addressType">
+                  <option value="RESIDENCE">Residence</option>
+                  <option value="MAILING">Mailing</option>
+                  <option value="EMERGENCY">Emergency</option>
+                </select>
+              </div>
 
-        <div class="col-span-full sm:col-span-4">
-          <div class="col-span-full">
-            <label for="address" class="form-label">Street address</label>
-            <input type="text" id="address" class="form-input" formControlName="house_no_street" />
+              <div class="col-span-full sm:col-span-4">
+                <div class="grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-6">
+                  <div class="col-span-full">
+                    <label [for]="'address-' + i" class="form-label">Street address</label>
+                    <input
+                      type="text"
+                      [id]="'address-' + i"
+                      class="form-input"
+                      formControlName="house_no_street"
+                    />
+                  </div>
+                  <div class="sm:col-span-3">
+                    <label [for]="'barangay-' + i" class="form-label">Barangay</label>
+                    <input
+                      type="text"
+                      [id]="'barangay-' + i"
+                      class="form-input"
+                      formControlName="barangay"
+                    />
+                  </div>
+                  <div class="sm:col-span-3">
+                    <label [for]="'city-' + i" class="form-label">City / Municipality</label>
+                    <input
+                      type="text"
+                      [id]="'city-' + i"
+                      class="form-input"
+                      formControlName="city_municipality"
+                    />
+                  </div>
+                  <div class="sm:col-span-3">
+                    <label [for]="'province-' + i" class="form-label">Province</label>
+                    <input
+                      type="text"
+                      [id]="'province-' + i"
+                      class="form-input"
+                      formControlName="province"
+                    />
+                  </div>
+                  <div class="sm:col-span-3">
+                    <label [for]="'zip-' + i" class="form-label">ZIP / Postal code</label>
+                    <input
+                      type="text"
+                      [id]="'zip-' + i"
+                      class="form-input"
+                      formControlName="zip_code"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
-          <div class="sm:col-span-2">
-            <label for="city" class="form-label">City / Municipality</label>
-            <input type="text" id="city" class="form-input" formControlName="city_municipality" />
+        } @empty {
+          <div class="mt-4 text-center py-12 text-slate-400 rounded-lg border-2 border-dashed">
+            <i class="fa-solid fa-map-location-dot fa-3x mb-3"></i>
+            <p class="font-medium">No Address Records</p>
+            <p class="text-sm">Click "Add Address" to create the first record.</p>
           </div>
-          <div class="sm:col-span-2">
-            <label for="province" class="form-label">Province</label>
-            <input type="text" id="province" class="form-input" formControlName="province" />
-          </div>
-          <div class="sm:col-span-2">
-            <label for="zip" class="form-label">ZIP / Postal code</label>
-            <input type="text" id="zip" class="form-input" formControlName="zip_code" />
-          </div>
-        </div>
+        }
       </div>
     </div>
   </div>

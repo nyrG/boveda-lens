@@ -68,6 +68,7 @@ export class PatientEdit implements OnDestroy {
     last_name: ['', Validators.required],
     middle_initial: [''],
     patient_record_number: [''],
+    category_name: [''], // For display purposes
     category_id: [null as number | null],
     date_of_birth: ['', Validators.required],
     age: [null as number | null],
@@ -116,8 +117,6 @@ export class PatientEdit implements OnDestroy {
   );
 
   constructor() {
-    this.headerState.setShowFilterButton(false);
-
     // Read the 'tab' from router state (passed from detail view) or fall back to query params
     const initialTab = (history.state?.tab ||
       this.route.snapshot.queryParamMap.get('tab')) as PatientEditTab | null;
@@ -126,21 +125,19 @@ export class PatientEdit implements OnDestroy {
       this.activeTab.set(initialTab);
     }
 
-    // Effect to update header and breadcrumbs when the record loads.
+    // Effect to update header, breadcrumbs, and form when the record loads.
     effect(() => {
       const patient = this.record();
+      this.headerState.setShowFilterButton(false);
+
       if (patient) {
         this.headerState.setBreadcrumbs([
           { text: 'Records', link: '/records' },
-          { text: `${patient.record.name}`, link: `/records/${patient.id}` },
+          { text: `${patient.id}`, link: `/records/${patient.id}` },
           { text: 'Edit' },
         ]);
       }
-    });
 
-    // Effect to patch the form value once the initial data is processed.
-    // This replaces the need for `setTimeout`.
-    effect(() => {
       const formValue = this.initialFormValue();
       if (formValue) {
         // Determine if sponsor form should be shown initially
@@ -151,6 +148,11 @@ export class PatientEdit implements OnDestroy {
 
         // Populate the form with the fetched patient data
         this.patientForm.patchValue(formValue);
+
+        // Manually set the category name for display
+        if (formValue.category) {
+          this.patientForm.controls.category_name.setValue(formValue.category.name);
+        }
       }
     });
   }
@@ -363,11 +365,22 @@ export class PatientEdit implements OnDestroy {
     return this.fb.group({
       id: [address.id || null],
       addressType: [address.addressType || 'RESIDENCE'], // Default to RESIDENCE
-      house_no_street: [address.house_no_street || ''],
-      city_municipality: [address.city_municipality || ''],
+      house_no_street: [address.houseNoStreet || ''],
+      barangay: [address.barangay || ''],
+      city_municipality: [address.cityMunicipality || ''],
       province: [address.province || ''],
-      zip_code: [address.zip_code || ''],
+      zip_code: [address.zipCode || ''],
     });
+  }
+
+  // Adds a new, empty address FormGroup to the FormArray
+  addAddress(): void {
+    this.addresses.push(this.createAddressGroup());
+  }
+
+  // Removes an address FormGroup from the FormArray at a given index
+  removeAddress(index: number): void {
+    this.addresses.removeAt(index);
   }
 
   // Adds a new, empty radiology report FormGroup to the FormArray

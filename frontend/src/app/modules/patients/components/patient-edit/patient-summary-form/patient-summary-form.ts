@@ -1,7 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { ControlContainer, FormGroupDirective, FormGroupName } from '@angular/forms';
+import { ControlContainer, FormGroupDirective } from '@angular/forms';
 
 @Component({
   selector: 'app-patient-summary-form',
@@ -9,20 +9,16 @@ import { ControlContainer, FormGroupDirective, FormGroupName } from '@angular/fo
   imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './patient-summary-form.html',
   styleUrl: './patient-summary-form.css',
-  // Provide the ControlContainer to link this component's form controls
-  // to the parent FormGroup.
-  viewProviders: [
-    { provide: ControlContainer, useExisting: FormGroupDirective },
-    { provide: ControlContainer, useExisting: FormGroupName },
-  ],
 })
-export class PatientSummaryForm implements OnInit {
-  form!: FormGroup;
+export class PatientSummaryForm {
+  // Inject the parent's control container and cast it to a FormGroup.
+  // The template can now access this `form` property.
+  public form: FormGroup;
 
-  // Injecting the ControlContainer makes it available to the template.
-  constructor(public controlContainer: ControlContainer) { }
-
-  ngOnInit(): void {
-    this.form = this.controlContainer.control as FormGroup;
+  constructor() {
+    const controlContainer = inject(ControlContainer, { host: true });
+    console.log('PatientSummaryForm ControlContainer:', controlContainer);
+    // The control is the specific FormGroup ('summary') passed from the parent.
+    this.form = controlContainer.control as FormGroup;
   }
 }
