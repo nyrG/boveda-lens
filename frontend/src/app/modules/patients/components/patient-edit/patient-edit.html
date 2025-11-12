@@ -48,7 +48,11 @@
       <div class="mt-6">
         @switch (activeTab()) {
           @case ('info') {
-            <app-patient-info-form class="tab-content-enter" />
+            <app-patient-info-form
+              (addAddress)="addAddress()"
+              (removeAddress)="removeAddress($event)"
+              class="tab-content-enter"
+            />
           }
           @case ('summary') {
             <div formGroupName="summary" class="tab-content-enter">

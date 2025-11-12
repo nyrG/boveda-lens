@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, EventEmitter, Output, inject } from '@angular/core';
 import { FormGroup, ReactiveFormsModule, FormArray } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { ControlContainer, FormGroupDirective } from '@angular/forms';
@@ -12,10 +12,13 @@ import { ControlContainer, FormGroupDirective } from '@angular/forms';
   viewProviders: [{ provide: ControlContainer, useExisting: FormGroupDirective }],
 })
 export class PatientInfoForm {
-  constructor(public controlContainer: ControlContainer) { }
+  public form = inject(ControlContainer).control as FormGroup;
+
+  @Output() addAddress = new EventEmitter<void>();
+  @Output() removeAddress = new EventEmitter<number>();
 
   // Getter for easy access to the addresses FormArray in the template
   get addresses() {
-    return (this.controlContainer.control as FormGroup)?.get('addresses') as FormArray;
+    return this.form.get('addresses') as FormArray;
   }
 }
