@@ -33,11 +33,11 @@ export class Patient {
   @Column()
   last_name: string;
 
-  @Column({ name: 'patient_record_number', unique: true })
-  patient_record_number: string;
+  @Column({ type: 'varchar', name: 'patient_record_number', unique: false, nullable: true })
+  patient_record_number: string | null;
 
-  @Column({ nullable: true })
-  afpsn: string;
+  @Column({ type: 'varchar', nullable: true })
+  afpsn: string | null;
 
   @Column({ type: 'date', name: 'date_of_birth' })
   date_of_birth: string;

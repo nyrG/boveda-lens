@@ -37,19 +37,23 @@ export class CreatePatientDto {
   @IsNotEmpty()
   last_name: string;
 
-  @ApiProperty({ example: 'P-123456', description: 'Unique patient record number' })
+  @ApiPropertyOptional({ example: 'P-123456', description: 'Patient record number' })
   @IsString()
-  @IsNotEmpty()
-  patient_record_number: string;
+  @IsOptional()
+  patient_record_number?: string;
 
   @ApiProperty({ example: '1990-05-15', description: 'Date of birth in YYYY-MM-DD format' })
   @IsDateString()
   date_of_birth: string;
 
-  @ApiPropertyOptional({ example: 34, description: 'Age of the patient if documented manually' })
+  @ApiPropertyOptional({
+    example: 34,
+    description:
+      'Age of the patient. If not provided, it will be calculated from the date_of_birth.',
+  })
   @IsInt()
   @IsOptional()
-  documented_age?: number;
+  age?: number;
 
   @ApiPropertyOptional({
     enum: ['M', 'F'],

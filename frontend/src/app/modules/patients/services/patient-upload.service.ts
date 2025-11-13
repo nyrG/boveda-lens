@@ -56,13 +56,34 @@ export class PatientUploadService {
         // Switch from the extraction response to the creation call
         switchMap(response => {
           if (response && response.body) {
-            // The body of the upload response is the extracted data, not a full patient record.
-            // We now use this data to create the actual patient record.
-            return this.patientApi.createPatient(response.body);
+            console.log('%c[DEBUG] Raw data from extraction endpoint:', 'color: blue; font-weight: bold;', response.body);
+            const extractedData = response.body;
+
+            // --- Data Transformation ---
+            // Ensure each address has an addressType, defaulting to 'RESIDENCE'.
+            if (Array.isArray(extractedData.addresses)) {
+              for (const address of extractedData.addresses) {
+                if (!address.addressType) {
+                  address.addressType = 'RESIDENCE';
+                }
+              }
+            }
+
+            console.log('%c[DEBUG] Data being sent to createPatient endpoint:', 'color: green; font-weight: bold;', extractedData);
+            return this.patientApi.createPatient(extractedData);
           }
           return of(null); // Or handle error if response is empty
         }),
         catchError(error => {
+          console.error('%c[DEBUG] Error received from createPatient endpoint:', 'color: red; font-weight: bold;', error);
+
+          // --- Enhanced Error Logging ---
+          // NestJS class-validator returns detailed error messages in `error.error.message`.
+          if (error.error && Array.isArray(error.error.message)) {
+            console.error('%c[DEBUG] Validation Errors:', 'color: red; font-weight: bold;');
+            error.error.message.forEach((msg: string) => console.error(`- ${msg}`));
+          }
+          // --- End of Enhanced Error Logging ---
           this.backgroundTaskService.failTask(taskId, error);
           this.toastService.show({ type: 'error', message: 'Failed to process document.' });
           return of(null); // Handle the error gracefully
