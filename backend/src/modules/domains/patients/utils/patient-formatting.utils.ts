@@ -1,6 +1,5 @@
 import { CreatePatientDto } from '../dto/patient/create-patient.dto';
 import { UpdatePatientDto } from '../dto/patient/update-patient.dto';
-import { MedicalEncounter, PatientInfo, SponsorInfo } from '../types/patient.types';
 
 /**
  * Converts a string to Title Case.
@@ -22,36 +21,28 @@ const toTitleCase = (str: string | null | undefined): string | undefined => {
  * @param dto The DTO to format (CreatePatientDto or UpdatePatientDto).
  */
 export const formatPatientDto = (dto: CreatePatientDto | UpdatePatientDto): void => {
-  /* const info = dto.patient_info as PatientInfo;
-  const sponsorInfo = dto.sponsor_info as SponsorInfo;
-  const encounters = dto.medical_encounters as MedicalEncounter;
-
   // Format patient name
-  if (info?.full_name) {
-    info.full_name.first_name = toTitleCase(info.full_name.first_name);
-    info.full_name.last_name = toTitleCase(info.full_name.last_name);
-  }
+  dto.first_name = toTitleCase(dto.first_name);
+  dto.last_name = toTitleCase(dto.last_name);
 
   // Format patient address
-  if (info?.address) {
-    info.address.house_no_street = toTitleCase(info.address.house_no_street);
-    info.address.barangay = toTitleCase(info.address.barangay);
-    info.address.city_municipality = toTitleCase(info.address.city_municipality);
-    info.address.province = toTitleCase(info.address.province);
-  }
+  dto.addresses?.forEach((address) => {
+    address.houseNoStreet = toTitleCase(address.houseNoStreet);
+    address.barangay = toTitleCase(address.barangay);
+    address.cityMunicipality = toTitleCase(address.cityMunicipality);
+    address.province = toTitleCase(address.province);
+  });
 
   // Format sponsor name
-  if (sponsorInfo?.sponsor_name) {
-    sponsorInfo.sponsor_name.first_name = toTitleCase(sponsorInfo.sponsor_name.first_name);
-    sponsorInfo.sponsor_name.last_name = toTitleCase(sponsorInfo.sponsor_name.last_name);
+  if (dto.sponsor) {
+    dto.sponsor.first_name = toTitleCase(dto.sponsor.first_name);
+    dto.sponsor.last_name = toTitleCase(dto.sponsor.last_name);
   }
 
   // Format attending physician in consultations
-  if (encounters?.consultations) {
-    encounters.consultations.forEach((consultation) => {
-      if (consultation.attending_physician) {
-        consultation.attending_physician = toTitleCase(consultation.attending_physician);
-      }
-    });
-  } */
+  dto.consultations?.forEach((consultation) => {
+    if (consultation.attending_physician) {
+      consultation.attending_physician = toTitleCase(consultation.attending_physician);
+    }
+  });
 };

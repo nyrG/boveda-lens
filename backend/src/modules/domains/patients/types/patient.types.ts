@@ -1,80 +1,17 @@
-import { PatientAddressDto } from '../dto/patient-address/patient-address.dto';
-
-/**
- * Represents the core patient data structure, mirroring the Patient entity.
- * This is primarily used as the shape for data extracted by the AI service.
- */
-export interface PatientInfo {
-  // Personal Information
-  first_name?: string;
-  middle_initial?: string;
-  last_name?: string;
-  patient_record_number?: string;
-  date_of_birth?: string;
-  age?: number | null; // Age listed during the patient's visit on the record
-  sex?: 'M' | 'F' | null;
-
-  // Service-related Information
-  rank?: string;
-  afpsn?: string;
-  branch_of_service?: string;
-  unit_assignment?: string;
-  category?: string;
-
-  // Address Information
-  // The AI might extract multiple addresses, so we expect an array.
-  addresses?: PatientAddressDto[];
-}
-
-/**
- * Represents the structure of the `sponsor_info` JSONB column.
- */
-export interface SponsorInfo {
-  afpsn?: string;
-  branch_of_service?: string;
-  unit_assignment?: string;
-  sponsor_name?: {
-    rank?: string;
-    first_name?: string;
-    middle_initial?: string;
-    last_name?: string;
-  };
-  sex?: 'M' | 'F' | null;
-}
-
-/**
- * Represents the vitals taken during a consultation.
- */
-export interface Vitals {
-  height_cm?: number | null;
-  weight_kg?: number | null;
-  temperature_c?: number | null;
-}
-
 /**
  * Represents a single consultation within the `medical_encounters`.
  */
 export interface Consultation {
   consultation_date?: string;
   age_at_visit?: number | null; // Calculated field
-  vitals?: Vitals;
+  height_cm?: number | null;
+  weight_kg?: number | null;
+  temperature_c?: number | null;
   attending_physician?: string;
   chief_complaint?: string;
   diagnosis?: string;
   treatment_plan?: string;
   notes?: string;
-}
-
-/**
- * Represents a single radiology report within `medical_encounters`.
- */
-export interface RadiologyReport {
-  examination?: string;
-  age_at_visit?: number | null; // Calculated field
-  date_performed?: string;
-  findings?: string;
-  impression?: string;
-  radiologist?: string;
 }
 
 /**
@@ -90,19 +27,24 @@ export interface TestResult {
 /**
  * Represents a single lab result report within `medical_encounters`.
  */
-export interface LabResult {
+export interface LabReport {
   test_type?: string;
   date_performed?: string;
   results?: TestResult[];
+  medical_technologist?: string;
+  pathologist?: string;
 }
 
 /**
- * Represents the structure of the `medical_encounters` JSONB column.
+ * Represents a single radiology report within `medical_encounters`.
  */
-export interface MedicalEncounter {
-  consultations?: Consultation[];
-  radiology_reports?: RadiologyReport[];
-  lab_results?: LabResult[];
+export interface RadiologyReport {
+  examination?: string;
+  age_at_visit?: number | null; // Calculated field
+  date_performed?: string;
+  findings?: string;
+  impression?: string;
+  radiologist?: string;
 }
 
 /**
@@ -117,12 +59,42 @@ export interface Summary {
 }
 
 /**
+ * Represents a single sponsor.
+ */
+export interface Sponsor {
+  rank?: string;
+  first_name?: string;
+  middle_initial?: string;
+  last_name?: string;
+  sex?: 'M' | 'F' | null;
+  afpsn?: string;
+  branch_of_service?: string;
+  unit_assignment?: string;
+}
+
+/**
  * Represents the shape of the JSON object returned by the Gemini API after data extraction.
+ * This structure is flat and aligns with the `CreatePatientDto`.
  */
 export interface ExtractedPatientData {
-  patient_info: PatientInfo;
-  sponsor_info?: SponsorInfo;
-  medical_encounters: MedicalEncounter;
+  first_name?: string;
+  middle_initial?: string;
+  last_name?: string;
+  patient_record_number?: string;
+  date_of_birth?: string;
+  age?: number | null;
+  sex?: 'M' | 'F' | null;
+  rank?: string;
+  afpsn?: string;
+  branch_of_service?: string;
+  unit_assignment?: string;
+  category?: { name: string };
+  addresses?: any[]; // Using 'any' for simplicity as DTO is sufficient
+  sponsor?: Sponsor;
+  consultations?: Consultation[];
+  lab_reports?: LabReport[];
+  radiology_reports?: RadiologyReport[];
+  summary?: Summary;
   extraction_info?: {
     model_used: string;
     processed_at: string;

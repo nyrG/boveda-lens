@@ -26,26 +26,26 @@ export class ExtractionService {
     const cleanedData = recursiveClean(data);
 
     // 2. Apply specific formatting to the known structure.
-    const formatMiddleInitial = (fullNameObject: { middle_initial?: string } | undefined) => {
-      if (fullNameObject && fullNameObject.middle_initial) {
-        fullNameObject.middle_initial = fullNameObject.middle_initial.charAt(0).toUpperCase();
+    const formatMiddleInitial = (personObject: { middle_initial?: string } | undefined) => {
+      if (personObject && personObject.middle_initial) {
+        personObject.middle_initial = personObject.middle_initial.charAt(0).toUpperCase();
       }
     };
 
-    formatMiddleInitial(cleanedData.patient_info);
-    formatMiddleInitial(cleanedData.sponsor_info?.sponsor_name);
+    formatMiddleInitial(cleanedData); // For the patient
+    formatMiddleInitial(cleanedData.sponsor); // For the sponsor
 
-    const standardizeSex = (infoObject: { sex?: string | null } | undefined) => {
-      if (infoObject && typeof infoObject.sex === 'string') {
-        const sex = infoObject.sex.toLowerCase();
-        if (sex.startsWith('m')) infoObject.sex = 'M';
-        else if (sex.startsWith('f')) infoObject.sex = 'F';
-        else infoObject.sex = null;
+    const standardizeSex = (personObject: { sex?: string | null } | undefined) => {
+      if (personObject && typeof personObject.sex === 'string') {
+        const sex = personObject.sex.toLowerCase();
+        if (sex.startsWith('m')) personObject.sex = 'M';
+        else if (sex.startsWith('f')) personObject.sex = 'F';
+        else personObject.sex = null;
       }
     };
 
-    standardizeSex(cleanedData.patient_info);
-    standardizeSex(cleanedData.sponsor_info);
+    standardizeSex(cleanedData); // For the patient
+    standardizeSex(cleanedData.sponsor); // For the sponsor
 
     return cleanedData;
   }
@@ -58,13 +58,13 @@ export class ExtractionService {
     let documentTypeInstruction: string;
     switch (documentType) {
       case DocumentType.MILITARY:
-        documentTypeInstruction = `5. **This is a Military Personnel document**: ALL military information (rank, afpsn, branch_of_service, unit_assignment) MUST be placed in the 'patient_info' object. The 'sponsor_info' object should be used for dependent information if present, but should not contain the primary military details.`;
+        documentTypeInstruction = `5. **This is a Military Personnel document**: ALL military information (rank, afpsn, branch_of_service, unit_assignment) MUST be for the primary patient at the root level. The 'sponsor' object should be used for dependent information if present.`;
         break;
       case DocumentType.DEPENDENT:
-        documentTypeInstruction = `5. **CRITICAL INSTRUCTION: This is a Sponsored Dependent document.** The patient is NOT the military member. ALL military information (rank, afpsn, branch of service, unit assignment) found anywhere in this document MUST be placed in the 'sponsor_info' object. The corresponding military fields in the 'patient_info' object MUST be set to null. There are no exceptions to this rule.`;
+        documentTypeInstruction = `5. **CRITICAL INSTRUCTION: This is a Sponsored Dependent document.** The patient is NOT the military member. ALL military information (rank, afpsn, branch of service, unit assignment) found anywhere in this document MUST be placed in the 'sponsor' object. The corresponding military fields at the root level (for the patient) MUST be set to null. There are no exceptions to this rule.`;
         break;
       default:
-        documentTypeInstruction = `5. **General Document Handling**: This is a general medical document. Extract all information for the primary patient into the 'patient_info' object. If the document explicitly mentions a sponsor or guarantor, place their details in the 'sponsor_info' object. Do not assume a military context unless military-specific identifiers (like rank, AFPSN, branch of service) are clearly present.`;
+        documentTypeInstruction = `5. **General Document Handling**: This is a general medical document. Extract all information for the primary patient at the root level. If the document explicitly mentions a sponsor or guarantor, place their details in the 'sponsor' object. Do not assume a military context unless military-specific identifiers (like rank, AFPSN, branch of service) are clearly present.`;
         break;
     }
 
@@ -79,16 +79,15 @@ export class ExtractionService {
       ${documentTypeInstruction}
       
       **FIELD-SPECIFIC INSTRUCTIONS:**
-      - **documented_age**: Extract the patient's age exactly as it is written in the document. This is separate from any age you might calculate from the date of birth. If the document states an age, capture that specific number here.
       - **branch_of_service**: This may be abbreviated as "br of svc" in the document.
-      - **address**: Deconstruct the address into its specific components: house_no_street, barangay, city_municipality, province, and zip_code.
+      - **addresses**: Deconstruct each address into its components. For "address_type", you MUST provide 'RESIDENCE', 'MAILING', or 'EMERGENCY'. If not specified, infer 'RESIDENCE' as the default. This is an array.
       - **sex (for both patient and sponsor)**: If sex is not explicitly written, infer it from the person's first name. Standardize the output to "M" for male, "F" for female, or null if it cannot be determined.
-      - **summary.final_diagnosis**: First, try to match the condition to one or more items from the provided Diagnosis List. If no match is found, formulate a concise diagnosis based on the document's findings as a last resort. Return as a JSON array.
-      - **summary.medications_taken**: Extract a list of medications from the most recent 'Treatment Plan'. Each item must be a string including the name, dosage, and frequency.
-      - **patient_info.category**: You MUST select the most fitting category from the provided Category List.
-      - **full_name properties (for both patient and sponsor)**: These fields can contain multiple words (e.g., "AMGGYMEL VHANESA" or "JOSE RIZAL"). You must extract all parts of the first name into the single "first_name" property.
+      - **summary.diagnoses**: First, try to match the condition to one or more items from the provided Diagnosis List. If no match is found, formulate a concise diagnosis based on the document's findings as a last resort. Return as a JSON array.
+      - **summary.medications_prescribed**: Extract a list of medications from the most recent 'Treatment Plan'. Each item must be a string including the name, dosage, and frequency.
+      - **category**: You MUST select the most fitting category from the provided Category List for the patient.
+      - **first_name, last_name (for both patient and sponsor)**: These fields can contain multiple words (e.g., "AMGGYMEL VHANESA" or "JOSE RIZAL"). You must extract all parts of the name into the single corresponding property. The category should be an object with a name property, e.g. { "name": "RMP" }.
       - **dates**: All dates must be in "YYYY-MM-DD" format (e.g., "13-Oct-91" becomes "1991-10-13").
-      - **Laboratory Results**: Extract each individual test from a lab report table. For each test, you must separate the numerical result from its unit. For example, for "75.20 µmol/L", the "value" should be "75.20" and the "unit" should be "µmol/L".
+      - **lab_reports**: Extract each individual test from a lab report table. For each test, you must separate the numerical result from its unit. For example, for "75.20 µmol/L", the "value" should be "75.20" and the "unit" should be "µmol/L".
       
       **CONSULTATION FIELD DEFINITIONS:**
       - **chief_complaint**: The patient's primary reason for the visit, in their own words or as recorded by the physician.

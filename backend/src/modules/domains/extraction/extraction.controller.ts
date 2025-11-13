@@ -33,7 +33,7 @@ export class ExtractionController {
 
     return this.extractionService.extractDataFromPdf(
       file,
-      uploadOptions.model || 'gemini-1.5-flash-latest',
+      uploadOptions.model || 'gemini-2.5-flash',
       uploadOptions.documentType,
     );
   }

@@ -1,68 +1,73 @@
 export const schema = {
-  patient_info: {
-    patient_record_number: null,
-    full_name: { first_name: null, middle_initial: null, last_name: null },
-    date_of_birth: null,
-    age: null,
-    documented_age: null,
-    sex: null,
-    address: {
+  patient_record_number: null,
+  first_name: null,
+  middle_initial: null,
+  last_name: null,
+  date_of_birth: null,
+  age: null,
+  sex: null,
+  addresses: [
+    {
       house_no_street: null,
       barangay: null,
       city_municipality: null,
       province: null,
       zip_code: null,
+      address_type: null, // e.g., 'RESIDENCE', 'MAILING'
     },
-    category: null,
+  ],
+  category: { name: null },
+  rank: null,
+  afpsn: null,
+  branch_of_service: null,
+  unit_assignment: null,
+  sponsor: {
     rank: null,
-    afpsn: null,
-    branch_of_service: null,
-    unit_assignment: null,
-  },
-  sponsor_info: {
-    sponsor_name: { rank: null, first_name: null, middle_initial: null, last_name: null },
+    first_name: null,
+    middle_initial: null,
+    last_name: null,
     sex: null,
     afpsn: null,
     branch_of_service: null,
     unit_assignment: null,
   },
-  medical_encounters: {
-    consultations: [
-      {
-        consultation_date: null,
-        age_at_visit: null,
-        vitals: { height_cm: null, weight_kg: null, temperature_c: null },
-        chief_complaint: null,
-        diagnosis: null,
-        notes: null,
-        treatment_plan: null,
-        attending_physician: null,
-      },
-    ],
-    lab_results: [
-      {
-        test_type: null,
-        date_performed: null,
-        results: [{ test_name: null, value: null, reference_range: null, unit: null }],
-        medical_technologist: null,
-        pathologist: null,
-      },
-    ],
-    radiology_reports: [
-      {
-        examination: null,
-        date_performed: null,
-        findings: null,
-        impression: null,
-        radiologist: null,
-      },
-    ],
-  },
+  consultations: [
+    {
+      consultation_date: null,
+      age_at_visit: null,
+      height_cm: null,
+      weight_kg: null,
+      temperature_c: null,
+      chief_complaint: null,
+      diagnosis: null,
+      notes: null,
+      treatment_plan: null,
+      attending_physician: null,
+    },
+  ],
+  lab_reports: [
+    {
+      test_type: null,
+      date_performed: null,
+      results: [{ test_name: null, value: null, reference_range: null, unit: null }],
+      medical_technologist: null,
+      pathologist: null,
+    },
+  ],
+  radiology_reports: [
+    {
+      examination: null,
+      date_performed: null,
+      findings: null,
+      impression: null,
+      radiologist: null,
+    },
+  ],
   summary: {
-    final_diagnosis: [],
+    diagnoses: [],
     primary_complaint: null,
     key_findings: null,
-    medications_taken: [],
+    medications_prescribed: [],
     allergies: [],
   },
 };

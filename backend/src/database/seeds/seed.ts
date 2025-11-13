@@ -40,8 +40,8 @@ const createRandomPatient = (
   patient.first_name = firstName;
   patient.middle_initial = faker.string.alpha(1).toUpperCase();
   patient.last_name = lastName;
-  patient.patient_record_number = faker.string.numeric(6);
-  patient.afpsn = faker.string.numeric(7);
+  patient.patient_record_number = faker.datatype.boolean() ? faker.string.numeric(6) : null;
+  patient.afpsn = faker.datatype.boolean() ? faker.string.numeric(7) : null;
   const dob = faker.date.birthdate({ min: 18, max: 65, mode: 'age' }).toISOString().split('T')[0];
   patient.date_of_birth = dob;
 
