@@ -66,18 +66,25 @@ export class RecordStateService {
   // --- Data Fetching ---
   fetchRecords(options: { preserveSelection?: boolean; showNotification?: boolean } = {}): void {
     this.isLoading.set(true);
-    const query: PatientQuery = {
+    let query: PatientQuery = {
       page: this.currentPage(),
       limit: this.rowsPerPage(),
-      // --- DEBUGGING: Temporarily disabled to isolate the issue ---
       search: this.searchTerm(),
       sortBy: this.sortBy(),
       sortOrder: this.sortOrder(),
-      category: this.filterCategory() || undefined,
     };
+
+    // Only add the category to the query if it has a value.
+    if (this.filterCategory()) {
+      query.category = this.filterCategory();
+    }
+
     this.recordApi.getPatients(query)
       .subscribe(response => {
-        console.log('API Response in RecordStateService:', response); // <-- Add this for debugging
+        // DEBUG: Log the raw data received from the API service.
+        // This will confirm if 'category' is null before it's set in the state.
+        console.log('Data received from PatientApi:', response.data);
+
         this.isLoading.set(false);
         this.records.set(response.data);
         this.totalRecords.set(response.total);
@@ -175,17 +182,19 @@ export class RecordStateService {
 
   /**
    * Toggles the selection of all records on the current page.
-   * If any records are selected, it deselects all.
-   * If no records are selected, it selects all.
+   * If any records (some or all) are selected, it clears the selection.
+   * If no records are selected, it selects all records on the current page.
    */
   toggleSelectAll(): void {
-    const shouldSelectAll = this.selectedRecordIds().size === 0;
-    const recordsOnPage = this.records();
+    const selectedCount = this.selectedRecordIds().size;
 
-    if (shouldSelectAll) {
-      this.selectedRecordIds.set(new Set(recordsOnPage.map(r => r.id)));
-    } else {
+    if (selectedCount > 0) {
+      // If any records are selected (partially or fully), clear the selection.
       this.selectedRecordIds.set(new Set());
+    } else {
+      // If no records are selected, select all on the current page.
+      const allRecordIdsOnPage = this.records().map(r => r.id);
+      this.selectedRecordIds.set(new Set(allRecordIdsOnPage));
     }
   }
 

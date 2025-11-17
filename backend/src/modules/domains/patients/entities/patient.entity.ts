@@ -72,6 +72,7 @@ export class Patient {
 
   @OneToOne(() => Record, (record) => record.patient, {
     cascade: ['insert', 'update'],
+    eager: true,
   })
   @JoinColumn({ name: 'record_id' })
   record: Record;
