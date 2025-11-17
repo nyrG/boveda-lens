@@ -17,7 +17,7 @@ import {
 } from '../../modules/domains/patients/entities/patient-address.entity';
 import { allCategories } from '../../modules/domains/extraction/extraction.constants'; // This is likely just an array of strings now
 
-const NUM_PATIENTS_TO_SEED = 20;
+const NUM_PATIENTS_TO_SEED = 5;
 
 /**
  * Creates a single, fully-populated random patient object.

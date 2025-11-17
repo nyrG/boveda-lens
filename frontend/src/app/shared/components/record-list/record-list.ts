@@ -56,11 +56,18 @@ export class RecordList {
     this.recordState.toggleSelectRow(id, isChecked, isShiftPressed);
   }
 
+  /**
+   * Safely retrieves and formats the diagnoses from a patient record.
+   * @param record The patient record.
+   * @returns A comma-separated string of diagnoses, or 'N/A' if none are found.
+   */
   getDiagnoses(record: Patient): string {
-    if (Array.isArray(record.summary?.diagnoses)) {
-      return record.summary.diagnoses.join(', ');
+    const diagnoses = record.summary?.diagnoses;
+
+    if (Array.isArray(diagnoses) && diagnoses.length > 0) {
+      return diagnoses.join(', ');
     }
-    return (record.summary?.diagnoses as any) || 'N/A';
+    return 'N/A';
   }
 
   getPaginationSummary(): string {
@@ -77,7 +84,47 @@ export class RecordList {
     this.isUploadModalOpen.set(false);
   }
 
-  getPageNumbers(): number[] {
-    return Array.from({ length: this.recordState.totalPages() }, (_, i) => i + 1);
+  /**
+   * Generates a list of page numbers for pagination controls.
+   * For large numbers of pages, it creates a truncated list with ellipses.
+   * e.g., [1, 2, '...', 10, 11, 12, '...', 99, 100]
+   * @returns An array of numbers or '...' strings.
+   */
+  getPageNumbers(): (number | string)[] {
+    const totalPages = this.recordState.totalPages();
+    const currentPage = this.recordState.currentPage();
+    const pageNumbers: (number | string)[] = [];
+
+    if (totalPages <= 7) {
+      // If 7 or fewer pages, show all of them
+      return Array.from({ length: totalPages }, (_, i) => i + 1);
+    }
+
+    // Always show the first page
+    pageNumbers.push(1);
+
+    // Determine the range of pages to show around the current page
+    const startPage = Math.max(2, currentPage - 1);
+    const endPage = Math.min(totalPages - 1, currentPage + 1);
+
+    // Show '...' if there's a gap after the first page
+    if (startPage > 2) {
+      pageNumbers.push('...');
+    }
+
+    // Add the pages in the determined range
+    for (let i = startPage; i <= endPage; i++) {
+      pageNumbers.push(i);
+    }
+
+    // Show '...' if there's a gap before the last page
+    if (endPage < totalPages - 1) {
+      pageNumbers.push('...');
+    }
+
+    // Always show the last page
+    pageNumbers.push(totalPages);
+
+    return pageNumbers;
   }
 }
