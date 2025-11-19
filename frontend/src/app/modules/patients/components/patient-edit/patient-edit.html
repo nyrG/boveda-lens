@@ -1,6 +1,14 @@
 <div>
   @if (record(); as patient) {
     <form [formGroup]="patientForm" (ngSubmit)="saveChanges()" class="space-y-6 pb-12">
+      <!-- Validation Summary -->
+      <app-validation-summary
+        [errors]="formErrors"
+        (clear)="clearErrors()"
+        (navigateToError)="handleErrorNavigation($event)"
+        class="transition-all"
+      />
+
       <!-- Page Header -->
       <div class="flex items-center justify-between">
         <h2 class="text-xl font-bold text-slate-800">Editing: {{ patient.record.name }}</h2>

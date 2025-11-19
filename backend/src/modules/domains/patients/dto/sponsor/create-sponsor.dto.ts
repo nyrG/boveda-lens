@@ -29,7 +29,9 @@ export class CreateSponsorDto {
     description: 'Sex of the sponsor',
     nullable: true,
   })
-  @IsEnum(['M', 'F'])
+  @IsEnum(['M', 'F'], {
+    message: 'sex must be one of the following values: M, F',
+  })
   @IsOptional()
   sex?: 'M' | 'F' | null;
 

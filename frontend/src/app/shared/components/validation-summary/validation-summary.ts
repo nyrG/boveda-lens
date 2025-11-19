@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { FormError } from '../../../models/form-error.model';
+import { Component, EventEmitter, Input, Output, Signal } from '@angular/core';
+import { FormError } from '../../models/form-error';
 
 @Component({
   selector: 'app-validation-summary',
@@ -9,7 +9,7 @@ import { FormError } from '../../../models/form-error.model';
   styleUrl: './validation-summary.css'
 })
 export class ValidationSummary {
-  @Input({ required: true }) errors: () => FormError[] = () => [];
+  @Input({ required: true }) errors!: Signal<FormError[]>;
   @Output() navigateToError = new EventEmitter<FormError>();
   @Output() clear = new EventEmitter<void>()
 }
