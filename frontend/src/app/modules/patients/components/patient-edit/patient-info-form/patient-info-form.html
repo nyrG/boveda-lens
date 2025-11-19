@@ -85,6 +85,8 @@
             class="form-input"
             [class.form-input-error]="form.get('sex')?.invalid && form.get('sex')?.touched"
           >
+            <option [ngValue]="null" disabled>Select an option...</option>
+            <option [ngValue]="null">Not Applicable</option>
             <option value="M">Male</option>
             <option value="F">Female</option>
           </select>

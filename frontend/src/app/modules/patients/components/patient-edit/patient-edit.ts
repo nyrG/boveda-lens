@@ -14,13 +14,16 @@ import { PatientConsultationsForm } from './patient-consultations-form/patient-c
 import { PatientLabsForm } from './patient-labs-form/patient-labs-form';
 import { PatientRadiologyForm } from './patient-radiology-form/patient-radiology-form';
 import { PatientSponsorForm } from './patient-sponsor-form/patient-sponsor-form';
+import { ValidationSummary } from '../../../../shared/components/validation-summary/validation-summary';
+import { getFormErrors } from '../../../../shared/utils/form.utils';
+import { FormError, FormErrorTab } from '../../../../shared/models/form-error';
 
 type PatientEditTab = 'info' | 'summary' | 'consultations' | 'labs' | 'radiology' | 'sponsor';
 
 @Component({
   standalone: true,
   selector: 'app-patient-edit',
-  imports: [CommonModule, ReactiveFormsModule, PatientInfoForm, PatientSummaryForm, PatientConsultationsForm, PatientLabsForm, PatientRadiologyForm, PatientSponsorForm],
+  imports: [CommonModule, ReactiveFormsModule, PatientInfoForm, PatientSummaryForm, PatientConsultationsForm, PatientLabsForm, PatientRadiologyForm, PatientSponsorForm, ValidationSummary],
   templateUrl: './patient-edit.html',
   styleUrl: './patient-edit.css',
   providers: [DatePipe], // Add DatePipe for formatting dates in the form
@@ -51,6 +54,9 @@ export class PatientEdit implements OnDestroy {
   // Signal to manage the visibility of the sponsor form
   showSponsorForm = signal(false);
 
+  // Signal to hold form validation errors for the summary component
+  formErrors = signal<FormError[]>([]);
+
   // Data-driven tabs for cleaner template logic
   tabs: { id: PatientEditTab; label: string }[] = [
     { id: 'info', label: 'Patient Info' },
@@ -72,7 +78,7 @@ export class PatientEdit implements OnDestroy {
     category_id: [null as number | null],
     date_of_birth: ['', Validators.required],
     age: [null as number | null],
-    sex: [null as 'M' | 'F' | null, Validators.required],
+    sex: [null as 'M' | 'F' | null],
     rank: [''],
     afpsn: [''],
     branch_of_service: [''],
@@ -169,9 +175,10 @@ export class PatientEdit implements OnDestroy {
 
   saveChanges() {
     if (this.patientForm.invalid) {
-      this.toastService.show({ message: 'Please correct the errors before saving.', type: 'error' });
-      // Here you could add logic to mark all fields as touched to show validation errors
       this.patientForm.markAllAsTouched();
+      this.formErrors.set(getFormErrors(this.patientForm));
+      // Scroll to the top to make sure the user sees the error summary
+      window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
 
@@ -197,11 +204,41 @@ export class PatientEdit implements OnDestroy {
 
     this.recordState.updateRecord(patientId, payload).pipe(
       catchError(err => {
-        console.error('Failed to save patient record:', err);
-        this.toastService.show({ message: 'Failed to save changes. Please try again.', type: 'error' });
+        // Check for a 400 Bad Request with a 'message' array (default NestJS validation response)
+        if (err.status === 400 && Array.isArray(err.error?.message)) {
+          const backendErrors: FormError[] = [];
+          const errorMessages: string[] = err.error.message;
+
+          for (const message of errorMessages) {
+            // NestJS messages are often in the format "fieldName validation message"
+            // e.g., "sponsor.sex must be one of the following values: M, F"
+            const parts = message.split(' ');
+            const controlPath = parts[0];
+            const errorText = parts.slice(1).join(' ');
+
+            const control = this.patientForm.get(controlPath);
+            if (control) {
+              backendErrors.push({
+                controlPath: controlPath,
+                message: errorText || 'Invalid value.', // Use the parsed message or a default
+                tab: this.getTabForControl(controlPath),
+                friendlyName: controlPath.replace(/_/g, ' ').replace(/\./g, ' > '), // e.g., sponsor > sex
+              });
+            }
+          }
+          this.formErrors.set(backendErrors);
+          this.toastService.show({ message: 'Please correct the errors below.', type: 'error' });
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        } else {
+          // Handle other types of errors (500, network issues, etc.)
+          console.error('Failed to save patient record:', err);
+          this.toastService.show({ message: 'An unexpected error occurred. Please try again.', type: 'error' });
+        }
+
         return EMPTY; // Stop the observable chain on error
       })
     ).subscribe(() => {
+      this.formErrors.set([]); // Clear errors on successful save
       this.toastService.show({ message: 'Patient record updated successfully!', type: 'success' });
       // Navigate back to the detail view after a successful save
       this.router.navigate(['/records', patientId]);
@@ -239,6 +276,14 @@ export class PatientEdit implements OnDestroy {
     }
   }
 
+  // Handles navigation from the validation summary component
+  handleErrorNavigation(error: FormError) {
+    this.setActiveTab(error.tab);
+    // Use a timeout to ensure the tab content is rendered before marking for focus
+    setTimeout(() => {
+      this.patientForm.get(error.controlPath)?.markAsTouched();
+    }, 100);
+  }
   // Navigates back to the previous page in the browser's history
   cancel(): void {
     this.location.back();
@@ -352,7 +397,7 @@ export class PatientEdit implements OnDestroy {
       first_name: [sponsor.first_name || ''],
       last_name: [sponsor.last_name || ''],
       middle_initial: [sponsor.middle_initial || ''],
-      sex: [sponsor.sex || ''],
+      sex: [sponsor.sex || null], // Use null as the default for optional fields
       rank: [sponsor.rank || ''],
       afpsn: [sponsor.afpsn || ''],
       branch_of_service: [sponsor.branch_of_service || ''],
@@ -413,6 +458,29 @@ export class PatientEdit implements OnDestroy {
   // Method to change the active tab
   setActiveTab(tab: PatientEditTab) {
     this.activeTab.set(tab);
+  }
+
+  private getTabForControl(controlPath: string): FormErrorTab {
+    if (controlPath.startsWith('summary')) {
+      return 'summary';
+    }
+    if (controlPath.startsWith('consultations')) {
+      return 'consultations';
+    }
+    if (controlPath.startsWith('lab_reports')) {
+      return 'labs';
+    }
+    if (controlPath.startsWith('radiology_reports')) {
+      return 'radiology';
+    }
+    if (controlPath.startsWith('sponsor')) {
+      return 'sponsor';
+    }
+    return 'info'; // Default to the 'info' tab
+  }
+  // Clear validation errors
+  clearErrors(): void {
+    this.formErrors.set([]);
   }
 
   ngOnDestroy(): void {

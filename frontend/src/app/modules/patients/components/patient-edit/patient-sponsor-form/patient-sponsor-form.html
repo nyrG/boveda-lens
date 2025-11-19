@@ -43,6 +43,7 @@
         <div class="mt-8 sm:col-span-2">
           <label for="sponsor-sex" class="form-label">Sex</label>
           <select id="sponsor-sex" class="form-input max-w-xs" formControlName="sex">
+            <option [ngValue]="null">Not Applicable</option>
             <option value="M">Male</option>
             <option value="F">Female</option>
           </select>
