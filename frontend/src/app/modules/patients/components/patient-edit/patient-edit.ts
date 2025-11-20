@@ -23,7 +23,7 @@ type PatientEditTab = 'info' | 'summary' | 'consultations' | 'labs' | 'radiology
 @Component({
   standalone: true,
   selector: 'app-patient-edit',
-  imports: [CommonModule, ReactiveFormsModule, PatientInfoForm, PatientSummaryForm, PatientConsultationsForm, PatientLabsForm, PatientRadiologyForm, PatientSponsorForm, ValidationSummary],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, PatientInfoForm, PatientSummaryForm, PatientConsultationsForm, PatientLabsForm, PatientRadiologyForm, PatientSponsorForm, ValidationSummary],
   templateUrl: './patient-edit.html',
   styleUrl: './patient-edit.css',
   providers: [DatePipe], // Add DatePipe for formatting dates in the form
@@ -202,6 +202,12 @@ export class PatientEdit implements OnDestroy {
       payload.summary.allergies = ((payload.summary as any).allergies || '').split(',').map((s: string) => s.trim()).filter(Boolean);
     }
 
+    // If the sponsor form is hidden, it means we intend to remove the sponsor.
+    // Set the sponsor payload to null to disassociate it on the backend.
+    if (!this.showSponsorForm()) {
+      (payload as any).sponsor = null;
+    }
+
     this.recordState.updateRecord(patientId, payload).pipe(
       catchError(err => {
         // Check for a 400 Bad Request with a 'message' array (default NestJS validation response)
@@ -247,11 +253,9 @@ export class PatientEdit implements OnDestroy {
 
   private repopulateFormArrays(formValue: Patient): void {
     this.addresses.clear();
-    if (formValue.addresses && formValue.addresses.length > 0) {
-      this.addresses.push(this.createAddressGroup(formValue.addresses[0]));
-    } else {
-      this.addresses.push(this.createAddressGroup()); // Add an empty one if none exist
-    }
+    formValue.addresses?.forEach(address => {
+      this.addresses.push(this.createAddressGroup(address));
+    });
 
     // Clear and repopulate FormArrays
     this.consultations.clear();
@@ -294,9 +298,16 @@ export class PatientEdit implements OnDestroy {
     this.showSponsorForm.set(true);
   }
 
+  // Method to remove the sponsor from the form
+  removeSponsor(): void {
+    this.showSponsorForm.set(false);
+    this.patientForm.controls.sponsor.reset(); // Reset the form group to clear all values
+  }
+
   // Creates a FormGroup for a single consultation
   private createConsultationGroup(consultation: any = {}): FormGroup {
     return this.fb.group({
+      id: [consultation.id || null],
       height_cm: [consultation.height_cm || null],
       weight_kg: [consultation.weight_kg || null],
       temperature_c: [consultation.temperature_c || null],
@@ -331,10 +342,8 @@ export class PatientEdit implements OnDestroy {
   private createLabResultGroup(labResult: any = {}): FormGroup {
     const testRows = (labResult.results || []).map((test: any) => this.createTestRowGroup(test));
     return this.fb.group({
-      id: [labResult.id || null],
-      date_performed: [
-        this.datePipe.transform(labResult.date_performed, 'yyyy-MM-dd') || '',
-      ],
+      id: [labResult.id || null], // Keep the ID for updates
+      date_performed: [this.datePipe.transform(labResult.date_performed, 'yyyy-MM-dd') || ''],
       test_type: [labResult.test_type || ''],
       results: this.fb.array(testRows),
     });
@@ -343,6 +352,7 @@ export class PatientEdit implements OnDestroy {
   // Creates a FormGroup for a single test result row
   public createTestRowGroup(testRow: any = {}): FormGroup {
     return this.fb.group({
+      id: [testRow.id || null],
       test_name: [testRow.test_name || ''],
       value: [testRow.value || ''],
       unit: [testRow.unit || ''],
@@ -381,9 +391,7 @@ export class PatientEdit implements OnDestroy {
   private createRadiologyReportGroup(report: any = {}): FormGroup {
     return this.fb.group({
       id: [report.id || null],
-      date_performed: [
-        this.datePipe.transform(report.date_performed, 'yyyy-MM-dd') || '',
-      ],
+      date_performed: [this.datePipe.transform(report.date_performed, 'yyyy-MM-dd') || ''],
       examination: [report.examination || ''],
       findings: [report.findings || ''],
       impression: [report.impression || ''],

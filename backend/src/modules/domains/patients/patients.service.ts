@@ -14,6 +14,7 @@ import { PatientAddress } from './entities/patient-address.entity';
 import { Sponsor } from './entities/sponsor.entity';
 import { FindAllPatientsDto } from './dto/patient/find-all-patients.dto';
 import { PatientCategory } from './entities/patient-category.entity';
+import { formatPatientDto } from './utils/patient-formatting.utils';
 
 @Injectable()
 export class PatientsService {
@@ -58,6 +59,9 @@ export class PatientsService {
   }
 
   async create(createPatientDto: CreatePatientDto): Promise<Patient> {
+    // Format the incoming DTO to apply title casing to names and other fields.
+    formatPatientDto(createPatientDto);
+
     if (!createPatientDto.first_name || !createPatientDto.last_name) {
       throw new BadRequestException(
         'Patient data is incomplete. A first and last name are required to save a new record.',
@@ -108,7 +112,7 @@ export class PatientsService {
       // Step 2: Build the full entity graph
       const fullName = [
         createPatientDto.first_name,
-        createPatientDto.middle_initial,
+        createPatientDto.middle_initial ? `${createPatientDto.middle_initial}.` : undefined,
         createPatientDto.last_name,
       ]
         .filter(Boolean)
@@ -249,6 +253,13 @@ export class PatientsService {
   }
 
   async update(id: number, updatePatientDto: UpdatePatientDto): Promise<Patient> {
+    // Format the incoming DTO to apply title casing to names and other fields.
+    formatPatientDto(updatePatientDto);
+
+    this.logger.debug(
+      `[UPDATE START] DTO for patient ID ${id}: ${JSON.stringify(updatePatientDto, null, 2)}`,
+    );
+
     return this.dataSource.transaction(async (transactionalEntityManager) => {
       // Use the transactional entity manager to find the patient
       const patient = await transactionalEntityManager.findOne(Patient, {
@@ -268,6 +279,10 @@ export class PatientsService {
         throw new NotFoundException(`Patient with ID ${id} not found`);
       }
 
+      this.logger.debug(
+        `[UPDATE LOADED] Patient entity before merge for ID ${id}: ${JSON.stringify(patient, null, 2)}`,
+      );
+
       // --- Prepare related entities that require special logic before merging ---
 
       // If age is not provided in the update and is currently null,
@@ -283,99 +298,53 @@ export class PatientsService {
         patient.age = calculatedAge;
       }
 
-      // Process consultations to calculate age_at_visit
-      let consultationEntities: Consultation[] | undefined;
-      if (updatePatientDto.consultations) {
-        consultationEntities = updatePatientDto.consultations.map((dto) => {
-          const entity = transactionalEntityManager.create(Consultation, dto);
-          if (entity.consultation_date && patient.date_of_birth) {
-            const consultationDate = new Date(entity.consultation_date);
-            const birthDate = new Date(patient.date_of_birth);
-            entity.age_at_visit = this.calculateAge(birthDate, consultationDate);
-          }
-          return entity;
-        });
-      }
-
-      // Create a payload for merging that includes the processed relations
-      const mergePayload = {
-        ...updatePatientDto,
-        consultations: consultationEntities,
-      };
-
       // If name fields are being updated, also update the associated record's name.
       if (
         updatePatientDto.first_name ||
         updatePatientDto.last_name ||
         updatePatientDto.middle_initial
       ) {
-        const newFullName = [patient.first_name, patient.middle_initial, patient.last_name]
+        const newFullName = [
+          updatePatientDto.first_name ?? patient.first_name,
+          (updatePatientDto.middle_initial ?? patient.middle_initial)
+            ? `${updatePatientDto.middle_initial ?? patient.middle_initial}.`
+            : undefined,
+          updatePatientDto.last_name ?? patient.last_name,
+        ]
           .filter(Boolean)
           .join(' ');
+
         patient.record.name = newFullName;
         await transactionalEntityManager.save(Record, patient.record);
       }
 
-      // --- Handle Category ---
-      // The DTO can provide a category object, null to remove it, or undefined to leave it unchanged.
-      if (updatePatientDto.category !== undefined) {
-        if (updatePatientDto.category === null) {
-          // If null is explicitly passed, disassociate the category.
-          patient.category = null;
-        } else if (updatePatientDto.category) {
-          // If a category object is provided, find or create it.
-          const { id, name } = updatePatientDto.category;
-          let categoryEntity: PatientCategory | null = null;
-
-          if (id) {
-            const foundCategory = await transactionalEntityManager.findOneBy(PatientCategory, {
-              id,
-            });
-            if (foundCategory) {
-              categoryEntity = foundCategory;
-            }
-            // If an ID is provided but not found, we could throw an error or ignore.
-            // For now, we'll just not update the category if the ID is invalid.
-          } else if (name) {
-            const foundCategoryByName = await transactionalEntityManager.findOne(PatientCategory, {
-              where: { name },
-            });
-            if (foundCategoryByName) {
-              categoryEntity = foundCategoryByName;
-            } else {
-              // Create a new category if it doesn't exist by name.
-              categoryEntity = transactionalEntityManager.create(
-                PatientCategory,
-                updatePatientDto.category,
-              );
-            }
-          }
-
-          // Directly assign the resolved entity (or null) to the patient object.
-          // This avoids type conflicts with the mergePayload which expects a DTO.
-          patient.category = categoryEntity;
-        }
-      }
-
       // Merge the DTO into the patient entity. This applies the partial update.
       // TypeORM's merge is smart enough to handle deep updates on relations.
-      // For collections (like addresses), it will replace the entire collection.
-      // The cascade settings on the entity will then handle inserts/updates/deletes.
-      transactionalEntityManager.merge(Patient, patient, mergePayload);
+      // For relations like 'category', providing an object with an 'id' will link it.
+      // For collections like 'addresses', it will add, update, or remove based on the provided array.
+      // The cascade settings on the entity will then handle inserts/updates/deletes for child entities.
+      transactionalEntityManager.merge(Patient, patient, updatePatientDto);
+
+      this.logger.debug(
+        `[UPDATE MERGED] Patient entity after merge for ID ${id}: ${JSON.stringify(patient, null, 2)}`,
+      );
+
+      // After merging, manually calculate age_at_visit for any consultations.
+      // This is necessary because the logic depends on the patient's date_of_birth.
+      if (patient.consultations && patient.date_of_birth) {
+        const birthDate = new Date(patient.date_of_birth);
+        patient.consultations.forEach((consultation) => {
+          if (consultation.consultation_date) {
+            const consultationDate = new Date(consultation.consultation_date);
+            consultation.age_at_visit = this.calculateAge(birthDate, consultationDate);
+          }
+        });
+      }
 
       // Save the patient. TypeORM will handle inserts, updates, and removals
       // for the addresses collection due to the cascade settings.
-      await transactionalEntityManager.save(Patient, patient);
-
-      // Re-fetch the patient with all relations to ensure the returned object is complete.
-      const updatedPatient = await transactionalEntityManager.findOne(Patient, {
-        where: { id: patient.id },
-        relations: ['record', 'addresses', 'category'],
-      });
-      if (!updatedPatient) {
-        throw new NotFoundException(`Patient with ID ${id} could not be refetched after update.`);
-      }
-      return updatedPatient;
+      // The save method returns the updated entity, including cascaded relations.
+      return transactionalEntityManager.save(Patient, patient);
     });
   }
 
