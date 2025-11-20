@@ -256,9 +256,9 @@ export class PatientsService {
     // Format the incoming DTO to apply title casing to names and other fields.
     formatPatientDto(updatePatientDto);
 
-    this.logger.debug(
+    /* this.logger.debug(
       `[UPDATE START] DTO for patient ID ${id}: ${JSON.stringify(updatePatientDto, null, 2)}`,
-    );
+    ); */
 
     return this.dataSource.transaction(async (transactionalEntityManager) => {
       // Use the transactional entity manager to find the patient
@@ -279,9 +279,9 @@ export class PatientsService {
         throw new NotFoundException(`Patient with ID ${id} not found`);
       }
 
-      this.logger.debug(
+      /* this.logger.debug(
         `[UPDATE LOADED] Patient entity before merge for ID ${id}: ${JSON.stringify(patient, null, 2)}`,
-      );
+      ); */
 
       // --- Prepare related entities that require special logic before merging ---
 
@@ -325,9 +325,9 @@ export class PatientsService {
       // The cascade settings on the entity will then handle inserts/updates/deletes for child entities.
       transactionalEntityManager.merge(Patient, patient, updatePatientDto);
 
-      this.logger.debug(
+      /* this.logger.debug(
         `[UPDATE MERGED] Patient entity after merge for ID ${id}: ${JSON.stringify(patient, null, 2)}`,
-      );
+      ); */
 
       // After merging, manually calculate age_at_visit for any consultations.
       // This is necessary because the logic depends on the patient's date_of_birth.

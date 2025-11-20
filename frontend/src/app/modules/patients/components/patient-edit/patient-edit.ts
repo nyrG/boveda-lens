@@ -23,7 +23,7 @@ type PatientEditTab = 'info' | 'summary' | 'consultations' | 'labs' | 'radiology
 @Component({
   standalone: true,
   selector: 'app-patient-edit',
-  imports: [CommonModule, ReactiveFormsModule, RouterLink, PatientInfoForm, PatientSummaryForm, PatientConsultationsForm, PatientLabsForm, PatientRadiologyForm, PatientSponsorForm, ValidationSummary],
+  imports: [CommonModule, ReactiveFormsModule, PatientInfoForm, PatientSummaryForm, PatientConsultationsForm, PatientLabsForm, PatientRadiologyForm, PatientSponsorForm, ValidationSummary],
   templateUrl: './patient-edit.html',
   styleUrl: './patient-edit.css',
   providers: [DatePipe], // Add DatePipe for formatting dates in the form
