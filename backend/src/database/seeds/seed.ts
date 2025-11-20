@@ -65,7 +65,13 @@ const createRandomPatient = (
 
   // Create and assign the new Record entity
   const record = new Record();
-  record.name = `${firstName} ${lastName}`;
+  record.name = [
+    firstName,
+    patient.middle_initial ? `${patient.middle_initial}.` : undefined,
+    lastName,
+  ]
+    .filter(Boolean)
+    .join(' ');
   record.record_type = recordType;
   patient.record = record;
 

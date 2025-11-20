@@ -8,7 +8,7 @@ import {
 } from 'class-validator';
 import { Type } from 'class-transformer';
 
-class TestResultDto {
+export class CreateTestResultDto {
   @IsString()
   @IsOptional()
   test_name?: string;
@@ -38,8 +38,8 @@ export class CreateLabReportDto {
   @IsOptional()
   @IsArray()
   @ValidateNested({ each: true })
-  @Type(() => TestResultDto)
-  results?: TestResultDto[];
+  @Type(() => CreateTestResultDto)
+  results?: CreateTestResultDto[];
 
   @IsOptional()
   @IsString()

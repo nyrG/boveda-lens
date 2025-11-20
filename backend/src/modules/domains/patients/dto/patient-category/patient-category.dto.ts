@@ -1,16 +1,13 @@
-import { IsInt, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { IsInt, IsOptional, IsString } from 'class-validator';
 
 export class PatientCategoryDto {
+  @ApiPropertyOptional({ description: 'The unique identifier of the category.' })
   @IsOptional()
   @IsInt()
   id?: number;
 
-  @IsOptional()
+  @ApiProperty({ description: 'The name of the category (e.g., "EDM", "ODS").' })
   @IsString()
-  @IsNotEmpty()
-  name?: string;
-
-  @IsOptional()
-  @IsString()
-  description?: string;
+  name: string;
 }

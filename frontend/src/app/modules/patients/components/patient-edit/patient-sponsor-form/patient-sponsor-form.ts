@@ -13,10 +13,15 @@ import { ControlContainer } from '@angular/forms';
 export class PatientSponsorForm {
   @Input({ required: true }) showForm!: boolean;
   @Output() register = new EventEmitter<void>();
+  @Output() remove = new EventEmitter<void>();
 
   public form: FormGroup;
 
   constructor() {
     this.form = inject(ControlContainer, { host: true }).control as FormGroup;
+  }
+
+  onRemove(): void {
+    this.remove.emit();
   }
 }
