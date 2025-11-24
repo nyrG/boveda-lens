@@ -279,9 +279,9 @@ export class PatientsService {
         throw new NotFoundException(`Patient with ID ${id} not found`);
       }
 
-      /* this.logger.debug(
+      this.logger.debug(
         `[UPDATE LOADED] Patient entity before merge for ID ${id}: ${JSON.stringify(patient, null, 2)}`,
-      ); */
+      );
 
       // --- Prepare related entities that require special logic before merging ---
 
@@ -318,28 +318,65 @@ export class PatientsService {
         await transactionalEntityManager.save(Record, patient.record);
       }
 
-      // Merge the DTO into the patient entity. This applies the partial update.
-      // TypeORM's merge is smart enough to handle deep updates on relations.
-      // For relations like 'category', providing an object with an 'id' will link it.
-      // For collections like 'addresses', it will add, update, or remove based on the provided array.
-      // The cascade settings on the entity will then handle inserts/updates/deletes for child entities.
-      transactionalEntityManager.merge(Patient, patient, updatePatientDto);
+      // --- Alternative "Clear and Replace" Strategy for Consultations ---
+      // This approach is more explicit and avoids issues with TypeORM's change detection on 'save'.
+      if (updatePatientDto.consultations) {
+        // 1. If there are existing consultations, explicitly remove them.
+        if (patient.consultations && patient.consultations.length > 0) {
+          await transactionalEntityManager.remove(patient.consultations);
+        }
 
-      /* this.logger.debug(
-        `[UPDATE MERGED] Patient entity after merge for ID ${id}: ${JSON.stringify(patient, null, 2)}`,
-      ); */
-
-      // After merging, manually calculate age_at_visit for any consultations.
-      // This is necessary because the logic depends on the patient's date_of_birth.
-      if (patient.consultations && patient.date_of_birth) {
-        const birthDate = new Date(patient.date_of_birth);
-        patient.consultations.forEach((consultation) => {
-          if (consultation.consultation_date) {
+        // 2. Create new consultation entities from the DTO.
+        const birthDate = patient.date_of_birth ? new Date(patient.date_of_birth) : null;
+        const newConsultations = updatePatientDto.consultations.map((dto) => {
+          // Important: We remove the 'id' from the DTO to ensure TypeORM treats it as a new insert.
+          const consultationData = { ...dto };
+          delete consultationData.id;
+          const consultation = transactionalEntityManager.create(Consultation, consultationData);
+          if (birthDate && consultation.consultation_date) {
             const consultationDate = new Date(consultation.consultation_date);
             consultation.age_at_visit = this.calculateAge(birthDate, consultationDate);
           }
+          return consultation;
         });
+
+        // 3. Assign the new collection to the patient.
+        patient.consultations = newConsultations;
+      } else if ('consultations' in updatePatientDto) {
+        // If the 'consultations' key exists but is null or an empty array, clear the collection.
+        patient.consultations = [];
       }
+
+      // --- Handle other collections and simple properties ---
+      // Avoid using Object.assign or merge on the top-level entity when also managing
+      // collections manually, as it can confuse TypeORM's change tracking for relations.
+      // Instead, handle each property and relation explicitly.
+
+      // Example for other collections (if they need the same add/update/delete logic)
+      if (updatePatientDto.addresses) {
+        const updatedAddresses: PatientAddress[] = updatePatientDto.addresses.map((dto) => {
+          const existing = (patient.addresses ?? []).find((a) => a.id === dto.id && dto.id);
+          const address = existing
+            ? transactionalEntityManager.merge(PatientAddress, existing, dto)
+            : transactionalEntityManager.create(PatientAddress, dto);
+          return address;
+        });
+        patient.addresses = updatedAddresses;
+      }
+
+      // Manually assign simple properties from the DTO to the patient entity
+      const simpleProps = { ...updatePatientDto };
+      delete simpleProps.consultations;
+      delete simpleProps.addresses;
+      delete simpleProps.lab_reports;
+      delete simpleProps.radiology_reports;
+      delete simpleProps.sponsor;
+      delete simpleProps.category;
+      Object.assign(patient, simpleProps);
+
+      this.logger.debug(
+        `[UPDATE PRE-SAVE] Patient entity state just before save for ID ${id}: ${JSON.stringify(patient, null, 2)}`,
+      );
 
       // Save the patient. TypeORM will handle inserts, updates, and removals
       // for the addresses collection due to the cascade settings.
