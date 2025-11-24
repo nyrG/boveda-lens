@@ -394,16 +394,38 @@ export class PatientsService {
       // collections manually, as it can confuse TypeORM's change tracking for relations.
       // Instead, handle each property and relation explicitly.
 
-      // Example for other collections (if they need the same add/update/delete logic)
+      // --- "Clear and Replace" for Addresses ---
       if (updatePatientDto.addresses) {
-        const updatedAddresses: PatientAddress[] = updatePatientDto.addresses.map((dto) => {
-          const existing = (patient.addresses ?? []).find((a) => a.id === dto.id && dto.id);
-          const address = existing
-            ? transactionalEntityManager.merge(PatientAddress, existing, dto)
-            : transactionalEntityManager.create(PatientAddress, dto);
-          return address;
+        if (patient.addresses && patient.addresses.length > 0) {
+          await transactionalEntityManager.remove(patient.addresses);
+        }
+        const newAddresses = updatePatientDto.addresses.map((dto) => {
+          const addressData = { ...dto };
+          delete addressData.id;
+          return transactionalEntityManager.create(PatientAddress, addressData);
         });
-        patient.addresses = updatedAddresses;
+        patient.addresses = newAddresses;
+      } else if ('addresses' in updatePatientDto) {
+        patient.addresses = [];
+      }
+
+      // Explicitly handle the sponsor relationship
+      // If sponsor is provided as null in the DTO, set it to null on the entity.
+      if ('sponsor' in updatePatientDto) {
+        const sponsorDto = updatePatientDto.sponsor;
+        if (sponsorDto === null) {
+          // Disassociate/remove the sponsor
+          patient.sponsor = null;
+        } else if (sponsorDto) {
+          // Create or update the sponsor
+          if (patient.sponsor) {
+            // If a sponsor exists, merge the DTO to update it.
+            transactionalEntityManager.merge(Sponsor, patient.sponsor, sponsorDto);
+          } else {
+            // If no sponsor exists, create a new one from the DTO.
+            patient.sponsor = transactionalEntityManager.create(Sponsor, sponsorDto);
+          }
+        }
       }
 
       // Manually assign simple properties from the DTO to the patient entity
