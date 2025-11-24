@@ -1,6 +1,6 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Summary } from '../../../models/patient';
+import { Patient } from '../../../models/patient';
 import { DetailItem } from '../../../../../shared/components/detail-item/detail-item';
 
 @Component({
@@ -14,5 +14,19 @@ import { DetailItem } from '../../../../../shared/components/detail-item/detail-
 })
 export class PatientSummary {
   // Input to receive the patient's summary data
-  @Input({ required: true }) summary: Summary | undefined | null;
+  @Input({ required: true }) summary: Patient['summary'] | undefined | null;
+
+  /**
+   * Computes a filtered list of diagnoses, excluding any 'None' values.
+   */
+  filteredDiagnoses = computed(() => {
+    return this.summary?.diagnoses?.filter(d => d.toLowerCase() !== 'none') ?? [];
+  });
+
+  /**
+   * Computes a filtered list of allergies, excluding any 'None' values.
+   */
+  filteredAllergies = computed(() => {
+    return this.summary?.allergies?.filter(a => a.toLowerCase() !== 'none') ?? [];
+  });
 }
