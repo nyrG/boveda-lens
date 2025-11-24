@@ -112,7 +112,7 @@ export class PatientDetail implements OnDestroy {
 
     // Use router state to pass data without adding it to the URL
     this.router.navigate(['/records', patientId, 'edit'], {
-      state: { tab: this.activeTab() }
+      state: { tab: this.activeTab() },
     });
   }
 

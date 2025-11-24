@@ -28,26 +28,129 @@
       </div>
 
       <div>
-        <label for="final-diagnosis" class="form-label">Diagnoses</label>
-        <input type="text" id="final-diagnosis" class="form-input" formControlName="diagnoses" />
-        <p class="mt-2 text-xs text-slate-500">Enter multiple diagnoses separated by commas.</p>
+        <label for="new-diagnosis" class="form-label">Diagnoses</label>
+        <div class="flex items-center gap-2 mt-2">
+          <input
+            #newDiagnosisInput
+            type="text"
+            id="new-diagnosis"
+            class="flex-grow rounded-md border-slate-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm"
+            placeholder="Type a diagnosis and press Enter or Add"
+            (keydown.enter)="addListItem('diagnoses', newDiagnosisInput); $event.preventDefault()"
+          />
+          <button
+            type="button"
+            (click)="addListItem('diagnoses', newDiagnosisInput)"
+            class="inline-flex items-center justify-center rounded-md border border-slate-300 bg-white px-4 py-1.5 text-sm font-medium text-slate-700 shadow-sm transition-colors hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2"
+          >
+            Add
+          </button>
+        </div>
+        @if (getArrayControls('diagnoses').length > 0) {
+          <div class="mt-2 flex flex-wrap gap-2">
+            @for (control of getArrayControls('diagnoses'); track control; let i = $index) {
+              <div
+                class="flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1 text-sm text-slate-700"
+              >
+                <span>{{ control.value }}</span>
+                <button
+                  type="button"
+                  class="text-slate-500 hover:text-slate-700"
+                  (click)="removeListItem('diagnoses', i)"
+                  aria-label="Remove diagnosis"
+                >
+                  &times;
+                </button>
+              </div>
+            }
+          </div>
+        }
       </div>
 
       <div>
-        <label for="medications-taken" class="form-label">Medications Taken</label>
-        <input
-          type="text"
-          id="medications-taken"
-          class="form-input"
-          formControlName="medications_prescribed"
-        />
-        <p class="mt-2 text-xs text-slate-500">Enter multiple medications separated by commas.</p>
+        <label for="new-medication" class="form-label">Medications Taken</label>
+        <div class="flex items-center gap-2 mt-2">
+          <input
+            #newMedicationInput
+            type="text"
+            id="new-medication"
+            class="flex-grow rounded-md border-slate-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm"
+            placeholder="Type a medication and press Enter or Add"
+            (keydown.enter)="
+              addListItem('medications_prescribed', newMedicationInput); $event.preventDefault()
+            "
+          />
+          <button
+            type="button"
+            (click)="addListItem('medications_prescribed', newMedicationInput)"
+            class="inline-flex items-center justify-center rounded-md border border-slate-300 bg-white px-4 py-1.5 text-sm font-medium text-slate-700 shadow-sm transition-colors hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2"
+          >
+            Add
+          </button>
+        </div>
+        @if (getArrayControls('medications_prescribed').length > 0) {
+          <div class="mt-2 flex flex-wrap gap-2">
+            @for (
+              control of getArrayControls('medications_prescribed');
+              track control;
+              let i = $index
+            ) {
+              <div
+                class="flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1 text-sm text-slate-700"
+              >
+                <span>{{ control.value }}</span>
+                <button
+                  type="button"
+                  class="text-slate-500 hover:text-slate-700"
+                  (click)="removeListItem('medications_prescribed', i)"
+                  aria-label="Remove medication"
+                >
+                  &times;
+                </button>
+              </div>
+            }
+          </div>
+        }
       </div>
 
       <div>
-        <label for="allergies" class="form-label">Allergies</label>
-        <input type="text" id="allergies" class="form-input" formControlName="allergies" />
-        <p class="mt-2 text-xs text-slate-500">Enter multiple allergies separated by commas.</p>
+        <label for="new-allergy" class="form-label">Allergies</label>
+        <div class="flex items-center gap-2 mt-2">
+          <input
+            #newAllergyInput
+            type="text"
+            id="new-allergy"
+            class="flex-grow rounded-md border-slate-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm"
+            placeholder="Type an allergy and press Enter or Add"
+            (keydown.enter)="addListItem('allergies', newAllergyInput); $event.preventDefault()"
+          />
+          <button
+            type="button"
+            (click)="addListItem('allergies', newAllergyInput)"
+            class="inline-flex items-center justify-center rounded-md border border-slate-300 bg-white px-4 py-1.5 text-sm font-medium text-slate-700 shadow-sm transition-colors hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2"
+          >
+            Add
+          </button>
+        </div>
+        @if (getArrayControls('allergies').length > 0) {
+          <div class="mt-2 flex flex-wrap gap-2">
+            @for (control of getArrayControls('allergies'); track control; let i = $index) {
+              <div
+                class="flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1 text-sm text-slate-700"
+              >
+                <span>{{ control.value }}</span>
+                <button
+                  type="button"
+                  class="text-slate-500 hover:text-slate-700"
+                  (click)="removeListItem('allergies', i)"
+                  aria-label="Remove allergy"
+                >
+                  &times;
+                </button>
+              </div>
+            }
+          </div>
+        }
       </div>
     </div>
   </div>

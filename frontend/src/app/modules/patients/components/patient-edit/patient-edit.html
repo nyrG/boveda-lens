@@ -64,7 +64,7 @@
           }
           @case ('summary') {
             <div formGroupName="summary" class="tab-content-enter">
-              <app-patient-summary-form />
+              <app-patient-summary-form [form]="patientForm.controls.summary" />
             </div>
           }
           @case ('consultations') {

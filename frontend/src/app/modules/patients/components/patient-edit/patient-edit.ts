@@ -87,11 +87,11 @@ export class PatientEdit implements OnDestroy {
     // Nested FormArrays for related entities
     addresses: this.fb.array([]), // We'll manage the first address
     summary: this.fb.group({
-      diagnoses: [''],
       primary_complaint: [''],
       key_findings: [''],
-      medications_prescribed: [''],
-      allergies: [''],
+      diagnoses: this.fb.array([]),
+      medications_prescribed: this.fb.array([]),
+      allergies: this.fb.array([]),
     }),
     consultations: this.fb.array([]),
     lab_reports: this.fb.array([]),
@@ -113,9 +113,6 @@ export class PatientEdit implements OnDestroy {
         if (formValue.date_of_birth) {
           formValue.date_of_birth = this.datePipe.transform(formValue.date_of_birth, 'yyyy-MM-dd') ?? '';
         }
-
-        // Convert array fields to comma-separated strings for form inputs
-        this.prepareSummaryForForm(formValue);
 
         return [formValue]; // Emit the processed value
       })
@@ -163,16 +160,6 @@ export class PatientEdit implements OnDestroy {
     });
   }
 
-  private prepareSummaryForForm(formValue: any): void {
-    if (formValue.summary) {
-      formValue.summary.diagnoses = (formValue.summary.diagnoses || []).join(', ');
-      formValue.summary.medications_prescribed = (formValue.summary.medications_prescribed || []).join(', ');
-      formValue.summary.allergies = (formValue.summary.allergies || []).join(', ');
-    } else {
-      formValue.summary = {}; // Ensure summary object exists for patching
-    }
-  }
-
   saveChanges() {
     if (this.patientForm.invalid) {
       this.patientForm.markAllAsTouched();
@@ -192,15 +179,6 @@ export class PatientEdit implements OnDestroy {
     // Use getRawValue to include all values, even if some were disabled
     // Create a new object that conforms to Partial<Patient> to resolve type errors
     const payload: Partial<Patient> = JSON.parse(JSON.stringify(this.patientForm.getRawValue()));
-
-    // Convert comma-separated strings back to arrays for summary fields
-    if (payload.summary) {
-      // The form has these as strings, but the Patient model expects string arrays.
-      // We cast to `any` to perform the transformation before sending.
-      payload.summary.diagnoses = ((payload.summary as any).diagnoses || '').split(',').map((s: string) => s.trim()).filter(Boolean);
-      payload.summary.medications_prescribed = ((payload.summary as any).medications_prescribed || '').split(',').map((s: string) => s.trim()).filter(Boolean);
-      payload.summary.allergies = ((payload.summary as any).allergies || '').split(',').map((s: string) => s.trim()).filter(Boolean);
-    }
 
     // If the sponsor form is hidden, it means we intend to remove the sponsor.
     // Set the sponsor payload to null to disassociate it on the backend.
@@ -247,7 +225,7 @@ export class PatientEdit implements OnDestroy {
       this.formErrors.set([]); // Clear errors on successful save
       this.toastService.show({ message: 'Patient record updated successfully!', type: 'success' });
       // Navigate back to the detail view after a successful save
-      this.router.navigate(['/records', patientId]);
+      this.router.navigate(['/records', patientId], { replaceUrl: true });
     });
   }
 
@@ -257,6 +235,23 @@ export class PatientEdit implements OnDestroy {
       this.addresses.push(this.createAddressGroup(address));
     });
 
+    // Repopulate summary FormArrays
+    const summaryGroup = this.patientForm.get('summary') as FormGroup;
+    const diagnosesArray = summaryGroup.get('diagnoses') as FormArray;
+    diagnosesArray.clear();
+    formValue.summary?.diagnoses?.forEach(d => diagnosesArray.push(this.fb.control(d)));
+
+    const medicationsArray = summaryGroup.get('medications_prescribed') as FormArray;
+    medicationsArray.clear();
+    formValue.summary?.medications_prescribed?.forEach(m =>
+      medicationsArray.push(this.fb.control(m)),
+    );
+
+    const allergiesArray = summaryGroup.get('allergies') as FormArray;
+    allergiesArray.clear();
+    formValue.summary?.allergies
+      ?.filter(a => a.toLowerCase() !== 'none')
+      .forEach(a => allergiesArray.push(this.fb.control(a)));
     // Clear and repopulate FormArrays
     this.consultations.clear();
     if (formValue.consultations) {
@@ -496,3 +491,5 @@ export class PatientEdit implements OnDestroy {
     this.headerState.setBreadcrumbs([{ text: 'Records', link: '/records' }]);
   }
 }
+
+export { PatientSummaryForm };

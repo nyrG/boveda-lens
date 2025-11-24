@@ -1,24 +1,50 @@
-import { Component, inject } from '@angular/core';
-import { FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { Component, Input, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ControlContainer, FormGroupDirective } from '@angular/forms';
+import {
+  ReactiveFormsModule,
+  FormGroup,
+  FormArray,
+  AbstractControl,
+  FormBuilder,
+} from '@angular/forms';
 
 @Component({
   selector: 'app-patient-summary-form',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './patient-summary-form.html',
-  styleUrl: './patient-summary-form.css',
 })
 export class PatientSummaryForm {
-  // Inject the parent's control container and cast it to a FormGroup.
-  // The template can now access this `form` property.
-  public form: FormGroup;
+  @Input({ required: true }) form!: FormGroup;
 
-  constructor() {
-    const controlContainer = inject(ControlContainer, { host: true });
-    console.log('PatientSummaryForm ControlContainer:', controlContainer);
-    // The control is the specific FormGroup ('summary') passed from the parent.
-    this.form = controlContainer.control as FormGroup;
+  private fb = inject(FormBuilder);
+
+  getArrayControls(
+    arrayName: 'diagnoses' | 'medications_prescribed' | 'allergies',
+  ): AbstractControl[] {
+    const formArray = this.form.get(arrayName) as FormArray;
+    return formArray.controls;
+  }
+
+  addListItem(
+    arrayName: 'diagnoses' | 'medications_prescribed' | 'allergies',
+    inputElement: HTMLInputElement,
+  ): void {
+    const value = inputElement.value.trim();
+    const formArray = this.form.get(arrayName) as FormArray;
+
+    // Prevent adding empty or duplicate values
+    const isDuplicate = formArray.controls.some(control => control.value.toLowerCase() === value.toLowerCase());
+    const isNoneValue = value.toLowerCase() === 'none';
+
+    if (value && !isDuplicate && !isNoneValue) {
+      formArray.push(this.fb.control(value));
+      inputElement.value = '';
+    }
+  }
+
+  removeListItem(arrayName: 'diagnoses' | 'medications_prescribed' | 'allergies', index: number): void {
+    const formArray = this.form.get(arrayName) as FormArray;
+    formArray.removeAt(index);
   }
 }
