@@ -347,6 +347,48 @@ export class PatientsService {
         patient.consultations = [];
       }
 
+      // --- "Clear and Replace" for Lab Reports ---
+      if (updatePatientDto.lab_reports) {
+        if (patient.lab_reports && patient.lab_reports.length > 0) {
+          await transactionalEntityManager.remove(patient.lab_reports);
+        }
+
+        const newLabReports = updatePatientDto.lab_reports.map((dto) => {
+          const reportData = { ...dto };
+          delete reportData.id;
+          // The nested 'results' also need to be created without IDs.
+          if (reportData.results) {
+            reportData.results = reportData.results.map((resultDto) => {
+              const resultData = { ...resultDto };
+              delete resultData.id;
+              return resultData;
+            });
+          }
+          return transactionalEntityManager.create(LabReport, reportData);
+        });
+
+        patient.lab_reports = newLabReports;
+      } else if ('lab_reports' in updatePatientDto) {
+        patient.lab_reports = [];
+      }
+
+      // --- "Clear and Replace" for Radiology Reports ---
+      if (updatePatientDto.radiology_reports) {
+        if (patient.radiology_reports && patient.radiology_reports.length > 0) {
+          await transactionalEntityManager.remove(patient.radiology_reports);
+        }
+
+        const newRadiologyReports = updatePatientDto.radiology_reports.map((dto) => {
+          const reportData = { ...dto };
+          delete reportData.id;
+          return transactionalEntityManager.create(RadiologyReport, reportData);
+        });
+
+        patient.radiology_reports = newRadiologyReports;
+      } else if ('radiology_reports' in updatePatientDto) {
+        patient.radiology_reports = [];
+      }
+
       // --- Handle other collections and simple properties ---
       // Avoid using Object.assign or merge on the top-level entity when also managing
       // collections manually, as it can confuse TypeORM's change tracking for relations.
