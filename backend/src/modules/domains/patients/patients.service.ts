@@ -400,9 +400,17 @@ export class PatientsService {
           await transactionalEntityManager.remove(patient.addresses);
         }
         const newAddresses = updatePatientDto.addresses.map((dto) => {
-          const addressData = { ...dto };
-          delete addressData.id;
-          return transactionalEntityManager.create(PatientAddress, addressData);
+          // Manually map snake_case from DTO to camelCase for the entity
+          const newAddress = new PatientAddress();
+          newAddress.addressType = dto.address_type;
+          newAddress.houseNoStreet = dto.house_no_street || null;
+          newAddress.barangay = dto.barangay || null;
+          newAddress.cityMunicipality = dto.city_municipality || null;
+          newAddress.province = dto.province || null;
+          newAddress.zipCode = dto.zip_code || null;
+          // We don't map the ID, ensuring it's treated as a new entity
+
+          return transactionalEntityManager.create(PatientAddress, newAddress);
         });
         patient.addresses = newAddresses;
       } else if ('addresses' in updatePatientDto) {

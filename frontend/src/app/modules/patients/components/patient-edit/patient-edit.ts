@@ -412,7 +412,7 @@ export class PatientEdit implements OnDestroy {
   private createAddressGroup(address: any = {}): FormGroup {
     return this.fb.group({
       id: [address.id || null],
-      addressType: [address.addressType || 'RESIDENCE'], // Default to RESIDENCE
+      address_type: [address.addressType || 'RESIDENCE'], // Default to RESIDENCE
       house_no_street: [address.houseNoStreet || ''],
       barangay: [address.barangay || ''],
       city_municipality: [address.cityMunicipality || ''],

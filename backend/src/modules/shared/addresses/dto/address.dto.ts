@@ -4,12 +4,12 @@ import { AddressType } from '../entities/address.entity';
 export class AddressDto {
   @IsEnum(AddressType)
   @IsNotEmpty()
-  addressType: AddressType;
+  address_type: AddressType;
 
   @IsString()
   @IsOptional()
   @MaxLength(255)
-  houseNoStreet?: string;
+  house_no_street?: string;
 
   @IsString()
   @IsOptional()
@@ -19,7 +19,7 @@ export class AddressDto {
   @IsString()
   @IsOptional()
   @MaxLength(100)
-  cityMunicipality?: string;
+  city_municipality?: string;
 
   @IsString()
   @IsOptional()
@@ -29,7 +29,7 @@ export class AddressDto {
   @IsString()
   @IsOptional()
   @MaxLength(20)
-  zipCode?: string;
+  zip_code?: string;
 
   @IsString()
   @IsOptional()

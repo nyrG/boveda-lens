@@ -27,9 +27,9 @@ export const formatPatientDto = (dto: CreatePatientDto | UpdatePatientDto): void
 
   // Format patient address
   dto.addresses?.forEach((address) => {
-    address.houseNoStreet = toTitleCase(address.houseNoStreet);
+    address.house_no_street = toTitleCase(address.house_no_street);
     address.barangay = toTitleCase(address.barangay);
-    address.cityMunicipality = toTitleCase(address.cityMunicipality);
+    address.city_municipality = toTitleCase(address.city_municipality);
     address.province = toTitleCase(address.province);
   });
 
