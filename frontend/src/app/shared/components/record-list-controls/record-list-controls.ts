@@ -1,11 +1,11 @@
 import { Component, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { RecordStateService } from '../../services/record-state.service';
 
 @Component({
   selector: 'app-record-list-controls',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './record-list-controls.html',
   styleUrl: './record-list-controls.css'
 })

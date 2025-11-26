@@ -1,5 +1,5 @@
 import { Component, Input, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import {
   ReactiveFormsModule,
   FormGroup,
@@ -11,7 +11,7 @@ import {
 @Component({
   selector: 'app-patient-summary-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [ReactiveFormsModule],
   templateUrl: './patient-summary-form.html',
 })
 export class PatientSummaryForm {

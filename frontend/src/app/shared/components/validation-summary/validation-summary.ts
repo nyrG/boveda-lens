@@ -1,10 +1,10 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, EventEmitter, Input, Output, Signal } from '@angular/core';
 import { FormError } from '../../models/form-error';
 
 @Component({
   selector: 'app-validation-summary',
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './validation-summary.html',
   styleUrl: './validation-summary.css'
 })

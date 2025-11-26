@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit, computed, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { Patient } from '../../../modules/patients/models/patient';
@@ -9,7 +9,7 @@ import { PatientUploadModal } from '../../../modules/patients/components/patient
 @Component({
   selector: 'app-record-list',
   standalone: true,
-  imports: [CommonModule, RouterLink, FormsModule, PatientUploadModal],
+  imports: [RouterLink, FormsModule, PatientUploadModal],
   templateUrl: './record-list.html',
   styleUrls: ['./record-list.css']
 })
