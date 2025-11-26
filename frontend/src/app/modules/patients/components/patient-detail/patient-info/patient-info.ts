@@ -56,8 +56,8 @@ export class PatientInfo {
       return null;
     }
 
-    // Prioritize the 'RESIDENCE' address, otherwise fall back to the first one.
-    const primaryAddress = addresses.find(addr => addr.addressType === AddressType.RESIDENCE) || addresses[0];
+    // The primary address is always the first one in the array.
+    const primaryAddress = addresses[0];
 
     if (!primaryAddress) {
       return null;
