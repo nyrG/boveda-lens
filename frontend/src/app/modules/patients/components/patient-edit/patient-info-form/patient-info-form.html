@@ -182,7 +182,11 @@
             <div class="grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
               <div class="sm:col-span-2">
                 <label [for]="'address-type-' + i" class="form-label">Address Type</label>
-                <select [id]="'address-type-' + i" class="form-input" formControlName="addressType">
+                <select
+                  [id]="'address-type-' + i"
+                  class="form-input"
+                  formControlName="address_type"
+                >
                   <option value="RESIDENCE">Residence</option>
                   <option value="MAILING">Mailing</option>
                   <option value="EMERGENCY">Emergency</option>
