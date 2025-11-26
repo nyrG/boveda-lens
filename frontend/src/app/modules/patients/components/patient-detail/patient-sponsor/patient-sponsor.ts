@@ -1,12 +1,12 @@
 import { Component, Input, computed } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { Sponsor } from '../../../models/patient';
 import { DetailItem } from '../../../../../shared/components/detail-item/detail-item';
 
 @Component({
   selector: 'app-patient-sponsor',
   standalone: true,
-  imports: [CommonModule, DetailItem],
+  imports: [DetailItem],
   templateUrl: './patient-sponsor.html',
   styleUrl: './patient-sponsor.css',
   host: {

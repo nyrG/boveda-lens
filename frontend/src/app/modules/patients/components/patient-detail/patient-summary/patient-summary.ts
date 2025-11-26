@@ -1,12 +1,12 @@
 import { Component, Input, computed } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { Patient } from '../../../models/patient';
 import { DetailItem } from '../../../../../shared/components/detail-item/detail-item';
 
 @Component({
   selector: 'app-patient-summary',
   standalone: true,
-  imports: [CommonModule, DetailItem],
+  imports: [DetailItem],
   templateUrl: './patient-summary.html',
   host: {
     '[class]': `'block'`, // Ensures the component is a block-level element

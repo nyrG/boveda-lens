@@ -1,12 +1,12 @@
 import { Component, EventEmitter, Output, inject } from '@angular/core';
 import { FormGroup, ReactiveFormsModule, FormArray } from '@angular/forms';
-import { CommonModule } from '@angular/common';
+
 import { ControlContainer, FormGroupDirective } from '@angular/forms';
 
 @Component({
   selector: 'app-patient-info-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [ReactiveFormsModule],
   templateUrl: './patient-info-form.html',
   styleUrl: './patient-info-form.css',
   viewProviders: [{ provide: ControlContainer, useExisting: FormGroupDirective }],

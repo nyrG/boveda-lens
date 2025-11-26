@@ -1,10 +1,10 @@
 import { Component, Input } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 
 @Component({
   selector: 'app-detail-item',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './detail-item.html',
   styleUrl: './detail-item.css',
   host: {

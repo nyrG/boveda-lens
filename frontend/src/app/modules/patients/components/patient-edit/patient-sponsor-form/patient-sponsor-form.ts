@@ -1,12 +1,12 @@
 import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { CommonModule } from '@angular/common';
+
 import { ControlContainer } from '@angular/forms';
 
 @Component({
   selector: 'app-patient-sponsor-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [ReactiveFormsModule],
   templateUrl: './patient-sponsor-form.html',
   styleUrl: './patient-sponsor-form.css',
 })
