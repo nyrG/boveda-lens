@@ -1,0 +1,25 @@
+/*
+  Animation for providing a visual cue when an address item is reordered. It
+  creates a "lift and settle" effect by flashing a background color, slightly
+  scaling the item up, and then returning it to its normal state.
+*/
+@keyframes lift-and-settle {
+  0% {
+    background-color: #e0f2fe; /* Tailwind's sky-100 */
+    transform: scale(1);
+  }
+  30% {
+    background-color: #e0f2fe;
+    transform: scale(1.02);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  }
+  100% {
+    background-color: #f8fafc; /* Tailwind's slate-50 */
+    transform: scale(1);
+    box-shadow: none;
+  }
+}
+
+.item-moved-flash {
+  animation: lift-and-settle 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+}

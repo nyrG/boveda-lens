@@ -59,6 +59,11 @@
             <app-patient-info-form
               (addAddress)="addAddress()"
               (removeAddress)="removeAddress($event)"
+              (moveAddressUp)="moveAddressUp($event)"
+              (moveAddressDown)="moveAddressDown($event)"
+              (makePrimary)="makePrimaryAddress($event)"
+              [isPrimaryAddress]="isPrimaryAddressFn"
+              [recentlyMovedIndex]="recentlyMovedAddressIndex()"
               class="tab-content-enter"
             />
           }

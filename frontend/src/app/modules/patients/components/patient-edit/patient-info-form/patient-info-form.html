@@ -167,17 +167,72 @@
         </button>
       </div>
       <div formArrayName="addresses">
-        @for (addressGroup of addresses.controls; track addressGroup; let i = $index) {
-          <div class="mt-4 rounded-md border border-slate-200 bg-slate-50 p-4" [formGroupName]="i">
+        @for (
+          addressGroup of addresses.controls;
+          track addressGroup;
+          let i = $index;
+          let first = $first;
+          let last = $last
+        ) {
+          <div
+            class="mt-4 rounded-md border border-slate-200 bg-slate-50 p-4"
+            [formGroupName]="i"
+            [class.item-moved-flash]="i === recentlyMovedIndex"
+          >
             <div class="mb-4 flex items-center justify-between">
-              <h5 class="font-semibold text-slate-600">Address #{{ i + 1 }}</h5>
-              <button
-                type="button"
-                (click)="removeAddress.emit(i)"
-                class="text-slate-400 hover:text-rose-500"
-              >
-                <i class="fa-solid fa-trash-can"></i>
-              </button>
+              <div class="flex items-center gap-3">
+                <div class="flex flex-col">
+                  <button
+                    type="button"
+                    (click)="moveAddressUp.emit(i)"
+                    [disabled]="first"
+                    class="h-5 w-5 text-slate-400 hover:text-slate-600 disabled:cursor-not-allowed disabled:opacity-30"
+                    title="Move address up"
+                  >
+                    <i class="fa-solid fa-caret-up"></i>
+                  </button>
+                  <button
+                    type="button"
+                    (click)="moveAddressDown.emit(i)"
+                    [disabled]="last"
+                    class="h-5 w-5 text-slate-400 hover:text-slate-600 disabled:cursor-not-allowed disabled:opacity-30"
+                    title="Move address down"
+                  >
+                    <i class="fa-solid fa-caret-down"></i>
+                  </button>
+                </div>
+                <h5
+                  class="truncate font-semibold text-slate-600"
+                  [title]="getAddressTitle(addressGroup, i)"
+                >
+                  {{ getAddressTitle(addressGroup, i) }}
+                </h5>
+                @if (isPrimaryAddress(i)) {
+                  <span
+                    class="rounded-full bg-sky-100 px-2.5 py-0.5 text-xs font-medium text-sky-800"
+                    >Primary</span
+                  >
+                }
+                @if (!isPrimaryAddress(i)) {
+                  <button
+                    type="button"
+                    (click)="makePrimary.emit(i)"
+                    class="rounded-full border border-slate-300 bg-white px-2 py-0.5 text-xs font-medium text-slate-600 transition-colors hover:border-slate-400 hover:bg-slate-50"
+                  >
+                    Make Primary
+                  </button>
+                }
+              </div>
+              <div class="flex items-center">
+                <button
+                  type="button"
+                  (click)="removeAddress.emit(i)"
+                  class="h-8 w-8 rounded-md text-slate-400 transition-colors hover:bg-rose-50 hover:text-rose-500"
+                  title="Remove address"
+                >
+                  <i class="fa-solid fa-trash-can"></i>
+                </button>
+              </div>
             </div>
             <div class="grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
               <div class="sm:col-span-2">

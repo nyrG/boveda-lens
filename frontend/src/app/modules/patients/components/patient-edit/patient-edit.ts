@@ -57,6 +57,9 @@ export class PatientEdit implements OnDestroy {
   // Signal to hold form validation errors for the summary component
   formErrors = signal<FormError[]>([]);
 
+  // Signal to track the index of a recently moved address for a visual cue
+  recentlyMovedAddressIndex = signal<number | null>(null);
+
   // Data-driven tabs for cleaner template logic
   tabs: { id: PatientEditTab; label: string }[] = [
     { id: 'info', label: 'Patient Info' },
@@ -429,6 +432,58 @@ export class PatientEdit implements OnDestroy {
   // Removes an address FormGroup from the FormArray at a given index
   removeAddress(index: number): void {
     this.addresses.removeAt(index);
+  }
+
+  // Moves an address up in the list
+  moveAddressUp(index: number): void {
+    if (index > 0) {
+      const control = this.addresses.at(index);
+      const newIndex = index - 1;
+      this.addresses.removeAt(index);
+      this.addresses.insert(newIndex, control);
+      this.flashMovedItem(newIndex);
+    }
+  }
+
+  // Moves an address down in the list
+  moveAddressDown(index: number): void {
+    if (index < this.addresses.length - 1) {
+      const control = this.addresses.at(index);
+      const newIndex = index + 1;
+      this.addresses.removeAt(index);
+      this.addresses.insert(newIndex, control);
+      this.flashMovedItem(newIndex);
+    }
+  }
+
+  private flashMovedItem(index: number): void {
+    this.recentlyMovedAddressIndex.set(index);
+    setTimeout(() => this.recentlyMovedAddressIndex.set(null), 700); // Animation duration
+  }
+
+  /**
+   * Makes the address at the given index the primary one by moving it to the top of the list.
+   */
+  makePrimaryAddress(index: number): void {
+    if (index > 0) {
+      const control = this.addresses.at(index);
+      this.addresses.removeAt(index);
+      this.addresses.insert(0, control);
+      this.flashMovedItem(0); // Flash the item in its new position
+    }
+  }
+  // The function that will be passed to the child component.
+  // It's bound to the correct 'this' context to prevent template parsing errors.
+  public readonly isPrimaryAddressFn = this._isPrimaryAddress.bind(this);
+
+  /**
+   * Determines if an address at a given index is the "primary" one.
+   * The primary address is the first one with type 'RESIDENCE',
+   * or the first address in the list if no 'RESIDENCE' type exists. With the
+   * "Make Primary" button, the primary address is always the one at index 0.
+   */
+  private _isPrimaryAddress(currentIndex: number): boolean {
+    return currentIndex === 0;
   }
 
   // Adds a new, empty radiology report FormGroup to the FormArray
