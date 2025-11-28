@@ -7,7 +7,7 @@ export interface Patient {
     first_name: string;
     middle_initial: string | null;
     last_name: string;
-    patient_record_number: string;
+    patient_record_number: string | null;
     afpsn: string | null;
     date_of_birth: string;
     age: number | null;
@@ -37,10 +37,10 @@ export interface PatientCategory {
 export interface Sponsor {
     id: number;
     rank: string;
-    first_name: string;
-    middle_initial: string;
-    last_name: string;
-    sex: 'M' | 'F';
+    first_name: string; // This remains non-nullable as per our previous validation change
+    middle_initial: string | null;
+    last_name: string | null;
+    sex: 'M' | 'F' | null;
     afpsn: string;
     branch_of_service: string;
     unit_assignment: string;

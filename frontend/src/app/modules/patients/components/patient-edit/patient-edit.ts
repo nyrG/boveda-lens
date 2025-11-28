@@ -7,7 +7,7 @@ import { HeaderStateService } from '../../../../layout/services/header-state.ser
 import { CommonModule, DatePipe, Location } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormArray, FormGroup, Validators } from '@angular/forms';
 import { ToastService } from '../../../../shared/services/toast.service'; // prettier-ignore
-import { Patient } from '../../../../modules/patients/models/patient';
+import { Patient, Sponsor } from '../../../../modules/patients/models/patient';
 import { PatientInfoForm } from './patient-info-form/patient-info-form';
 import { PatientSummaryForm } from './patient-summary-form/patient-summary-form';
 import { PatientConsultationsForm } from './patient-consultations-form/patient-consultations-form';
@@ -149,6 +149,11 @@ export class PatientEdit implements OnDestroy {
         // Determine if sponsor form should be shown initially
         this.showSponsorForm.set(!!formValue.sponsor);
 
+        // Disable sponsor form if no sponsor exists initially
+        if (!formValue.sponsor) {
+          this.patientForm.controls.sponsor.disable();
+        }
+
         // --- Repopulate FormArrays ---
         this.repopulateFormArrays(formValue);
 
@@ -187,6 +192,18 @@ export class PatientEdit implements OnDestroy {
     // Set the sponsor payload to null to disassociate it on the backend.
     if (!this.showSponsorForm()) {
       (payload as any).sponsor = null;
+    } else {
+      // If the sponsor is new (has a null ID), we must remove the 'id' property
+      // from the payload. This tells TypeORM to treat it as a new entity to insert
+      // rather than trying to update an entity with a null ID.
+      if (payload.sponsor && payload.sponsor.id === null) {
+        delete (payload.sponsor as Partial<Sponsor>).id;
+      }
+
+      // Ensure the middle initial is saved as uppercase
+      if (payload.sponsor && payload.sponsor.middle_initial) {
+        payload.sponsor.middle_initial = payload.sponsor.middle_initial.toUpperCase();
+      }
     }
 
     this.recordState.updateRecord(patientId, payload).pipe(
@@ -294,12 +311,14 @@ export class PatientEdit implements OnDestroy {
   // Method to display the sponsor registration form
   registerSponsor(): void {
     this.showSponsorForm.set(true);
+    this.patientForm.controls.sponsor.enable();
   }
 
   // Method to remove the sponsor from the form
   removeSponsor(): void {
     this.showSponsorForm.set(false);
     this.patientForm.controls.sponsor.reset(); // Reset the form group to clear all values
+    this.patientForm.controls.sponsor.disable(); // Disable to exclude from validation
   }
 
   // Creates a FormGroup for a single consultation
@@ -400,7 +419,7 @@ export class PatientEdit implements OnDestroy {
   private createSponsorGroup(sponsor: any = {}): FormGroup {
     return this.fb.group({
       id: [sponsor.id || null],
-      first_name: [sponsor.first_name || ''],
+      first_name: [sponsor.first_name || '', Validators.required],
       last_name: [sponsor.last_name || ''],
       middle_initial: [sponsor.middle_initial || ''],
       sex: [sponsor.sex || null], // Use null as the default for optional fields
