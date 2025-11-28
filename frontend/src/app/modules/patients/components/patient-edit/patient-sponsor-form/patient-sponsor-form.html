@@ -34,6 +34,22 @@
               id="sponsor-first-name"
               class="form-input"
               formControlName="first_name"
+              [class.form-input-error]="
+                form.get('first_name')?.invalid && form.get('first_name')?.touched
+              "
+            />
+            @if (form.get('first_name')?.hasError('required') && form.get('first_name')?.touched) {
+              <p class="form-error-text">First name is required.</p>
+            }
+          </div>
+          <div class="sm:col-span-2">
+            <label for="sponsor-middle-initial" class="form-label">Middle Initial</label>
+            <input
+              type="text"
+              id="sponsor-middle-initial"
+              class="form-input"
+              formControlName="middle_initial"
+              maxlength="1"
             />
           </div>
           <div class="sm:col-span-2">
@@ -43,15 +59,6 @@
               id="sponsor-last-name"
               class="form-input"
               formControlName="last_name"
-            />
-          </div>
-          <div class="sm:col-span-2">
-            <label for="sponsor-middle-initial" class="form-label">Middle Initial</label>
-            <input
-              type="text"
-              id="sponsor-middle-initial"
-              class="form-input"
-              formControlName="middle_initial"
             />
           </div>
         </div>
