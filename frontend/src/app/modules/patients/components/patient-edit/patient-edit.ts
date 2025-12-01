@@ -1,12 +1,13 @@
 import { Component, OnDestroy, computed, effect, inject, signal } from '@angular/core';
 import { toSignal, toObservable } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { EMPTY, catchError, switchMap } from 'rxjs';
+import { EMPTY, catchError, switchMap, tap } from 'rxjs';
 import { RecordStateService } from '../../../../shared/services/record-state.service';
 import { HeaderStateService } from '../../../../layout/services/header-state.service';
 import { CommonModule, DatePipe, Location } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormArray, FormGroup, Validators } from '@angular/forms';
 import { ToastService } from '../../../../shared/services/toast.service'; // prettier-ignore
+import { DialogService } from '../../../../shared/services/dialog.service';
 import { Patient, Sponsor } from '../../../../modules/patients/models/patient';
 import { PatientInfoForm } from './patient-info-form/patient-info-form';
 import { PatientSummaryForm } from './patient-summary-form/patient-summary-form';
@@ -35,6 +36,7 @@ export class PatientEdit implements OnDestroy {
   private headerState = inject(HeaderStateService);
   private fb = inject(FormBuilder);
   private toastService = inject(ToastService);
+  private dialogService = inject(DialogService);
   private datePipe = inject(DatePipe);
   private location = inject(Location);
 
@@ -331,6 +333,44 @@ export class PatientEdit implements OnDestroy {
     this.patientForm.controls.sponsor.reset(); // Reset the form group to clear all values
     this.patientForm.controls.sponsor.disable(); // Disable to exclude from validation
   }
+
+  // Method to permanently delete the sponsor record
+  deleteSponsor(): void {
+    const sponsorId = this.patientForm.controls.sponsor.value.id;
+    if (!sponsorId) return;
+
+    const dialogConfig = {
+      title: `Delete Sponsor Record?`,
+      message: `Are you sure you want to permanently delete this sponsor? This will also unlink them from all associated patient records. This action cannot be undone.`,
+      confirmText: 'Delete Sponsor',
+    };
+
+    this.dialogService.open(dialogConfig).subscribe(confirmed => {
+      if (confirmed) {
+        this.recordState.deleteSponsor(sponsorId).subscribe({
+          next: () => {
+            this.toastService.show({ message: 'Sponsor record deleted successfully.', type: 'success' });
+            this.removeSponsor(); // Unlink and hide the form after deletion
+          },
+          error: err => {
+            console.error('Failed to delete sponsor:', err);
+            this.toastService.show({ message: 'Failed to delete sponsor record.', type: 'error' });
+          },
+        });
+      }
+    });
+  }
+
+  // --- Sponsor Methods passed to child component ---
+
+  // Bound function to pass to the child component for searching
+  public readonly searchSponsorsFn = this.recordState.searchSponsors.bind(this.recordState);
+
+  // Bound function to pass to the child component for selection
+  public readonly selectSponsorFn = ((sponsor: Sponsor): void => {
+    // Patch the form with the selected sponsor's data
+    this.patientForm.controls.sponsor.patchValue(sponsor);
+  }).bind(this);
 
   // Creates a FormGroup for a single consultation
   private createConsultationGroup(consultation: any = {}): FormGroup {

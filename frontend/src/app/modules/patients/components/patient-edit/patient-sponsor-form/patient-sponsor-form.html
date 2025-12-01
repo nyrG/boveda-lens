@@ -6,27 +6,74 @@
     <!-- Card Body -->
     <div class="p-6">
       <div class="flex items-center justify-between">
-        <div>
-          <h3 class="text-lg font-semibold text-slate-800">Sponsor Information</h3>
-          <p class="mt-1 text-sm text-slate-500">
-            Update the sponsor's personal and service details.
-          </p>
+        @if (form.get('id')?.value) {
+          <div>
+            <h3 class="text-lg font-semibold text-slate-800">
+              Editing Sponsor: <span class="text-primary">{{ sponsorName }}</span>
+            </h3>
+            <p class="mt-1 text-sm text-slate-500">
+              You are editing an existing sponsor record. Changes will be saved for this sponsor.
+            </p>
+          </div>
+        } @else {
+          <div>
+            <h3 class="text-lg font-semibold text-slate-800">New Sponsor Information</h3>
+            <p class="mt-1 text-sm text-slate-500">
+              Fill out the form to create and link a new sponsor record.
+            </p>
+          </div>
+        }
+        <!-- Action Buttons Container -->
+        <div class="relative ml-4 flex flex-shrink-0 items-center gap-2">
+          <button
+            type="button"
+            (click)="openSponsorSearch()"
+            class="h-9 w-9 text-slate-400 transition-colors hover:text-primary"
+            title="Search for an existing sponsor"
+          >
+            <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+          </button>
+          <button
+            type="button"
+            (click)="onRemove()"
+            class="h-9 w-9 text-slate-400 transition-colors hover:text-blue-500"
+            title="Unlink Sponsor"
+            aria-label="Unlink this sponsor from the patient"
+          >
+            <i class="fa-solid fa-chain-slash fa-lg"></i>
+          </button>
+          @if (form.get('id')?.value) {
+            <button
+              type="button"
+              (click)="onDelete()"
+              class="h-9 w-9 text-slate-400 transition-colors hover:text-red-500"
+              title="Delete Sponsor Record"
+              aria-label="Permanently delete this sponsor record"
+            >
+              <i class="fa-solid fa-trash-can fa-lg"></i>
+            </button>
+          }
+
+          <!-- Sponsor Search Popover Wrapper -->
+          @if (showSponsorSearchModal()) {
+            <div class="absolute top-full right-0 z-50">
+              <app-sponsor-search-modal
+                [searchResults]="sponsorSearchResults()"
+                [isSearching]="isSearchingSponsors()"
+                (searchTermChange)="searchSponsors($event)"
+                (sponsorSelected)="selectSponsor($event)"
+                (closeModal)="closeSponsorSearch()"
+              />
+            </div>
+          }
         </div>
-        <button
-          type="button"
-          (click)="onRemove()"
-          class="ml-4 text-slate-400 transition-colors hover:text-red-500"
-          title="Remove Sponsor"
-          aria-label="Remove Sponsor"
-        >
-          <i class="fa-solid fa-trash-can fa-lg"></i>
-        </button>
       </div>
 
       <!-- Personal Information -->
       <div class="mt-6 border-t border-slate-200 pt-6">
         <h4 class="text-base font-semibold text-slate-700">Personal Information</h4>
         <div class="mt-4 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
+          <!-- First Name with Autocomplete -->
           <div class="sm:col-span-2">
             <label for="sponsor-first-name" class="form-label">First name</label>
             <input
@@ -42,6 +89,7 @@
               <p class="form-error-text">First name is required.</p>
             }
           </div>
+
           <div class="sm:col-span-2">
             <label for="sponsor-middle-initial" class="form-label">Middle Initial</label>
             <input

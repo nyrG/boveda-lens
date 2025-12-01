@@ -1,6 +1,6 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
-import { Patient } from '../../modules/patients/models/patient';
-import { PatientApi, PatientQuery } from '../../modules/patients/services/patient-api';
+import { Patient, Sponsor } from '../../modules/patients/models/patient';
+import { PatientApi, PatientQuery } from '../../modules/patients/services/patient-api'; // prettier-ignore
 import { Observable, Subject, debounceTime, distinctUntilChanged, takeUntil, tap } from 'rxjs';
 import { ToastService } from './toast.service';
 import { DialogService } from './dialog.service';
@@ -104,6 +104,10 @@ export class RecordStateService {
     );
   }
 
+  searchSponsors(name: string): Observable<Sponsor[]> {
+    return this.recordApi.searchSponsors(name);
+  }
+
   // --- State Updaters ---
   changePage(page: number): void {
     this.currentPage.set(page);
@@ -174,6 +178,10 @@ export class RecordStateService {
         this.toastService.show({ message: 'Record deleted successfully.', type: 'success' });
       })
     );
+  }
+
+  deleteSponsor(id: number): Observable<void> {
+    return this.recordApi.deleteSponsor(id);
   }
 
   updateRecord(id: number, data: Partial<Patient>): Observable<Patient> {

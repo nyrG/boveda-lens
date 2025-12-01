@@ -1,6 +1,11 @@
 <div>
   @if (record(); as patient) {
-    <form [formGroup]="patientForm" (ngSubmit)="saveChanges()" class="space-y-6 pb-12">
+    <form
+      [formGroup]="patientForm"
+      (ngSubmit)="saveChanges()"
+      (keydown.enter)="$event.preventDefault()"
+      class="space-y-6 pb-12"
+    >
       <!-- Validation Summary -->
       <app-validation-summary
         [errors]="formErrors"
@@ -56,16 +61,17 @@
       <div class="mt-6">
         @switch (activeTab()) {
           @case ('info') {
-            <app-patient-info-form
-              (addAddress)="addAddress()"
-              (removeAddress)="removeAddress($event)"
-              (moveAddressUp)="moveAddressUp($event)"
-              (moveAddressDown)="moveAddressDown($event)"
-              (makePrimary)="makePrimaryAddress($event)"
-              [isPrimaryAddress]="isPrimaryAddressFn"
-              [recentlyMovedIndex]="recentlyMovedAddressIndex()"
-              class="tab-content-enter"
-            />
+            <div class="tab-content-enter">
+              <app-patient-info-form
+                (addAddress)="addAddress()"
+                (removeAddress)="removeAddress($event)"
+                (moveAddressUp)="moveAddressUp($event)"
+                (moveAddressDown)="moveAddressDown($event)"
+                (makePrimary)="makePrimaryAddress($event)"
+                [isPrimaryAddress]="isPrimaryAddressFn"
+                [recentlyMovedIndex]="recentlyMovedAddressIndex()"
+              />
+            </div>
           }
           @case ('summary') {
             <div formGroupName="summary" class="tab-content-enter">
@@ -73,27 +79,33 @@
             </div>
           }
           @case ('consultations') {
-            <app-patient-consultations-form
-              [consultations]="patientForm.controls.consultations"
-              (add)="addConsultation()"
-              (remove)="removeConsultation($event)"
-            />
+            <div class="tab-content-enter">
+              <app-patient-consultations-form
+                [consultations]="patientForm.controls.consultations"
+                (add)="addConsultation()"
+                (remove)="removeConsultation($event)"
+              />
+            </div>
           }
           @case ('labs') {
-            <app-patient-labs-form
-              [labResults]="patientForm.controls.lab_reports"
-              (addReport)="addLabResult()"
-              (removeReport)="removeLabResult($event)"
-              (addTestRow)="addTestRow($event)"
-              (removeTestRow)="removeTestRow($event)"
-            />
+            <div class="tab-content-enter">
+              <app-patient-labs-form
+                [labResults]="patientForm.controls.lab_reports"
+                (addReport)="addLabResult()"
+                (removeReport)="removeLabResult($event)"
+                (addTestRow)="addTestRow($event)"
+                (removeTestRow)="removeTestRow($event)"
+              />
+            </div>
           }
           @case ('radiology') {
-            <app-patient-radiology-form
-              [radiologyReports]="patientForm.controls.radiology_reports"
-              (addReport)="addRadiologyReport()"
-              (removeReport)="removeRadiologyReport($event)"
-            />
+            <div class="tab-content-enter">
+              <app-patient-radiology-form
+                [radiologyReports]="patientForm.controls.radiology_reports"
+                (addReport)="addRadiologyReport()"
+                (removeReport)="removeRadiologyReport($event)"
+              />
+            </div>
           }
           @case ('sponsor') {
             <div class="tab-content-enter" formGroupName="sponsor">
@@ -101,6 +113,9 @@
                 [showForm]="showSponsorForm()"
                 (register)="registerSponsor()"
                 (remove)="removeSponsor()"
+                (delete)="deleteSponsor()"
+                [searchSponsorsFn]="searchSponsorsFn"
+                [selectSponsorFn]="selectSponsorFn"
               />
             </div>
           }
