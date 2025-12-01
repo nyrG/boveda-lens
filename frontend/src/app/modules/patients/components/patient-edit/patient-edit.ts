@@ -188,6 +188,17 @@ export class PatientEdit implements OnDestroy {
     // Create a new object that conforms to Partial<Patient> to resolve type errors
     const payload: Partial<Patient> = JSON.parse(JSON.stringify(this.patientForm.getRawValue()));
 
+    // --- Remap Category ---
+    // The backend expects the category as an object { name: '...' } to find or create.
+    // We need to transform the flat category_name from the form into this structure.
+    const categoryName = (payload as any).category_name;
+    if (categoryName && categoryName.trim() !== '') {
+      payload.category = { name: categoryName.trim() } as any;
+    } else {
+      payload.category = null; // Disassociate category if the field is empty
+    }
+    delete (payload as any).category_name; // Remove the temporary form property
+
     // If the sponsor form is hidden, it means we intend to remove the sponsor.
     // Set the sponsor payload to null to disassociate it on the backend.
     if (!this.showSponsorForm()) {

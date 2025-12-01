@@ -436,6 +436,30 @@ export class PatientsService {
         }
       }
 
+      // --- Handle Category Update ---
+      if ('category' in updatePatientDto) {
+        const categoryDto = updatePatientDto.category;
+        if (categoryDto && categoryDto.name) {
+          // Find or create the category by name
+          let categoryEntity = await transactionalEntityManager.findOne(PatientCategory, {
+            where: { name: categoryDto.name },
+          });
+
+          if (!categoryEntity) {
+            // If not found, create a new one.
+            // We only have the name from the DTO, which is sufficient.
+            categoryEntity = transactionalEntityManager.create(PatientCategory, {
+              name: categoryDto.name,
+            });
+          }
+          // Associate the found or new category with the patient
+          patient.category = categoryEntity;
+        } else {
+          // If category DTO is null or has no name, disassociate the category
+          patient.category = null;
+        }
+      }
+
       // Manually assign simple properties from the DTO to the patient entity
       const simpleProps = { ...updatePatientDto };
       delete simpleProps.consultations;
