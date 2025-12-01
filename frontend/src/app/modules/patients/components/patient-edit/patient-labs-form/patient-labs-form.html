@@ -13,14 +13,14 @@
       </button>
     </div>
 
-    @for (labGroup of labResults.controls; track $index) {
-      <div class="rounded-lg border border-slate-200 bg-white shadow-sm" [formGroupName]="$index">
+    @for (labGroup of labResults.controls; let labIndex = $index; track labIndex) {
+      <div class="rounded-lg border border-slate-200 bg-white shadow-sm" [formGroupName]="labIndex">
         <!-- Card Header -->
         <div class="flex items-center justify-between border-b border-slate-200 bg-slate-50 p-4">
           <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
             <div class="flex items-center gap-2">
               <i class="fa-solid fa-calendar-alt text-slate-400"></i>
-              <label for="lab-date-{{ $index }}" class="form-label !m-0">Date Performed</label>
+              <label for="lab-date-{{ labIndex }}" class="form-label !m-0">Date Performed</label>
               <input
                 type="date"
                 id="lab-date-{{ $index }}"
@@ -31,7 +31,7 @@
           </div>
           <button
             type="button"
-            (click)="removeReport.emit($index)"
+            (click)="removeReport.emit(labIndex)"
             class="text-slate-400 hover:text-red-500"
             title="Remove this lab report"
           >
@@ -42,10 +42,10 @@
         <!-- Card Body with Results Table -->
         <div class="p-6">
           <div class="mb-6">
-            <label for="test-type-{{ $index }}" class="form-label">Test Type / Report Name</label>
+            <label for="test-type-{{ labIndex }}" class="form-label">Test Type / Report Name</label>
             <input
               type="text"
-              id="test-type-{{ $index }}"
+              id="test-type-{{ labIndex }}"
               class="form-input"
               formControlName="test_type"
               placeholder="e.g., Complete Blood Count"
@@ -66,9 +66,9 @@
                 </thead>
                 <tbody class="divide-y divide-slate-200">
                   @for (
-                    testRow of getTestRows($index).controls;
+                    testRow of getTestRows(labIndex).controls;
                     let rowIndex = $index;
-                    track rowIndex
+                    track testRow
                   ) {
                     <tr [formGroupName]="rowIndex">
                       <td class="p-1">
@@ -90,7 +90,7 @@
                       <td class="p-1 text-right">
                         <button
                           type="button"
-                          (click)="removeTestRow.emit({ labIndex: $index, rowIndex: rowIndex })"
+                          (click)="removeTestRow.emit({ labIndex: labIndex, rowIndex: rowIndex })"
                           class="text-slate-400 hover:text-red-500 h-9 w-9"
                           title="Remove test row"
                         >
@@ -104,12 +104,38 @@
             </div>
             <button
               type="button"
-              (click)="addTestRow.emit($index)"
+              (click)="addTestRow.emit(labIndex)"
               class="mt-4 inline-flex items-center gap-2 rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50"
             >
               <i class="fa-solid fa-plus"></i>
               <span>Add Test Row</span>
             </button>
+          </div>
+
+          <!-- Medical Technologist and Pathologist Fields -->
+          <div
+            class="mt-6 grid grid-cols-1 gap-x-6 gap-y-4 border-t border-slate-200 pt-6 sm:grid-cols-2"
+          >
+            <div>
+              <label for="med-tech-{{ labIndex }}" class="form-label">Medical Technologist</label>
+              <input
+                type="text"
+                id="med-tech-{{ labIndex }}"
+                class="form-input"
+                formControlName="medical_technologist"
+                placeholder="e.g., Juan Dela Cruz, RMT"
+              />
+            </div>
+            <div>
+              <label for="pathologist-{{ labIndex }}" class="form-label">Pathologist</label>
+              <input
+                type="text"
+                id="pathologist-{{ labIndex }}"
+                class="form-input"
+                formControlName="pathologist"
+                placeholder="e.g., Maria Santos, MD"
+              />
+            </div>
           </div>
         </div>
       </div>

@@ -44,6 +44,28 @@
             </tbody>
           </table>
         </div>
+
+        <!-- Card Footer for Signatories -->
+        @if (lab.medical_technologist || lab.pathologist) {
+          <div
+            class="mt-6 grid grid-cols-1 gap-x-6 gap-y-4 border-t border-slate-200 pt-6 sm:grid-cols-2"
+          >
+            @if (lab.medical_technologist) {
+              <app-detail-item
+                icon="fa-user-gear"
+                label="Medical Technologist"
+                [value]="lab.medical_technologist"
+              />
+            }
+            @if (lab.pathologist) {
+              <app-detail-item
+                icon="fa-user-doctor"
+                label="Pathologist"
+                [value]="lab.pathologist"
+              />
+            }
+          </div>
+        }
       </div>
     </div>
   } @empty {

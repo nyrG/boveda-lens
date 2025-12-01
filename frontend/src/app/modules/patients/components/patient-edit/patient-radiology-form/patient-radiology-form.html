@@ -67,6 +67,16 @@
               formControlName="impression"
             ></textarea>
           </div>
+          <div>
+            <label for="radiologist-{{ $index }}" class="form-label">Radiologist</label>
+            <input
+              type="text"
+              id="radiologist-{{ $index }}"
+              class="form-input"
+              formControlName="radiologist"
+              placeholder="e.g., John Smith, MD"
+            />
+          </div>
         </div>
       </div>
     } @empty {

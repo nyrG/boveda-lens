@@ -362,6 +362,8 @@ export class PatientEdit implements OnDestroy {
       id: [labResult.id || null], // Keep the ID for updates
       date_performed: [this.datePipe.transform(labResult.date_performed, 'yyyy-MM-dd') || ''],
       test_type: [labResult.test_type || ''],
+      medical_technologist: [labResult.medical_technologist || ''],
+      pathologist: [labResult.pathologist || ''],
       results: this.fb.array(testRows),
     });
   }
@@ -412,6 +414,7 @@ export class PatientEdit implements OnDestroy {
       examination: [report.examination || ''],
       findings: [report.findings || ''],
       impression: [report.impression || ''],
+      radiologist: [report.radiologist || ''],
     });
   }
 
