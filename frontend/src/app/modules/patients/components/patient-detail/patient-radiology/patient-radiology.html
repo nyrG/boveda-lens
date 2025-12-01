@@ -34,6 +34,17 @@
             class="whitespace-pre-line"
           />
         </div>
+
+        <!-- Card Footer for Signatory -->
+        @if (report.radiologist) {
+          <div class="mt-6 border-t border-slate-200 pt-6">
+            <app-detail-item
+              icon="fa-user-doctor"
+              label="Radiologist"
+              [value]="report.radiologist"
+            />
+          </div>
+        }
       </div>
     </div>
   } @empty {
