@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams, HttpRequest, HttpEvent } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Patient } from '../models/patient';
+import { Patient, Sponsor } from '../models/patient';
 import { PaginatedResponse } from '../../../shared/models/api';
 import { PatientStats } from '../models/patient';
 
@@ -33,6 +33,12 @@ export class PatientApi {
     return this.http.get<PatientStats>(`${this.apiUrl}/stats`);
   }
 
+  searchSponsors(name: string): Observable<Sponsor[]> {
+    return this.http.get<Sponsor[]>(`${this.apiUrl}/sponsors/search`, {
+      params: { name },
+    });
+  }
+
   // The `getCategories` method has been removed as there is no corresponding
   // `/api/patients/categories` endpoint on the backend. Category information
   // is available via the `getStats` endpoint or by filtering the `getPatients` list.
@@ -40,6 +46,10 @@ export class PatientApi {
 
   deletePatients(ids: number[]): Observable<void> {
     return this.http.delete<void>(this.apiUrl, { body: { ids } });
+  }
+
+  deleteSponsor(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/sponsors/${id}`);
   }
 
   getPatient(id: number): Observable<Patient> {

@@ -11,7 +11,7 @@ import {
 } from '@nestjs/common';
 import { PatientsService } from './patients.service';
 import { CreatePatientDto, IdsDto } from './dto/patient/create-patient.dto';
-import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiQuery } from '@nestjs/swagger';
 import { Patient } from './entities/patient.entity';
 import { FindAllPatientsDto } from './dto/patient/find-all-patients.dto';
 import { UpdatePatientDto } from './dto/patient/update-patient.dto';
@@ -39,6 +39,25 @@ export class PatientsController {
   getStats() {
     return this.patientsService.getStats();
   }
+
+  @Get('sponsors/search')
+  @ApiOperation({ summary: 'Search for sponsors by name' })
+  @ApiQuery({ name: 'name', required: true, type: String })
+  searchSponsors(@Query('name') name: string) {
+    return this.patientsService.findSponsorsByName(name);
+  }
+
+  @Delete('sponsors/:id')
+  @ApiOperation({ summary: 'Delete a sponsor by ID' })
+  @ApiResponse({ status: 200, description: 'The sponsor has been successfully deleted.' })
+  @ApiResponse({
+    status: 404,
+    description: 'Not Found. Sponsor with the specified ID does not exist.',
+  })
+  removeSponsor(@Param('id', ParseIntPipe) id: number) {
+    return this.patientsService.removeSponsor(id);
+  }
+
   // The parameterized route ':id' now comes AFTER the specific 'stats' route.
   @Get(':id')
   @ApiOperation({ summary: 'Find a patient by ID' })

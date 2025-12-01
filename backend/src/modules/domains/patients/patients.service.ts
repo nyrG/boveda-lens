@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException, BadRequestException, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, MoreThan, DataSource } from 'typeorm';
+import { Repository, MoreThan, DataSource, Like } from 'typeorm';
 import { Patient } from './entities/patient.entity';
 import { CreatePatientDto } from './dto/patient/create-patient.dto';
 import { UpdatePatientDto } from './dto/patient/update-patient.dto';
@@ -568,5 +568,50 @@ export class PatientsService {
     const averageAge = avgAgeResult?.avgAge ? Number(avgAgeResult.avgAge).toFixed(1) : null;
 
     return { totalPatients, recentlyUpdated, categories, topDiagnoses, averageAge };
+  }
+
+  /**
+   * Searches for sponsors by name (first or last).
+   * @param name The search term.
+   * @returns A promise that resolves to an array of matching sponsors.
+   */
+  async findSponsorsByName(name: string): Promise<Sponsor[]> {
+    if (!name || name.trim() === '') {
+      return [];
+    }
+
+    // Search by first name or last name, case-insensitively
+    return this.sponsorRepository.find({
+      where: [{ first_name: Like(`%${name}%`) }, { last_name: Like(`%${name}%`) }],
+      take: 10, // Limit results for performance
+      order: { first_name: 'ASC', last_name: 'ASC' },
+    });
+  }
+
+  /**
+   * Deletes a sponsor by their ID.
+   * @param sponsorId The ID of the sponsor to delete.
+   */
+  async removeSponsor(sponsorId: number): Promise<void> {
+    await this.dataSource.transaction(async (transactionalEntityManager) => {
+      const sponsor = await transactionalEntityManager.findOneBy(Sponsor, { id: sponsorId });
+      if (!sponsor) {
+        throw new NotFoundException(`Sponsor with ID ${sponsorId} not found.`);
+      }
+
+      // Find all patients linked to this sponsor
+      const linkedPatients = await transactionalEntityManager.find(Patient, {
+        where: { sponsor: { id: sponsorId } },
+      });
+
+      // Unlink each patient by setting their sponsor to null
+      for (const patient of linkedPatients) {
+        patient.sponsor = null;
+        await transactionalEntityManager.save(patient);
+      }
+
+      // Now that no patients are referencing the sponsor, we can safely delete it.
+      await transactionalEntityManager.remove(sponsor);
+    });
   }
 }
