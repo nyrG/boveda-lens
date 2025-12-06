@@ -48,6 +48,14 @@ export class PatientApi {
     return this.http.delete<void>(this.apiUrl, { body: { ids } });
   }
 
+  softDeletePatient(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/soft/${id}`);
+  }
+
+  softDeletePatients(ids: number[]): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/soft`, { body: { ids } });
+  }
+
   deleteSponsor(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/sponsors/${id}`);
   }

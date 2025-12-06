@@ -102,9 +102,34 @@ export class PatientsController {
     return this.patientsService.update(id, updatePatientDto);
   }
 
-  @Delete(':id')
+  @Delete('soft/:id')
   @ApiOperation({ summary: 'Soft-delete a patient by ID' })
   @ApiResponse({ status: 200, description: 'The patient has been successfully soft-deleted.' })
+  @ApiResponse({
+    status: 404,
+    description: 'Not Found. Patient with the specified ID does not exist.',
+  })
+  softRemove(@Param('id', ParseIntPipe) id: number) {
+    return this.patientsService.softRemove(id);
+  }
+
+  @Delete('soft')
+  @ApiOperation({ summary: 'Soft-delete multiple patients by their IDs' })
+  @ApiResponse({
+    status: 200,
+    description: 'The specified patient records have been successfully soft-deleted.',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Bad Request. No IDs provided or invalid input.',
+  })
+  softRemoveMany(@Body() idsDto: IdsDto) {
+    return this.patientsService.softRemoveMany(idsDto.ids);
+  }
+
+  @Delete(':id')
+  @ApiOperation({ summary: 'Permanently delete a patient by ID' })
+  @ApiResponse({ status: 200, description: 'The patient has been permanently deleted.' })
   @ApiResponse({
     status: 404,
     description: 'Not Found. Patient with the specified ID does not exist.',
@@ -114,10 +139,10 @@ export class PatientsController {
   }
 
   @Delete()
-  @ApiOperation({ summary: 'Soft-delete multiple patients by their IDs' })
+  @ApiOperation({ summary: 'Permanently delete multiple patients by their IDs' })
   @ApiResponse({
     status: 200,
-    description: 'The specified patient records have been successfully soft-deleted.',
+    description: 'The specified patient records have been permanently deleted.',
   })
   @ApiResponse({
     status: 400,

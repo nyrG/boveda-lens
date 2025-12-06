@@ -148,23 +148,23 @@ export class RecordStateService {
     }
 
     const dialogConfig = {
-      title: `Delete ${idsToDelete.length} Record(s)`,
-      message: `Are you sure you want to delete ${idsToDelete.length} selected record(s)? This action cannot be undone.`,
+      title: `Archive ${idsToDelete.length} Record(s)`,
+      message: `Are you sure you want to archive ${idsToDelete.length} selected record(s)? They will be hidden from the main list but can be restored later.`,
       confirmText: 'Delete',
     };
 
     this.dialogService.open(dialogConfig).subscribe(confirmed => {
       if (confirmed) {
-        this.recordApi.deletePatients(idsToDelete).subscribe(() => {
+        this.recordApi.softDeletePatients(idsToDelete).subscribe(() => {
           this.toastService.show({
-            message: `${idsToDelete.length} record(s) deleted successfully.`,
+            message: `${idsToDelete.length} record(s) archived successfully.`,
             type: 'success',
           });
           // Check if the current page would be empty after deletion
           const newTotal = this.totalRecords() - idsToDelete.length;
           const newTotalPages = Math.ceil(newTotal / this.rowsPerPage());
           if (this.currentPage() > newTotalPages && newTotalPages > 0) {
-            this.currentPage.set(newTotalPages);
+            this.currentPage.set(newTotalPages); // Correctly set the signal's value
           }
           this.fetchRecords(); // Refresh the list after deletion
         });
@@ -173,9 +173,11 @@ export class RecordStateService {
   }
 
   deleteRecordById(id: number): Observable<void> {
-    return this.recordApi.deletePatient(id).pipe(
+    return this.recordApi.softDeletePatient(id).pipe(
       tap(() => {
-        this.toastService.show({ message: 'Record deleted successfully.', type: 'success' });
+        this.toastService.show({ message: 'Record archived successfully.', type: 'success' });
+        // Refresh the record list to reflect the deletion
+        this.fetchRecords();
       })
     );
   }

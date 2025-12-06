@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException, BadRequestException, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, MoreThan, DataSource, Like } from 'typeorm';
+import { Repository, MoreThan, DataSource, ILike } from 'typeorm';
 import { Patient } from './entities/patient.entity';
 import { CreatePatientDto } from './dto/patient/create-patient.dto';
 import { UpdatePatientDto } from './dto/patient/update-patient.dto';
@@ -481,7 +481,7 @@ export class PatientsService {
     });
   }
 
-  async remove(id: number): Promise<void> {
+  async softRemove(id: number): Promise<void> {
     await this.dataSource.transaction(async (transactionalEntityManager) => {
       const patient = await transactionalEntityManager.findOne(Patient, {
         where: { id },
@@ -507,12 +507,36 @@ export class PatientsService {
     });
   }
 
+  async softRemoveMany(ids: number[]): Promise<void> {
+    if (!ids || ids.length === 0) {
+      throw new BadRequestException('No record IDs provided for deletion.');
+    }
+    // Promise.all ensures all deletions are processed.
+    await Promise.all(ids.map((id) => this.softRemove(id)));
+  }
+
+  async remove(id: number): Promise<void> {
+    await this.dataSource.transaction(async (transactionalEntityManager) => {
+      const patient = await transactionalEntityManager.findOne(Patient, {
+        where: { id },
+        relations: ['record'], // Load the associated record
+      });
+
+      if (!patient) {
+        throw new NotFoundException(`Patient with ID ${id} not found`);
+      }
+
+      // Permanently delete the patient. The associated record will be deleted
+      // automatically due to the `onDelete: 'CASCADE'` setting on the relation.
+      await transactionalEntityManager.remove(patient);
+    });
+  }
+
   async removeMany(ids: number[]): Promise<void> {
     if (!ids || ids.length === 0) {
       throw new BadRequestException('No record IDs provided for deletion.');
     }
-    // The `remove` method handles transactions, so we can call it for each ID.
-    // Promise.all ensures all deletions are processed.
+
     await Promise.all(ids.map((id) => this.remove(id)));
   }
 
@@ -582,7 +606,7 @@ export class PatientsService {
 
     // Search by first name or last name, case-insensitively
     return this.sponsorRepository.find({
-      where: [{ first_name: Like(`%${name}%`) }, { last_name: Like(`%${name}%`) }],
+      where: [{ first_name: ILike(`%${name}%`) }, { last_name: ILike(`%${name}%`) }],
       take: 10, // Limit results for performance
       order: { first_name: 'ASC', last_name: 'ASC' },
     });
